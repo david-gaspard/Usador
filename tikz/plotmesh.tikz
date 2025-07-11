@@ -15,7 +15,25 @@
     },
     table/col sep=comma,
 ]%
-\addplot[scatter, only marks, scatter src=explicit symbolic] table[x=x,y=y,meta=bnd]{test_mesh_short.csv};
-\legend{Bulk,Mirror,Open}
+\addplot[scatter, only marks, scatter src=explicit symbolic] table[x=x,y=y,meta=bnd]{test_mesh_polygon_2.csv}; \legend{Bulk,Mirror,Open}
+%%\draw[black!30] (axis cs:10, 0) -- (axis cs:4, 8) -- (axis cs:-7, 2) -- (axis cs:-5, -11) -- (axis cs:1, -3) --cycle;
+\draw[black!30] (axis cs: 25, 0  ) -- %
+    (axis cs: 20, 12 ) -- %
+    (axis cs: 10, 20 ) -- %
+    (axis cs: -5, 18 ) -- %
+    (axis cs:-16, 13 ) -- %
+    (axis cs:-27, 4  ) -- %
+    (axis cs:-25, -6 ) -- %
+    (axis cs:-19, -8 ) -- %
+    (axis cs:-12, -15) -- %
+    (axis cs: -3, -32) -- %
+    (axis cs:  5, -35) -- %
+    (axis cs: 14, -23) -- %
+    (axis cs: 10, -11) -- %
+    (axis cs:  2, -9 ) -- %
+    (axis cs: -3, -15) -- %
+    (axis cs:  1, -24) -- %
+    (axis cs: 12, -21) -- %
+    (axis cs: 22, -10) --cycle;%
 \end{axis}%
 \end{tikzpicture}%

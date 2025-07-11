@@ -67,7 +67,7 @@ bool SquareMesh::containsPoint(const int x, const int y) const {
 }
 
 /**
- * Add a single point to the mesh if it is not contained.
+ * Add a single point to the mesh only if it is not already contained in the mesh.
  */
 void SquareMesh::addPoint(const int x, const int y) {
     if (not containsPoint(x, y)) {
@@ -91,20 +91,41 @@ void SquareMesh::addRectangle(int xmin, int xmax, int ymin, int ymax) {
 }
 
 /**
- * Add a disk region to the mesh.
+ * Add a circular region to the mesh.
  */
 void SquareMesh::addDisk(int x0, int y0, double radius) {
-    int xmin = (int)ceil(x0 - radius);
-    int xmax = (int)ceil(x0 + radius);
-    int ymin = (int)ceil(y0 - radius);
-    int ymax = (int)ceil(y0 + radius);
-    int r2 = (int)ceil(radius*radius);
+    int xmin = (int) std::floor(x0 - radius);
+    int xmax = (int)  std::ceil(x0 + radius);
+    int ymin = (int) std::floor(y0 - radius);
+    int ymax = (int)  std::ceil(y0 + radius);
+    int r2 = (int) std::ceil(radius*radius);
     int dx, dy;
     for (int y = ymax; y >= ymin; y--) {// Loop on the square lattice in reading order.
         for (int x = xmin; x <= xmax; x++) {
             dx = x - x0;
             dy = y - y0;
             if (dx*dx + dy*dy <= r2) {
+                addPoint(x, y);
+            }
+        }
+    }
+}
+
+/**
+ * Add a polygon region to the mesh. Uses the even-odd filling rule.
+ */
+void SquareMesh::addPolygon(const std::vector<Vector2D>& polygon) {
+    
+    // 1. Determine the bounds of the polygon:
+    int xmin, xmax, ymin, ymax;
+    polygonBounds(polygon, xmin, xmax, ymin, ymax);
+    
+    // 2. Loop on points in the rectangular region:
+    Vector2D p;
+    for (int y = ymax; y >= ymin; y--) {// Loop on the square lattice in reading order.
+        for (int x = xmin; x <= xmax; x++) {
+            p = Vector2D(x, y);   // Current point that we attempt to add to the mesh.
+            if (p.windingNumber(polygon) % 2 != 0) {// Uses the even-odd rule to fill the polygon.
                 addPoint(x, y);
             }
         }
@@ -130,6 +151,48 @@ void SquareMesh::removeRectangle(int xmin, int xmax, int ymin, int ymax) {
     for (int y = ymax; y >= ymin; y--) {// Loop on the square lattice in reading order.
         for (int x = xmin; x <= xmax; x++) {
             removePoint(x, y);
+        }
+    }
+}
+
+/**
+ * Remove a circular region from the mesh.
+ */
+void SquareMesh::removeDisk(const int x0, const int y0, const double radius) {
+    int xmin = (int) std::floor(x0 - radius);
+    int xmax = (int)  std::ceil(x0 + radius);
+    int ymin = (int) std::floor(y0 - radius);
+    int ymax = (int)  std::ceil(y0 + radius);
+    int r2 = (int) std::ceil(radius*radius);
+    int dx, dy;
+    for (int y = ymax; y >= ymin; y--) {// Loop on the square lattice in reading order.
+        for (int x = xmin; x <= xmax; x++) {
+            dx = x - x0;
+            dy = y - y0;
+            if (dx*dx + dy*dy <= r2) {
+                removePoint(x, y);
+            }
+        }
+    }
+}
+
+/**
+ * Removes a polygon region from the mesh. Uses the even-odd rule.
+ */
+void SquareMesh::removePolygon(const std::vector<Vector2D>& polygon) {
+    
+    // 1. Determine the bounds of the polygon:
+    int xmin, xmax, ymin, ymax;
+    polygonBounds(polygon, xmin, xmax, ymin, ymax);
+    
+    // 2. Loop on points in the rectangular region:
+    Vector2D p;
+    for (int y = ymax; y >= ymin; y--) {// Loop on the square lattice in reading order.
+        for (int x = xmin; x <= xmax; x++) {
+            p = Vector2D(x, y);   // Current point that we attempt to add to the mesh.
+            if (p.windingNumber(polygon) % 2 != 0) {// Uses the even-odd rule to remove the polygon.
+                removePoint(x, y);
+            }
         }
     }
 }
@@ -197,7 +260,6 @@ void SquareMesh::printSummary() const {
  */
 void SquareMesh::saveMesh(const char* filename, const char* sep, const int verbosity) const {
     
-    std::cout << TAG_INFO << "Saving SquareMesh to file '" << filename << "'...\n";
     if (not ready) {
         throw std::logic_error("In saveMesh(): SquareMesh is not completely initialized. Please use fixNeighbors().");
     }

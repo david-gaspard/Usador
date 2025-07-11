@@ -6,9 +6,9 @@
  ***/
 #ifndef _SQUARE_MESH_H
 #define _SQUARE_MESH_H
-#include "MeshPoint.hpp"
 #include "Constants.hpp"
-#include <vector>
+#include "MeshPoint.hpp"
+#include "Vector2D.hpp"
 
 /**
  * Class defining the Square Mesh object.
@@ -22,20 +22,38 @@ class SquareMesh {
     
     public:
     
+    // Constructors/Destructors:
     SquareMesh();
     ~SquareMesh();
+    
+    // Getters:
     MeshPoint getPoint(const int i) const;
     int getNPoint() const;
+    
+    // Determine the index of a given point:
     int indexOf(const int x, const int y) const;
     bool containsPoint(const int x, const int y) const;
+    
+    // Add points:
     void addPoint(const int x, const int y);
     void addRectangle(int xmin, int xmax, int ymin, int ymax);
     void addDisk(const int x0, const int y0, const double radius);
+    void addPolygon(const std::vector<Vector2D>& polygon);
+    
+    // Remove points:
     void removePoint(const int x, const int y);
     void removeRectangle(int xmin, int xmax, int ymin, int ymax);
+    void removeDisk(const int x0, const int y0, const double radius);
+    void removePolygon(const std::vector<Vector2D>& polygon);
+    
+    // Assign boundary conditions:
     void setBoundaryPoint(const int x, const int y, const int bndtype);
     void setBoundaryRegion(int xmin, int xmax, int ymin, int ymax, int bndtype);
+    
+    // Finalize the mesh:
     void fixNeighbors();
+    
+    // Output methods:
     void printSummary() const;
     void saveMesh(const char* filename, const char* sep, const int verbosity) const;
     

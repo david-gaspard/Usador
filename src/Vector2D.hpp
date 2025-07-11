@@ -7,6 +7,7 @@
 #ifndef _VECTOR2D_H
 #define _VECTOR2D_H
 #include "MeshPoint.hpp"
+#include <vector>
 #include <iostream>
 
 /**
@@ -29,6 +30,9 @@ struct Vector2D {
     double norm() const;
     double dot(const Vector2D& v) const;
     double cross(const Vector2D& v) const;
+    int windingNumber(const std::vector<Vector2D>& polygon) const;
+    
+    friend void polygonBounds(const std::vector<Vector2D>& polygon, int& xmin, int& xmax, int& ymin, int& ymax);
     friend std::ostream& operator<<(std::ostream& os, const Vector2D& v);
     
 };

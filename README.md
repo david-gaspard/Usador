@@ -15,7 +15,7 @@
 ## PRESENTATION
 
 Usador is a C++ 2011 program to solve the matrix diffusion equation known as the *Usadel equation* [[1](#1)] describing the coherent propagation of a wave in a two-dimensional disordered medium.
-The name is an acronym for *"Usadel equation Solver in Arbitrary DisOrdered Regions"*.
+The name is an acronym for *"Usadel equation Solver for Arbitrary DisOrdered Regions"*.
 The solution of this equation provides the distribution of eigenvalues of the transmission matrix associated with the propagation of a wave between two surfaces located inside or at the edge of the medium.
 It also provides the disorder-averaged intensity profile of transmission eigenchannels (aka transmission eigenstates).
 
@@ -73,7 +73,7 @@ The Usadel equation is solved iteratively using the [Newton-Raphson method](http
 >     $\mathbf{q}_{s+1} = \mathbf{q}_s + \tau_s\mathbf{p}_s$
 
 where $\mathbf{q}_s$ is a vector representation of the $\mathsf{Q}(\mathbf{r})$ field on each point of the lattice, $\mathbf{r}_s$ is the residual vector which must be cancelled out on the solution, $\mathsf{M}_s = \partial\mathbf{r}/\partial\mathbf{q}$ is the Jacobian obtained by differentiating the residual $\mathbf{r}_s$ with respect to the unknown vector $\mathbf{q}_s$.
-The parameter $\tau_s\in[0,1]$ is a line search parameter ensuring the residual norm $\|\mathbf{r}_s\|$ decreases at each iteration, a requirement which is not guaranteed by the strict Newton-Raphson algorihtm.
+The parameter $\tau_s\in[0,1]$ is a line search parameter ensuring the residual norm $\|\mathbf{r}_s\|$ decreases at each iteration, a requirement which is not guaranteed by the strict Newton-Raphson algorithm ($\tau_s=1$).
 
 <span style="color:red">TODO: Write a few words of explanations on the algorithm, the representation of $\mathsf{Q}$ as a vector form, the angle parameters $(\theta,\eta)$, the expression of the Usadel residual equation (equation that must vanish). Also explain what does the Newton-Raphson method (the sparse Jacobian), and add a comment on the initial ansatz (constant or random).</span>
 
