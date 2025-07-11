@@ -1,0 +1,236 @@
+/****
+ * @date Created on 2025-06-27 at 10:06:14 CEST
+ * @author David Gaspard (ORCID 0000-0002-4449-8782) <david.gaspard@espci.fr>
+ * @copyright This program is distributed under the MIT License.
+ * @file C++ code providing a two-dimensional square mesh object.
+ ***/
+#include "SquareMesh.hpp"
+#include "BaseTools.hpp"
+#include <iostream>
+#include <cmath>
+
+/**
+ * Constructor of the Square Mesh object.
+ */
+SquareMesh::SquareMesh() {
+    std::cout << TAG_INFO << "Creating SquareMesh.\n";
+    ready = false;
+}
+
+/**
+ * Destructor.
+ */
+SquareMesh::~SquareMesh() {
+    std::cout << TAG_INFO << "Deleting SquareMesh.\n";
+}
+
+/**
+ * Return the point at position "i" in the mesh.
+ */
+MeshPoint SquareMesh::getPoint(const int i) const {
+    if (not ready) {
+        throw std::logic_error("In getPoint(): SquareMesh is not completely initialized. Please use fixNeighbors().");
+    }
+    return point.at(i);  // vector objects already make bound checking.
+}
+
+/**
+ * Returns the number of points in the mesh.
+ */
+int SquareMesh::getNPoint() const {
+    if (not ready) {
+        throw std::logic_error("In getNPoint(): SquareMesh is not completely initialized. Please use fixNeighbors().");
+    }
+    return point.size();
+}
+
+/**
+ * Return the index of a given point in the mesh.
+ * If the point does not exist, then return BND_DEFAULT (a negative value).
+ */
+int SquareMesh::indexOf(const int x, const int y) const {
+    MeshPoint p;
+    for (unsigned int i = 0; i < point.size(); i++) {
+        p = point.at(i);
+        if (p.x == x && p.y == y){
+            return i;
+        }
+    }
+    return BND_DEFAULT;
+}
+
+/**
+ * Returns true if the mesh contains the given point (x, y).
+ */
+bool SquareMesh::containsPoint(const int x, const int y) const {
+    return indexOf(x, y) >= 0;
+}
+
+/**
+ * Add a single point to the mesh if it is not contained.
+ */
+void SquareMesh::addPoint(const int x, const int y) {
+    if (not containsPoint(x, y)) {
+        point.push_back(MeshPoint(x, y)); // Add point with default neighboring value.
+    }
+}
+
+/**
+ * Add a square region to the mesh.
+ */
+void SquareMesh::addRectangle(int xmin, int xmax, int ymin, int ymax) {
+    
+    if (xmin > xmax) std::swap(xmin, xmax);
+    if (ymin > ymax) std::swap(ymin, ymax);
+    
+    for (int y = ymax; y >= ymin; y--) {// Loop on the square lattice in reading order.
+        for (int x = xmin; x <= xmax; x++) {
+            addPoint(x, y);
+        }
+    }
+}
+
+/**
+ * Add a disk region to the mesh.
+ */
+void SquareMesh::addDisk(int x0, int y0, double radius) {
+    int xmin = (int)ceil(x0 - radius);
+    int xmax = (int)ceil(x0 + radius);
+    int ymin = (int)ceil(y0 - radius);
+    int ymax = (int)ceil(y0 + radius);
+    int r2 = (int)ceil(radius*radius);
+    int dx, dy;
+    for (int y = ymax; y >= ymin; y--) {// Loop on the square lattice in reading order.
+        for (int x = xmin; x <= xmax; x++) {
+            dx = x - x0;
+            dy = y - y0;
+            if (dx*dx + dy*dy <= r2) {
+                addPoint(x, y);
+            }
+        }
+    }
+}
+
+/**
+ * Remove the point at a given position.
+ */
+void SquareMesh::removePoint(const int x, const int y) {
+    int i = indexOf(x, y);
+    if (i >= 0) point.erase(point.begin() + i);
+}
+
+/**
+ * Remove a rectangular region of points.
+ */
+void SquareMesh::removeRectangle(int xmin, int xmax, int ymin, int ymax) {
+    
+    if (xmin > xmax) std::swap(xmin, xmax);
+    if (ymin > ymax) std::swap(ymin, ymax);
+    
+    for (int y = ymax; y >= ymin; y--) {// Loop on the square lattice in reading order.
+        for (int x = xmin; x <= xmax; x++) {
+            removePoint(x, y);
+        }
+    }
+}
+
+/**
+ * Setup the boundary condition for the point at the given position (x, y).
+ * This function must be called after fix_neighbors() methods.
+ */
+void SquareMesh::setBoundaryPoint(const int x, const int y, const int bndtype) {
+    int i = indexOf(x, y);
+    if (i >= 0) {//Only works if the point is in the mesh.
+        MeshPoint& p = point.at(i);
+        if (p.north < 0) p.north = bndtype;
+        if (p.south < 0) p.south = bndtype;
+        if (p.east  < 0) p.east  = bndtype;
+        if (p.west  < 0) p.west  = bndtype;
+    }
+}
+
+/**
+ * Setup the same boundary condition for a region of points.
+ * This function must be called after fix_neighbors() methods.
+ */
+void SquareMesh::setBoundaryRegion(int xmin, int xmax, int ymin, int ymax, int bndtype) {
+    
+    if (xmin > xmax) std::swap(xmin, xmax);
+    if (ymin > ymax) std::swap(ymin, ymax);
+    
+    for (int y = ymax; y >= ymin; y--) {// Loop on the square lattice in reading order.
+        for (int x = xmin; x <= xmax; x++) {
+            setBoundaryPoint(x, y, bndtype);
+        }
+    }
+}
+
+/**
+ * Compute the list of nearest neighbors.
+ * This method must be called after the mesh construction methods add_*() and remove_*() and before the set_boundary() methods.
+ */
+void SquareMesh::fixNeighbors() {
+    int inorth, isouth, ieast, iwest;
+    for (MeshPoint& p : point) {
+        inorth = indexOf(p.x, p.y+1);
+        isouth = indexOf(p.x, p.y-1);
+        ieast  = indexOf(p.x+1, p.y);
+        iwest  = indexOf(p.x-1, p.y);
+        if (inorth >= 0) p.north = inorth;
+        if (isouth >= 0) p.south = isouth;
+        if (ieast  >= 0) p.east  = ieast;
+        if (iwest  >= 0) p.west  = iwest;
+    }
+    ready = true; // The SquareMesh gets ready for computations.
+}
+
+/**
+ * Print a summary of the mesh.
+ */
+void SquareMesh::printSummary() const {
+    std::cout << TAG_INFO << "SquareMesh with " << point.size() << " points.\n";
+}
+
+/**
+ * Save the points to a file "filename" using the separator "sep".
+ * The "verbosity" controls the amount of printed data.
+ */
+void SquareMesh::saveMesh(const char* filename, const char* sep, const int verbosity) const {
+    
+    std::cout << TAG_INFO << "Saving SquareMesh to file '" << filename << "'...\n";
+    if (not ready) {
+        throw std::logic_error("In saveMesh(): SquareMesh is not completely initialized. Please use fixNeighbors().");
+    }
+    
+    std::ofstream ofs;
+    ofs.open(filename);
+    
+    writeTimestamp(ofs, "%% ");
+    
+    ofs << "%% SquareMesh with " << point.size() << " points.\n";
+    
+    if (verbosity == 0) {
+        ofs << "x, y, bnd\n";
+        for (MeshPoint p : point) {
+            ofs << p.x << sep << p.y << sep;
+            if (p.north == BND_OPEN || p.south == BND_OPEN || p.east == BND_OPEN || p.west == BND_OPEN) {
+                ofs << "open";
+            }
+            else if (p.north == BND_MIRROR || p.south == BND_MIRROR || p.east == BND_MIRROR || p.west == BND_MIRROR) {
+                ofs << "mirror";
+            }
+            else {
+                ofs << "bulk";
+            }
+            ofs << "\n";
+        }
+    }
+    else {
+        ofs << "x, y, north, south, east, west\n";
+        for (MeshPoint p : point) {
+            ofs << p.x << sep << p.y << sep << p.north << sep << p.south << sep << p.east << sep << p.west << "\n";
+        }
+    }
+    
+    ofs.close();
+}

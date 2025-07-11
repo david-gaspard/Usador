@@ -1,0 +1,21 @@
+%% Created on 2025-06-28 at 13:16:21 CEST by David Gaspard (ORCID 0000-0002-4449-8782) <david.gaspard@espci.fr> under the MIT License.
+\begin{tikzpicture}%
+\begin{axis}[%
+    title={Mesh},
+    xlabel={$x$},
+    ylabel={$y$},
+    width={0.9\textwidth},
+    axis equal,
+    legend style={at={(1, 1)}, anchor=center, cells={anchor=west}},
+    yticklabel style={rotate=90},
+    scatter/classes={%% 
+        bulk={mark=*, black!20, mark size=0.8},
+        mirror={mark=*, black, mark size=0.8},
+        open={mark=triangle*, green!70!black, mark size=1}%% No comma
+    },
+    table/col sep=comma,
+]%
+\addplot[scatter, only marks, scatter src=explicit symbolic] table[x=x,y=y,meta=bnd]{test_mesh_short.csv};
+\legend{Bulk,Mirror,Open}
+\end{axis}%
+\end{tikzpicture}%
