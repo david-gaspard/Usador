@@ -28,8 +28,8 @@ int testMeshBasic() {
     mesh.fixNeighbors();
     
     // Save the mesh to a file for checking:
-    const char* filename_short = "test_mesh_short.csv";
-    const char* filename_full = "test_mesh_full.csv";
+    const char* filename_short = "out/test_mesh_short.csv";
+    const char* filename_full = "out/test_mesh_full.csv";
     const char* sep = ", ";
     std::cout << TAG_INFO << "Saving SquareMesh to files '" << filename_short << "' and '" << filename_full << "'...\n";
     mesh.saveMesh(filename_short, sep, 0);
@@ -59,7 +59,7 @@ int testMeshPolygon1() {
     mesh.fixNeighbors();
     
     // Save the mesh to a file for checking:
-    const char* filename = "test_mesh_polygon_1.csv";
+    const char* filename = "out/test_mesh_polygon_1.csv";
     std::cout << TAG_INFO << "Saving SquareMesh to file '" << filename << "'...\n";
     mesh.saveMesh(filename, ", ", 0);
     
@@ -87,7 +87,30 @@ int testMeshPolygon2() {
     mesh.fixNeighbors();
     
     // Save the mesh to a file for checking:
-    const char* filename = "test_mesh_polygon_2.csv";
+    const char* filename = "out/test_mesh_polygon_2.csv";
+    std::cout << TAG_INFO << "Saving SquareMesh to file '" << filename << "'...\n";
+    mesh.saveMesh(filename, ", ", 0);
+    
+    return 0;
+}
+
+/**
+ * Test the polygon generation of SquareMesh object, but using the coordinates from a file.
+ */
+int testMeshPolygon3() {
+    std::cout << "====== TEST SQUARE MESH POLYGON #3 ======\n";
+    
+    SquareMesh mesh; // Declare the mesh.
+    
+    double scale = 60; // Scales the polygon.
+    
+    mesh.addPolygon("shape/eiffel-tower.csv", scale);
+    
+    // Fix the nearest neighbors to finalize. This operation is mandatory:
+    mesh.fixNeighbors();
+    
+    // Save the mesh to a file for checking:
+    const char* filename = "out/test_mesh_polygon_3.csv";
     std::cout << TAG_INFO << "Saving SquareMesh to file '" << filename << "'...\n";
     mesh.saveMesh(filename, ", ", 0);
     
@@ -101,6 +124,7 @@ int main(int argc, char** argv) {
     
     //testMesh1();
     //testMeshPolygon1();
-    testMeshPolygon2();
+    //testMeshPolygon2();
+    testMeshPolygon3();
     
 }

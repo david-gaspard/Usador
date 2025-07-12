@@ -125,11 +125,44 @@ void SquareMesh::addPolygon(const std::vector<Vector2D>& polygon) {
     for (int y = ymax; y >= ymin; y--) {// Loop on the square lattice in reading order.
         for (int x = xmin; x <= xmax; x++) {
             p = Vector2D(x, y);   // Current point that we attempt to add to the mesh.
-            if (p.windingNumber(polygon) % 2 != 0) {// Uses the even-odd rule to fill the polygon.
+            if (p.windingNumber(polygon) % 2 != 0) {// Uses the even-odd rule to fill the polygon (fill if the winding number is odd).
                 addPoint(x, y);
             }
         }
     }
+}
+
+/**
+ * Add a polygon using the coordinates given by a file.
+ */
+void SquareMesh::addPolygon(const char* filename, const double scale) {
+    
+    std::vector<Vector2D> polygon;
+    std::ifstream ifs(filename);  // Open the file.
+    std::string line;
+    double x, y;
+    size_t sz;
+    
+    if (ifs.fail()) {// Check if the file is opened.
+        std::string info = "In addPolygonFromFile(): Cannot open file '" + std::string(filename) + "'.";
+        throw std::runtime_error(info);
+    }
+    
+    while (getline(ifs, line)) {// Loop on each line of the file.
+        try {
+            x = scale * std::stod(line, &sz);
+            y = scale * std::stod(line.substr(sz));
+            polygon.push_back(Vector2D(x, y));
+        }
+        catch (const std::invalid_argument& exc) {
+            std::cerr << TAG_WARN << "In addPolygonFromFile(): Argument is not a number, skipping line (what = '" 
+                      << exc.what() << "').\n";
+        }
+    }
+    
+    ifs.close();
+    
+    addPolygon(polygon);  // Add the parsed polygon.
 }
 
 /**

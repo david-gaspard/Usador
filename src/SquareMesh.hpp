@@ -39,6 +39,7 @@ class SquareMesh {
     void addRectangle(int xmin, int xmax, int ymin, int ymax);
     void addDisk(const int x0, const int y0, const double radius);
     void addPolygon(const std::vector<Vector2D>& polygon);
+    void addPolygon(const char* filename, const double scale);
     
     // Remove points:
     void removePoint(const int x, const int y);

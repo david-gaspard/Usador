@@ -146,7 +146,7 @@ int testSolve() {
     usys.initConstant();
     usys.solveNewton(maxit, nsub, tolp, tolr, verbose);
     
-    const char* filename = "test_field_x.csv";
+    const char* filename = "out/test_field_x.csv";
     std::cout << TAG_INFO << "Saving data to file '" << filename << "'...\n";
     usys.saveField(filename, ", ", 16);
     
@@ -166,7 +166,7 @@ int testSaveField() {
     const uint64_t seed = 1;
     usys.initRandom(seed);  // Set the Q field to random to avoid trivial output.
     
-    const char* filename = "test_save_field.csv";
+    const char* filename = "out/test_save_field.csv";
     std::cout << TAG_INFO << "Saving random field to file '" << filename << "'...\n";
     usys.saveField(filename, ", ", 16);
     
