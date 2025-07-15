@@ -28,16 +28,23 @@ class UsadelSystem {
     
     // Constructors/Destructors:
     UsadelSystem(SquareMesh& mesh, std::vector<Contact>& contact, const double holscat, const double holabso);
+    UsadelSystem(const int length, const int width, const double dscat, const double dabso);
     ~UsadelSystem();
     
     // Getters:
     int getNPoint() const;
-    QVector getQVector(int ipoint) const;
+    MeshPoint getPoint(const int ipoint) const;
+    double getHolscat() const;
+    double getHolabso() const;
+    QVector getQVector(const int ipoint) const;
+    void getJVector(const int i, const int j, QVector& jv, Vector2D& dir) const;
     double getRho() const;
     
     // Initializers/Setters:
+    void setTransmission(const double tval);
     void initRandom(const uint64_t seed);
     void initConstant();
+    void initWaveguide();
     
     // Testing functions:
     int testResidual(const double tolerr) const;
@@ -47,7 +54,9 @@ class UsadelSystem {
     int solveNewton(const int maxit, const int nsub, const double tolp, const double tolr, const int verbose);
     
     // Output functions:
+    void saveMesh(const char* filename, const char* sep, const int verbosity) const;
     void saveField(const char* filename, const char* sep, const int prec) const;
+    // TODO: Plot methods for boundaries and contact interactions......
     
     private:
     

@@ -11,7 +11,7 @@
  * Constructor of the SparseComplexMatrix object.
  */
 SparseComplexMatrix::SparseComplexMatrix() {
-    std::cout << TAG_INFO << "Creating SparseComplexMatrix (no allocation).\n";
+    //std::cout << TAG_INFO << "Creating SparseComplexMatrix (no allocation).\n";
     allocated = false; // At the beginning, the matrix is not allocated.
     mapped = false; // At the beginning, the matrix has not been mapped.
 }
@@ -21,7 +21,7 @@ SparseComplexMatrix::SparseComplexMatrix() {
  */
 SparseComplexMatrix::~SparseComplexMatrix() {
     if (allocated) {
-        std::cout << TAG_INFO << "Deleting SparseComplexMatrix.\n";
+        //std::cout << TAG_INFO << "Deleting SparseComplexMatrix.\n";
         delete[] pcol;
         delete[] irow;
         delete[] map;

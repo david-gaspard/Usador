@@ -13,7 +13,7 @@
  * Constructor of the Square Mesh object.
  */
 SquareMesh::SquareMesh() {
-    std::cout << TAG_INFO << "Creating SquareMesh.\n";
+    //std::cout << TAG_INFO << "Creating SquareMesh.\n";
     ready = false;
 }
 
@@ -21,7 +21,7 @@ SquareMesh::SquareMesh() {
  * Destructor.
  */
 SquareMesh::~SquareMesh() {
-    std::cout << TAG_INFO << "Deleting SquareMesh.\n";
+    //std::cout << TAG_INFO << "Deleting SquareMesh.\n";
 }
 
 /**
@@ -234,14 +234,14 @@ void SquareMesh::removePolygon(const std::vector<Vector2D>& polygon) {
  * Setup the boundary condition for the point at the given position (x, y).
  * This function must be called after fix_neighbors() methods.
  */
-void SquareMesh::setBoundaryPoint(const int x, const int y, const int bndtype) {
+void SquareMesh::setBoundaryPoint(const int x, const int y, const Direction dir, const int bndtype) {
     int i = indexOf(x, y);
     if (i >= 0) {//Only works if the point is in the mesh.
         MeshPoint& p = point.at(i);
-        if (p.north < 0) p.north = bndtype;
-        if (p.south < 0) p.south = bndtype;
-        if (p.east  < 0) p.east  = bndtype;
-        if (p.west  < 0) p.west  = bndtype;
+        if (dir == NORTH && p.north < 0) p.north = bndtype;
+        else if (dir == SOUTH && p.south < 0) p.south = bndtype;
+        else if (dir == EAST && p.east < 0) p.east  = bndtype;
+        else if (dir == WEST && p.west < 0) p.west  = bndtype;
     }
 }
 
@@ -249,14 +249,14 @@ void SquareMesh::setBoundaryPoint(const int x, const int y, const int bndtype) {
  * Setup the same boundary condition for a region of points.
  * This function must be called after fix_neighbors() methods.
  */
-void SquareMesh::setBoundaryRegion(int xmin, int xmax, int ymin, int ymax, int bndtype) {
+void SquareMesh::setBoundaryRegion(int xmin, int xmax, int ymin, int ymax, const Direction dir, const int bndtype) {
     
     if (xmin > xmax) std::swap(xmin, xmax);
     if (ymin > ymax) std::swap(ymin, ymax);
     
     for (int y = ymax; y >= ymin; y--) {// Loop on the square lattice in reading order.
         for (int x = xmin; x <= xmax; x++) {
-            setBoundaryPoint(x, y, bndtype);
+            setBoundaryPoint(x, y, dir, bndtype);
         }
     }
 }

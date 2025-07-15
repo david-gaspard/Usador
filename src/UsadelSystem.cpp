@@ -15,9 +15,9 @@
  * Constructor of the Usadel System object.
  */
 UsadelSystem::UsadelSystem(SquareMesh& mesh, std::vector<Contact>& contact, const double holscat, const double holabso) {
-    std::cout << TAG_INFO << "Creating UsadelSystem.\n";
-    this->mesh = &mesh;
-    this->contact = &contact;
+    //std::cout << TAG_INFO << "Creating UsadelSystem.\n";
+    this->mesh = new SquareMesh(mesh);  // Call copy constructor.
+    this->contact = new std::vector<Contact>(contact);  // Call copy constructor.
     this->holscat = holscat;
     this->holabso = holabso;
     npoint = mesh.getNPoint();
@@ -25,10 +25,44 @@ UsadelSystem::UsadelSystem(SquareMesh& mesh, std::vector<Contact>& contact, cons
 }
 
 /**
+ * Constructor creating a disordered rectangular waveguide of given length "length", width "width", scattering thickness "dscat", and absorption thickness "dabso".
+ * This constructor is mainly used for tests because the waveguide solution is accurately known for dabso=0.
+ * 
+ * Arguments:
+ * 
+ * length = Horizontal length of the waveguide in units of the lattice step.
+ * width  = Vertical width of the waveguide in units of the lattice step.
+ * dscat  = Scattering thickness, L/lscat.
+ * dabso  = Absorption thickness, L/labso.
+ */
+UsadelSystem::UsadelSystem(const int length, const int width, const double dscat, const double dabso) {
+    //std::cout << TAG_INFO << "Creating UsadelSystem (waveguide template).\n";
+    mesh = new SquareMesh();
+    mesh->addRectangle(-length/2, length/2, -width/2, width/2);
+    mesh->setBoundaryRegion(-length/2, -length/2, -width/2, width/2, WEST, BND_OPEN);
+    mesh->setBoundaryRegion( length/2,  length/2, -width/2, width/2, EAST, BND_OPEN);
+    mesh->fixNeighbors();
+    
+    Vector2D c0a(-(length/2 + 0.5),  (width/2 + 0.5));
+    Vector2D c1a(-(length/2 + 0.5), -(width/2 + 0.5));
+    Vector2D c0b( (length/2 + 0.5),  (width/2 + 0.5));
+    Vector2D c1b( (length/2 + 0.5), -(width/2 + 0.5));
+    
+    contact = new std::vector<Contact>({Contact(c0a, c1a, +1, 0.5), Contact(c0b, c1b, -1, 0.5)});
+    
+    holscat = dscat/length;
+    holabso = dabso/length;
+    npoint = mesh->getNPoint();
+    field = new ComplexVector(2*npoint);
+}
+
+/**
  * Destructor of the Usadel System object.
  */
 UsadelSystem::~UsadelSystem() {
-    std::cout << TAG_INFO << "Deleting UsadelSystem.\n";
+    //std::cout << TAG_INFO << "Deleting UsadelSystem.\n";
+    delete mesh;
+    delete contact;
     delete field;
 }
 
@@ -44,9 +78,32 @@ int UsadelSystem::getNPoint() const {
 }
 
 /**
- * Returns the qvector at the point of index "ipoint".
+ * Returns the i-th point of the mesh.
  */
-QVector UsadelSystem::getQVector(int ipoint) const {
+MeshPoint UsadelSystem::getPoint(const int ipoint) const {
+    return mesh->getPoint(ipoint);
+}
+
+/**
+ * Returns the value of "holscat" which is defined by h/lscat, where "h" is the lattice step
+ * (the unit length) and "lscat" is the scattering mean free path.
+ */
+double UsadelSystem::getHolscat() const {
+    return holscat;
+}
+
+/**
+ * Returns the value of "holabso" which is defined by h/labso, where "h" is the lattice step
+ * (the unit length) and "labso" is the ballistic absorption length.
+ */
+double UsadelSystem::getHolabso() const {
+    return holabso;
+}
+
+/**
+ * Returns the value of the Q field (in vector representation) at the point of index "ipoint".
+ */
+QVector UsadelSystem::getQVector(const int ipoint) const {
     if (ipoint >= 0 && ipoint < npoint) {// If Q is inside the mesh, then simply convert the parameters to qvector.
         return QVector(field[0][2*ipoint], field[0][2*ipoint+1]);
     }
@@ -56,16 +113,47 @@ QVector UsadelSystem::getQVector(int ipoint) const {
 }
 
 /**
+ * Returns the value of the matrix current J defined by J = -(lscat/d) * Q * grad Q.
+ * between point of index "i" and point of index "j" in the direction i -> j.
+ * This function assumes the Q field given by the (theta, eta) parameters is solved.
+ */
+void UsadelSystem::getJVector(const int i, const int j, QVector& jv, Vector2D& dir) const {
+    jv = getQVector(j).cross(getQVector(i)) * (I/(DIMENSION * holscat));
+    dir = Vector2D(mesh->getPoint(j)) - Vector2D(mesh->getPoint(i));
+}
+
+/**
  * Returns the value of the transmission eigenvalue density according to the current solution of the Q field.
  * This function assumes the Q field given by the (theta, eta) parameters is solved.
- * 
- * @todo This function remains to be implemented...........
  */
 double UsadelSystem::getRho() const {
     
-    //TODO: To be implemented......
+    dcomplex flux, fun;
+    double lenp, lenm, tval;
     
-    return 0.;
+    tval = contact->at(0).getTransmission(); // Transmission eigenvalue, assumed to the same for all contact interactions.
+    
+    flux = dcomplex(0., 0.);
+    lenp = 0.;
+    lenm = 0.;
+    
+    for (unsigned int ict = 0; ict < contact->size(); ict++) {// Loop on all the contact interactions.
+        
+        flux += contact->at(ict).getFlux(*this);
+        
+        if (contact->at(ict).getSType() == +1) {
+            lenp += contact->at(ict).getLength();
+        }
+        else {
+            lenm += contact->at(ict).getLength();
+        }
+    }
+    
+    std::cout << TAG_INFO << "Total flux = " << flux << ", lenp = " << lenp << ", lenm = " << lenm << "\n";
+    
+    fun = DEXTPOL * (I*std::sqrt(tval)/(2.*std::min(lenp, lenm))) * flux;
+    
+    return fun.imag()/(PI*tval*tval);
 }
 
 /***********************************************************
@@ -397,6 +485,15 @@ int UsadelSystem::testJacobian(const double tolerr) const {
  ***********************************************************/
 
 /**
+ * Assigns the given transmission value to all contact interactions.
+ */
+void UsadelSystem::setTransmission(const double tval) {
+    for (unsigned int ict = 0; ict < contact->size(); ict++) {
+        contact->at(ict).setTransmission(tval);
+    }
+}
+
+/**
  * Initialize the Q field to random values according to a given "seed".
  * This method ensures the Q values are picked up isotropically on the Q^2 = 1 manifold.
  */
@@ -449,6 +546,19 @@ void UsadelSystem::initConstant() {
         field[0].set(2*ipoint,   theta0);
         field[0].set(2*ipoint+1, eta0);
     }
+}
+
+/**
+ * Initialize the Q field using the quasi-one-dimensional solution known exactly in the waveguide geometry without absorption.
+ * This function assumes the waveguide geometry withotu absorption and full channel control.
+ * In addition, the contact interactions must be located out of the medium.
+ * This function is mainly used for testing purposes because it is completely wrong if the geometry is not waveguide.
+ * Therefore, it cannot be used as a guess for the Newton-Raphson method, in contrast to the other init*() methods.
+ */
+void UsadelSystem::initWaveguide() {
+    
+    // TODO: To be implemented..............
+    
 }
 
 /**
@@ -527,6 +637,15 @@ int UsadelSystem::solveNewton(const int maxit, const int nsub, const double tolp
 }
 
 /**
+ * Save the mesh contained in the present UsadelSystem object.
+ * 
+ * @todo Call external scripts to plot the mesh properly with the contact interaction.
+ */
+void UsadelSystem::saveMesh(const char* filename, const char* sep, const int verbosity) const {
+    mesh->saveMesh(filename, sep, verbosity);
+}
+
+/**
  * Save the present field to a file of given "filename" using the string "sep" as a separator.
  * Columns are: x, y, theta_re, theta_im, eta_re, eta_im, q11_re, q11_im, q12_re, q12_im, q21_re, q21_im
  */
@@ -544,8 +663,8 @@ void UsadelSystem::saveField(const char* filename, const char* sep, const int pr
     
     writeTimestamp(ofs, "%% "); // Apply a timestamp at the beginning.
     
-    ofs << "%% Parameters: holscat = " << holscat << ", holabso = " << holabso << "\n";
-    ofs << "x, y, theta_re, theta_im, eta_re, eta_im, q11_re, q11_im, q12_re, q12_im, q21_re, q21_im\n";
+    ofs << "%% Parameters: h/lscat = " << holscat << ", h/labso = " << holabso << "\n"
+        << "x, y, theta_re, theta_im, eta_re, eta_im, q11_re, q11_im, q12_re, q12_im, q21_re, q21_im\n";
     
     for (int ipoint = 0; ipoint < npoint; ipoint++) {// Loop over the points of the mesh.
         

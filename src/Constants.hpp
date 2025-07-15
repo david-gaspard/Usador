@@ -24,12 +24,13 @@ static const std::string PROGRAM_COPYRIGHT  = PROGRAM_NAME_SHORT + " (c) 2025 Da
 static const double   PI = 3.1415926535897932384626;  // The fundamental constant Pi = 3.1415926535897932384626...
 static const dcomplex I  = dcomplex(0.0, 1.0);  // Define the imaginary unit.
 
-// Physical constants:
+// Physical constants (dimension dependent):
 static const int    DIMENSION  = 2;      // Number of spatial dimensions of the mesh, which is always equal to 2.
-static const double EXTRAPOLEN = PI/4.;  // Diffusive extrapolation length in 2D. Exact: 0.818309886184. Std approx: pi/4 = 0.785398163397.
+static const double EXTRAPOLEN = PI/4.;  // Diffusive extrapolation length in 2D. Exact: 0.818309886184. Std approx: V_d/(2*V_(d-1)) = pi/4 = 0.785398163397.
+static const double DEXTPOL = PI/2.;     // Dimension times the diffusive extrapolation length. Value of S_d/(2*V_(d-1)) used in the generating function.
 
 // Numerical constants:
-static const double MEPS = 1.11e-16;     // Machine epsilon in double precision, MEPS = 2^(-53).
+static const double MEPS    = 1.11e-16;  // Machine epsilon in double precision, MEPS = 2^(-53).
 static const double SQRTEPS = 1.053e-8;  // Square root of the machine epsilon double precision, SQRTEPS = MEPS^(1/2) = 2^(-53/2), used for discrete derivatives with forward difference formula.
 static const double CBRTEPS = 4.806e-6;  // Cubic root of the machine epsilon in double precision, CBRTEPS = MPS^(1/3) = 2^(-53/3), used for discrete derivatives with central difference formula.
 

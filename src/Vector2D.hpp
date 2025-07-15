@@ -28,6 +28,7 @@ struct Vector2D {
     Vector2D operator+(const Vector2D& v) const;
     Vector2D operator-(const Vector2D& v) const;
     double norm() const;
+    Vector2D normalize() const;
     double dot(const Vector2D& v) const;
     double cross(const Vector2D& v) const;
     int windingNumber(const std::vector<Vector2D>& polygon) const;

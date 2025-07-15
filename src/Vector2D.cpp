@@ -49,6 +49,14 @@ double Vector2D::norm() const {
 }
 
 /**
+ * Return the normalized vector.
+ */
+Vector2D Vector2D::normalize() const {
+    double n = norm();
+    return Vector2D(x/n, y/n);
+}
+
+/**
  * Dot (scalar) product of two vectors.
  */
 double Vector2D::dot(const Vector2D& v) const {

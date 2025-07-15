@@ -23,14 +23,22 @@ struct QVector {
     QVector(const dcomplex theta, const dcomplex eta);
     QVector();
     
-    // Methods:
+    // Getters:
     dcomplex getTheta() const;
     dcomplex getEta() const;
     dcomplex getQ11() const;
     dcomplex getQ12() const;
     dcomplex getQ21() const;
+    
+    // Basic math operations:
     QVector operator+(const QVector& v) const;
+    QVector& operator+=(const QVector& v);
     QVector operator-(const QVector& v) const;
+    QVector operator*(const dcomplex scalar) const;
+    friend QVector operator*(const dcomplex scalar, const QVector& v);
+    QVector& operator*=(const dcomplex scalar);
+    
+    // Other mathematical methods:
     dcomplex norm() const;
     dcomplex dot(const QVector& v) const;
     QVector cross(const QVector& v) const;

@@ -11,6 +11,11 @@
 #include "Vector2D.hpp"
 
 /**
+ * Enumeration specifying the four possible directions on a square lattice:
+ */
+enum Direction {NORTH, SOUTH, EAST, WEST};
+
+/**
  * Class defining the Square Mesh object.
  */
 class SquareMesh {
@@ -48,8 +53,8 @@ class SquareMesh {
     void removePolygon(const std::vector<Vector2D>& polygon);
     
     // Assign boundary conditions:
-    void setBoundaryPoint(const int x, const int y, const int bndtype);
-    void setBoundaryRegion(int xmin, int xmax, int ymin, int ymax, int bndtype);
+    void setBoundaryPoint(const int x, const int y, const Direction dir, const int bndtype);
+    void setBoundaryRegion(int xmin, int xmax, int ymin, int ymax, const Direction dir, const int bndtype);
     
     // Finalize the mesh:
     void fixNeighbors();

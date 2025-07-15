@@ -78,10 +78,45 @@ QVector QVector::operator+(const QVector& v) const {
 }
 
 /**
+ * Overload the increment operator.
+ */
+QVector& QVector::operator+=(const QVector& v) {
+    q1 += v.q1;
+    q2 += v.q2;
+    q3 += v.q3;
+    return *this;
+}
+
+/**
  * Difference of two qvectors.
  */
 QVector QVector::operator-(const QVector& v) const {
     return QVector(q1 - v.q1, q2 - v.q2, q3 - v.q3);
+}
+
+
+/**
+ * Overload the multiply operator to perform the multiplication of a ComplexVector by a scalar number.
+ */
+QVector QVector::operator*(const dcomplex scalar) const {
+    return QVector(scalar*q1, scalar*q2, scalar*q3);
+}
+
+/**
+ * Multiplication of a scalar number by a vector.
+ */
+QVector operator*(const dcomplex scalar, const QVector& v) {
+    return v * scalar;
+}
+
+/**
+ * Overload the multiplication assignment.
+ */
+QVector& QVector::operator*=(const dcomplex scalar) {
+    q1 *= scalar;
+    q2 *= scalar;
+    q3 *= scalar;
+    return *this;
 }
 
 /**
