@@ -8,8 +8,10 @@
 #define _MESHPOINT_H
 
 // Constants attached to the MeshPoint:
-static const int BND_OPEN    = -1;  // Index of "neigh" used for open boundary conditions (extrapolated-length boundary conditions).
-static const int BND_MIRROR  = -2;  // Index of "neigh" used for mirror boundary conditions (zero current condition).
+static const int BND_MIRROR  = -1;  // Index of "neigh" used for mirror boundary conditions (zero current condition).
+static const int BND_OPEN    = -2;  // Index of "neigh" used for open boundary conditions (extrapolated-length boundary conditions).
+static const int BND_INPUT   = -3;  // Index of "neigh" used for input boundary condition.
+static const int BND_OUTPUT  = -4;  // Index of "neigh" used for input boundary condition.
 static const int BND_DEFAULT = BND_MIRROR; // This is the default boundary condition (zero current condition).
 
 /**

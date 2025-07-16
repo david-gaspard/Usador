@@ -308,7 +308,13 @@ void SquareMesh::saveMesh(const char* filename, const char* sep, const int verbo
         ofs << "x, y, bnd\n";
         for (MeshPoint p : point) {
             ofs << p.x << sep << p.y << sep;
-            if (p.north == BND_OPEN || p.south == BND_OPEN || p.east == BND_OPEN || p.west == BND_OPEN) {
+            if (p.north == BND_INPUT || p.south == BND_INPUT || p.east == BND_INPUT || p.west == BND_INPUT) {
+                ofs << "input";
+            }
+            else if (p.north == BND_OUTPUT || p.south == BND_OUTPUT || p.east == BND_OUTPUT || p.west == BND_OUTPUT) {
+                ofs << "output";
+            }
+            else if (p.north == BND_OPEN || p.south == BND_OPEN || p.east == BND_OPEN || p.west == BND_OPEN) {
                 ofs << "open";
             }
             else if (p.north == BND_MIRROR || p.south == BND_MIRROR || p.east == BND_MIRROR || p.west == BND_MIRROR) {

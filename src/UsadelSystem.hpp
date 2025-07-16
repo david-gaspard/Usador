@@ -7,7 +7,7 @@
 #ifndef _USADEL_SYSTEM_H
 #define _USADEL_SYSTEM_H
 #include "SquareMesh.hpp"
-#include "Contact.hpp"
+#include "QVector.hpp"
 #include "SparseComplexMatrix.hpp"
 
 /**
@@ -17,18 +17,20 @@ class UsadelSystem {
     
     private:
     
-    SquareMesh* mesh;  // Pointer to the mesh.
-    std::vector<Contact>* contact;  // Pointer to a vector of contact interactions.
+    SquareMesh* mesh; // Pointer to the mesh.
     double holscat;   // Mesh step divided by the scattering mean free path (total length is not a well defined unit).
     double holabso;   // Mesh step divided by the absorption length (total length is not a well defined unit).
     int npoint;       // Total number of points in the "mesh".
     ComplexVector* field;  // Array containing the parameters (theta, eta) at each corresponding point in the mesh. Size: 2*npoint.
+    double tval;      // Transmission eigenvalue.
+    dcomplex ga;      // Input contact parameter, gamma_a, given by sqrt(1/tval) + I*0^+.
+    dcomplex gb;      // Output contact parameter, gamma_b, given by sqrt(1/tval) + I*0^+. They must be related by ga*gb = 1/tval + I*0^+.
     
     public:
     
     // Constructors/Destructors:
-    UsadelSystem(SquareMesh& mesh, std::vector<Contact>& contact, const double holscat, const double holabso);
-    UsadelSystem(const int length, const int width, const double dscat, const double dabso);
+    UsadelSystem(SquareMesh& mesh, const double holscat, const double holabso, const double tval);
+    UsadelSystem(const int length, const int width, const double dscat, const double dabso, const double tval);
     ~UsadelSystem();
     
     // Getters:
@@ -38,7 +40,7 @@ class UsadelSystem {
     double getHolscat() const;
     double getHolabso() const;
     QVector getQVector(const int ipoint) const;
-    QVector getJVector(const int ipoint, const Direction dir) const;
+    QVector getJVector(const int ipoint, const int jpoint) const;
     double getRho() const;
     
     // Initializers/Setters:

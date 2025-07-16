@@ -11,7 +11,7 @@
  * Test the basic functions of SquareMesh object.
  */
 int testMeshBasic() {
-    std::cout << "====== TEST SQUARE MESH BASIC ======\n";
+    std::cout << "====== TEST BASIC SQUARE MESH ======\n";
     
     SquareMesh mesh; // Declare the mesh.
     
@@ -21,15 +21,15 @@ int testMeshBasic() {
     mesh.removeRectangle(9, 11, 4, 6);
     
     // Setup boundary conditions (only vacuum because mirror is default):
-    mesh.setBoundaryRegion(-10, -10, -5, 5, BND_OPEN);
-    mesh.setBoundaryRegion( 10,  10, -5, 5, BND_OPEN);
+    mesh.setBoundaryRegion(-10, -10, -5, 5, WEST, BND_INPUT);
+    mesh.setBoundaryRegion( 10,  10, -5, 5, EAST, BND_OUTPUT);
     
     // Fix the nearest neighbors to finalize. This operation is mandatory:
     mesh.fixNeighbors();
     
     // Save the mesh to a file for checking:
-    const char* filename_short = "out/test_mesh_short.csv";
-    const char* filename_full = "out/test_mesh_full.csv";
+    const char* filename_short = "out/test/test_mesh_short.csv";
+    const char* filename_full = "out/test/test_mesh_full.csv";
     const char* sep = ", ";
     std::cout << TAG_INFO << "Saving SquareMesh to files '" << filename_short << "' and '" << filename_full << "'...\n";
     mesh.saveMesh(filename_short, sep, 0);
@@ -59,7 +59,7 @@ int testMeshPolygon1() {
     mesh.fixNeighbors();
     
     // Save the mesh to a file for checking:
-    const char* filename = "out/test_mesh_polygon_1.csv";
+    const char* filename = "out/test/test_mesh_polygon_1.csv";
     std::cout << TAG_INFO << "Saving SquareMesh to file '" << filename << "'...\n";
     mesh.saveMesh(filename, ", ", 0);
     
@@ -87,7 +87,7 @@ int testMeshPolygon2() {
     mesh.fixNeighbors();
     
     // Save the mesh to a file for checking:
-    const char* filename = "out/test_mesh_polygon_2.csv";
+    const char* filename = "out/test/test_mesh_polygon_2.csv";
     std::cout << TAG_INFO << "Saving SquareMesh to file '" << filename << "'...\n";
     mesh.saveMesh(filename, ", ", 0);
     
@@ -110,7 +110,7 @@ int testMeshPolygon3() {
     mesh.fixNeighbors();
     
     // Save the mesh to a file for checking:
-    const char* filename = "out/test_mesh_polygon_3.csv";
+    const char* filename = "out/test/test_mesh_polygon_3.csv";
     std::cout << TAG_INFO << "Saving SquareMesh to file '" << filename << "'...\n";
     mesh.saveMesh(filename, ", ", 0);
     
@@ -122,9 +122,9 @@ int testMeshPolygon3() {
  */
 int main(int argc, char** argv) {
     
-    //testMesh1();
+    testMeshBasic();
     //testMeshPolygon1();
     //testMeshPolygon2();
-    testMeshPolygon3();
+    //testMeshPolygon3();
     
 }

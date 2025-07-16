@@ -13,13 +13,20 @@
 
 /**
  * Constructor of the Usadel System object.
+ * 
+ * Arguments:
+ * 
+ * mesh    = Given SquareMesh object, properly initialized (see: SquareMesh).
+ * holscat = Scattering strength, h/lscat, where "h" is the lattice step, and "lscat" is the mean free path.
+ * holabso = Absorption strength, h/labso, where "h" is the lattice step, and "labso" is the ballistic absorption length.
+ * tval    = Transmission eigenvalue, between 0 and 1.
  */
-UsadelSystem::UsadelSystem(SquareMesh& mesh, std::vector<Contact>& contact, const double holscat, const double holabso) {
+UsadelSystem::UsadelSystem(SquareMesh& mesh, const double holscat, const double holabso, const double tval) {
     //std::cout << TAG_INFO << "Creating UsadelSystem.\n";
     this->mesh = new SquareMesh(mesh);  // Call copy constructor.
-    this->contact = new std::vector<Contact>(contact);  // Call copy constructor.
     this->holscat = holscat;
     this->holabso = holabso;
+    setTransmission(tval);
     npoint = mesh.getNPoint();
     field = new ComplexVector(2*npoint);
 }
@@ -34,30 +41,20 @@ UsadelSystem::UsadelSystem(SquareMesh& mesh, std::vector<Contact>& contact, cons
  * width  = Vertical width of the waveguide in units of the lattice step.
  * dscat  = Scattering thickness, L/lscat.
  * dabso  = Absorption thickness, L/labso.
+ * tval   = Transmission eigenvalue, between 0 and 1.
  */
-UsadelSystem::UsadelSystem(const int length, const int width, const double dscat, const double dabso) {
+UsadelSystem::UsadelSystem(const int length, const int width, const double dscat, const double dabso, const double tval) {
     //std::cout << TAG_INFO << "Creating UsadelSystem (waveguide template).\n";
     mesh = new SquareMesh();
     mesh->addDisk(0, width/2, length/3);
     mesh->addRectangle(-length/2, length/2, -width/2, width/2);
-    mesh->setBoundaryRegion(-length/2, -length/2, -width/2, width/2, WEST, BND_OPEN);
-    mesh->setBoundaryRegion( length/2,  length/2, -width/2, width/2, EAST, BND_OPEN);
+    mesh->setBoundaryRegion(-length/2, -length/2, -width/2, width/2, WEST, BND_INPUT);
+    mesh->setBoundaryRegion( length/2,  length/2, -width/2, width/2, EAST, BND_OUTPUT);
     mesh->fixNeighbors();
-    
-    Vector2D c0a(-(length/2 + 0.5),  (width/2 + 0.5));  // Contact interactions at the boundaries.
-    Vector2D c1a(-(length/2 + 0.5), -(width/2 + 0.5));
-    Vector2D c0b( (length/2 + 0.5),  (width/2 + 0.5));
-    Vector2D c1b( (length/2 + 0.5), -(width/2 + 0.5));
-    
-    // Vector2D c0a(-(length/2 - 0.5),  (width/2 + 0.5)); // Contact interactions in the bulk (near the boundaries).
-    // Vector2D c1a(-(length/2 - 0.5), -(width/2 + 0.5));
-    // Vector2D c0b( (length/2 - 0.5),  (width/2 + 0.5));
-    // Vector2D c1b( (length/2 - 0.5), -(width/2 + 0.5));
-    
-    contact = new std::vector<Contact>({Contact(c0a, c1a, +1, 0.5), Contact(c0b, c1b, -1, 0.5)});
     
     holscat = dscat/length;
     holabso = dabso/length;
+    setTransmission(tval);
     npoint = mesh->getNPoint();
     field = new ComplexVector(2*npoint);
 }
@@ -68,8 +65,20 @@ UsadelSystem::UsadelSystem(const int length, const int width, const double dscat
 UsadelSystem::~UsadelSystem() {
     //std::cout << TAG_INFO << "Deleting UsadelSystem.\n";
     delete mesh;
-    delete contact;
     delete field;
+}
+
+
+/**
+ * Assigns the transmission value to the present Contact interaction object.
+ */
+void UsadelSystem::setTransmission(const double tval) {
+    if (tval <= 0. || tval > 1.) {
+        throw std::invalid_argument("In setTransmission(): Invalid transmission value, expected in (0, 1].");
+    }
+    this->tval = tval;
+    this->ga = dcomplex(std::sqrt(1./tval), SQRTEPS);
+    this->gb = this->ga;
 }
 
 /***********************************************************
@@ -118,30 +127,17 @@ double UsadelSystem::getHolabso() const {
  * Returns the value of the Q field (in vector representation) at the point of index "ipoint".
  */
 QVector UsadelSystem::getQVector(const int ipoint) const {
-    if (ipoint >= 0 && ipoint < npoint) {// If Q is inside the mesh, then simply convert the parameters to qvector.
-        return QVector(field[0][2*ipoint], field[0][2*ipoint+1]);
-    }
-    else {
-        throw std::out_of_range("In getQVector(): Index out of range.");
-    }
+    return qvectorAtPos(field[0], ipoint);
 }
 
 /**
  * Returns the value of the matrix current J defined by J = -(lscat/d) * Q * grad Q.
- * between the point of index "ipoint" and the neighboring point in the direction given by "dir".
+ * between the point of index "ipoint" and the point of index "jpoint", in the direction ipoint -> jpoint.
+ * If "ipoint" or "jpoint" is equal to one of the boundary values BND_*, then uses the Q field from the boundary condition.
  * This function assumes the Q field given by the (theta, eta) parameters is solved.
  */
-QVector UsadelSystem::getJVector(const int ipoint, const Direction dir) const {
-    
-    MeshPoint p = mesh->getPoint(ipoint);
-    QVector qvj;
-    
-    if (dir == NORTH)      qvj = qvectorAtPos(field[0], p.north); // This version accounts for boundary conditions,
-    else if (dir == SOUTH) qvj = qvectorAtPos(field[0], p.south); // i.e., the neighboring point of 'p' may not belong to the mesh.
-    else if (dir == EAST)  qvj = qvectorAtPos(field[0], p.east);
-    else if (dir == WEST)  qvj = qvectorAtPos(field[0], p.west);
-    
-    return qvj.cross(getQVector(ipoint)) * (I/(DIMENSION * holscat));
+QVector UsadelSystem::getJVector(const int ipoint, const int jpoint) const {
+    return qvectorAtPos(field[0], jpoint).cross(qvectorAtPos(field[0], ipoint)) * (I/(DIMENSION * holscat));
 }
 
 /**
@@ -150,34 +146,37 @@ QVector UsadelSystem::getJVector(const int ipoint, const Direction dir) const {
  */
 double UsadelSystem::getRho() const {
     
-    dcomplex flux_v1, flux_v2, fun;
-    double lenp, lenm, tval;
+    MeshPoint p;
+    QVector lpv(dcomplex(1., 0.), dcomplex(0., +1.), dcomplex(0., 0.));
+    QVector lmv(dcomplex(1., 0.), dcomplex(0., -1.), dcomplex(0., 0.));
+    dcomplex flux, fun;
+    int len_input, len_output, ninput, noutput;
     
-    tval = contact->at(0).getTransmission(); // Transmission eigenvalue, assumed to the same for all contact interactions.
+    flux = dcomplex(0., 0.);
+    len_input = 0;
+    len_output = 0;
     
-    flux_v1 = dcomplex(0., 0.);
-    flux_v2 = dcomplex(0., 0.);
-    lenp = 0.;
-    lenm = 0.;
-    
-    for (unsigned int ict = 0; ict < contact->size(); ict++) {// Loop on all the contact interactions.
+    for (int i = 0; i < npoint; i++) {// Loop on all the contact interactions.
         
-        flux_v1 += contact->at(ict).getFlux_v1(*this);
-        flux_v2 += contact->at(ict).getFlux_v2(*this);
+        p = mesh->getPoint(i);
         
-        if (contact->at(ict).getSType() == +1) {
-            lenp += contact->at(ict).getLength();
+        ninput  = (p.north == BND_INPUT)  + (p.south == BND_INPUT)  + (p.east == BND_INPUT)  + (p.west == BND_INPUT);
+        noutput = (p.north == BND_OUTPUT) + (p.south == BND_OUTPUT) + (p.east == BND_OUTPUT) + (p.west == BND_OUTPUT);
+        
+        if (ninput != 0) {
+            flux += dcomplex(ninput, 0.) * getJVector(BND_INPUT, i).dot(lpv);  // Note that the input current must be computed from the boundary to the edge point (and not in the other direction).
+            len_input += ninput;
         }
-        else {
-            lenm += contact->at(ict).getLength();
+        if (noutput != 0) {
+            flux += dcomplex(noutput, 0.) * getJVector(i, BND_OUTPUT).dot(lmv);  // Note that the output current must be computed from the edge to the boundary.
+            len_output += noutput;
         }
     }
     
-    std::cout << TAG_INFO << "In getRho(): lenp = " << lenp << ", lenm = " << lenm << "\n";
-    std::cout << TAG_INFO << "In getRho(): Total flux_v1 = " << flux_v1 << "\n";
-    std::cout << TAG_INFO << "In getRho(): Total flux_v2 = " << flux_v2 << " (returned value)\n";
+    //std::cout << TAG_INFO << "In getRho(): len_input = " << len_input << ", len_output = " << len_output << "\n";
+    //std::cout << TAG_INFO << "In getRho(): Total flux = " << flux << "\n";
     
-    fun = DEXTPOL * (I*std::sqrt(tval)/(2.*std::min(lenp, lenm))) * flux_v2;
+    fun = DEXTPOL * (I*std::sqrt(tval)/(2.*std::min(len_input, len_output))) * flux;
     
     return fun.imag()/(PI*tval*tval);
 }
@@ -199,10 +198,16 @@ QVector UsadelSystem::qvectorAtPos(const ComplexVector& someField, int ipoint) c
         return QVector(0., 0., 0.);
     }
     else if (ipoint == BND_OPEN) {// Open boundary conditions. If Q is outside the mesh, then Q is replaced by its vacuum value.
-        return QVector(0., 0., holscat/EXTRAPOLEN);
+        return QVector(0., 0., 1.) * (holscat/EXTRAPOLEN);
+    }
+    else if (ipoint == BND_INPUT) {// Input boundary condition. If Q is outside the mesh, then Q is replaced by Q_a.
+        return QVector(-I*ga, +ga, 1.) * (holscat/EXTRAPOLEN);
+    }
+    else if (ipoint == BND_OUTPUT) {// Output boundary condition. If Q is outside the mesh, then Q is replaced by Q_b.
+        return QVector(-I*gb, -gb, 1.) * (holscat/EXTRAPOLEN);
     }
     else {// If non of the above, then throw an error.
-        throw std::out_of_range("In getQVector(): Index out of range.");
+        throw std::out_of_range("In qvectorAtPos(): Index out of range.");
     }
 }
 
@@ -220,16 +225,6 @@ void UsadelSystem::residualAtPos(const ComplexVector& someField, int ipoint, dco
     qve = qvectorAtPos(someField, p.east);
     qvw = qvectorAtPos(someField, p.west);
     lav = QVector(0., 0., DIMENSION*holscat*holabso);  // Independent term of the Usadel equation.
-    
-    // Deal with contact interactions:
-    Vector2D pv(p); // Get the central point in vector form.
-    
-    for (unsigned int ict = 0; ict < contact->size(); ict++) {// Loop over all contact interactions.
-        contact->at(ict).applyTransfo(pv, pv + Vector2D(0., +1.), qvn);
-        contact->at(ict).applyTransfo(pv, pv + Vector2D(0., -1.), qvs);
-        contact->at(ict).applyTransfo(pv, pv + Vector2D(+1., 0.), qve);
-        contact->at(ict).applyTransfo(pv, pv + Vector2D(-1., 0.), qvw);
-    }
     
     // Compute the full residual q-vector of the Usadel equation:
     sqv = (qvn + qvs + qve + qvw + lav).rotate_2(-someField[2*ipoint+1]).rotate_1(-someField[2*ipoint]);
@@ -254,16 +249,6 @@ void UsadelSystem::residualAtPosOld(const ComplexVector& someField, int ipoint, 
     qve = qvectorAtPos(someField, p0.east);
     qvw = qvectorAtPos(someField, p0.west);
     l3v = QVector(0., 0., DIMENSION*holscat*holabso);
-    
-    // Deal with contact interactions:
-    Vector2D p0v(p0); // Get the central point in vector form.
-    
-    for (unsigned int ict = 0; ict < contact->size(); ict++) {// Loop over all contact interactions.
-        contact->at(ict).applyTransfo(p0v, p0v + Vector2D(0., +1.), qvn);
-        contact->at(ict).applyTransfo(p0v, p0v + Vector2D(0., -1.), qvs);
-        contact->at(ict).applyTransfo(p0v, p0v + Vector2D(+1., 0.), qve);
-        contact->at(ict).applyTransfo(p0v, p0v + Vector2D(-1., 0.), qvw);
-    }
     
     // Compute the full residual q-vector of the Usadel equation:
     resv = qv0.cross(qvn + qvs + qve + qvw + l3v).rotate_2(-someField[2*ipoint+1]).rotate_1(-someField[2*ipoint]);
@@ -511,15 +496,6 @@ int UsadelSystem::testJacobian(const double tolerr) const {
  ***********************************************************/
 
 /**
- * Assigns the given transmission value to all contact interactions.
- */
-void UsadelSystem::setTransmission(const double tval) {
-    for (unsigned int ict = 0; ict < contact->size(); ict++) {
-        contact->at(ict).setTransmission(tval);
-    }
-}
-
-/**
  * Initialize the Q field to random values according to a given "seed".
  * This method ensures the Q values are picked up isotropically on the Q^2 = 1 manifold.
  */
@@ -542,7 +518,6 @@ void UsadelSystem::initRandom(const uint64_t seed) {
         q3i = random_normal(rng);
         
         qv = QVector(dcomplex(q1r, q1i), dcomplex(q2r, q2i), dcomplex(q3r, q3i));
-        //qv.getThetaEta(theta, eta);  // Convert the qvector into angle parameters (theta, eta).
         field[0].set(2*i,   qv.getTheta());
         field[0].set(2*i+1, qv.getEta());
     }
@@ -556,15 +531,9 @@ void UsadelSystem::initConstant() {
     
     dcomplex theta0, eta0, ga_avg;
     
-    // 1. Compute the geometric average of all gamma parameters (this is coarse):
-    ga_avg = dcomplex(1., 0.);
-    unsigned int nct = contact->size();
-    for (unsigned int ict = 0; ict < nct; ict++) {// Loop over the contact interactions.
-        ga_avg *= contact->at(ict).getGamma();
-    }
-    ga_avg = pow(ga_avg, 1./nct);  // Geometric average (in the case gamma_a != gamma_b).
+    ga_avg = std::sqrt(ga*gb); // Geometric average of gamma values (equal to 1/sqrt(T)).
     
-    // 2. Assign constant values to all points in the mesh:
+    // Assign constant values to all points in the mesh:
     theta0 = dcomplex(0., 0.); // Very coarse. Theta always varies in space.
     eta0 = std::atan(-I*ga_avg);    // Exact only in the absence of losses (no absorption, complete channel control).
     
@@ -576,8 +545,7 @@ void UsadelSystem::initConstant() {
 
 /**
  * Initialize the Q field using the quasi-one-dimensional solution known exactly in the waveguide geometry without absorption.
- * This function assumes the waveguide geometry withotu absorption and full channel control.
- * In addition, the contact interactions must be located out of the medium.
+ * This function assumes the waveguide geometry without absorption and full channel control.
  * This function is mainly used for testing purposes because it is completely wrong if the geometry is not waveguide.
  * Therefore, it cannot be used as a guess for the Newton-Raphson method, in contrast to the other init*() methods.
  */

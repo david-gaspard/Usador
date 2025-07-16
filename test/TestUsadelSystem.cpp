@@ -40,7 +40,7 @@ int extractQPoint() {
     const int length = 20;
     const int width = 10;
     
-    UsadelSystem usys(length, width, 5., 0.1);  // Create the reference Usadel System with waveguide geometry.
+    UsadelSystem usys(length, width, 5., 0.1, 0.5);  // Create the reference Usadel System with waveguide geometry.
     
     const uint64_t seed = 1;
     usys.initRandom(seed);  // Set the Q field to random to avoid trivial output.
@@ -61,7 +61,7 @@ int extractQField() {
     const int length = 20;
     const int width = 10;
     
-    UsadelSystem usys(length, width, 5., 0.1);  // Create the reference Usadel System with waveguide geometry.
+    UsadelSystem usys(length, width, 5., 0.1, 0.5);  // Create the reference Usadel System with waveguide geometry.
     
     const uint64_t seed = 1;
     usys.initRandom(seed);  // Set the Q field to random to avoid trivial output.
@@ -84,7 +84,7 @@ int testResidual() {
     const int length = 20;
     const int width = 10;
     
-    UsadelSystem usys(length, width, 5., 0.1);  // Create the reference Usadel System with waveguide geometry.
+    UsadelSystem usys(length, width, 5., 0.1, 0.5);  // Create the reference Usadel System with waveguide geometry.
     
     const uint64_t seed = 1; // Initialize the Q field to random values to avoid trivial output.
     usys.initRandom(seed);
@@ -103,7 +103,7 @@ int testJacobian() {
     const int length = 20;
     const int width = 10;
     
-    UsadelSystem usys(length, width, 5., 0.1);  // Create the reference Usadel System with waveguide geometry.
+    UsadelSystem usys(length, width, 5., 0.1, 0.5);  // Create the reference Usadel System with waveguide geometry.
     
     const uint64_t seed = 1; // Initialize the Q field to random values to avoid trivial output.
     usys.initRandom(seed);
@@ -122,7 +122,7 @@ int testSaveField() {
     const int length = 20;
     const int width = 10;
     
-    UsadelSystem usys(length, width, 5., 0.1);  // Create the reference Usadel System with waveguide geometry.
+    UsadelSystem usys(length, width, 5., 0.1, 0.5);  // Create the reference Usadel System with waveguide geometry.
     
     const uint64_t seed = 1;
     usys.initRandom(seed);  // Set the Q field to random to avoid trivial output.
@@ -135,7 +135,7 @@ int testSaveField() {
 }
 
 /**
- * Test solving hte Usadel equation using Newton-Raphson iterative method.
+ * Test solving the Usadel equation using Newton-Raphson iterative method.
  * In a reference situation: Quasi-one-dimensional and translationally invariant in y direction.
  */
 int testSolve() {
@@ -147,19 +147,19 @@ int testSolve() {
     // Create a square mesh:
     SquareMesh mesh;
     mesh.addRectangle(-30, 30, -15, 15);
-    mesh.setBoundaryRegion(-30, -30, -14, 14, WEST, BND_OPEN);
-    mesh.setBoundaryRegion( 30,  30, -14, 14, EAST, BND_OPEN);
+    mesh.setBoundaryRegion(-30, -30, -14, 14, WEST, BND_INPUT);
+    mesh.setBoundaryRegion( 30,  30, -14, 14, EAST, BND_OUTPUT);
     mesh.fixNeighbors();
     
     // Contact interactions:
     tval = 0.99; // Transmission probability.
-    Contact cta = Contact(Vector2D(-30.5, 15.5), Vector2D(-30.5, -15.5), +1, tval); // Input contact.
-    Contact ctb = Contact(Vector2D(30.5, 15.5), Vector2D(30.5, -15.5), -1, tval);   // Output contact.
-    std::vector<Contact> contact = {cta, ctb};
+    //Contact cta = Contact(Vector2D(-30.5, 15.5), Vector2D(-30.5, -15.5), +1, tval); // Input contact.
+    //Contact ctb = Contact(Vector2D(30.5, 15.5), Vector2D(30.5, -15.5), -1, tval);   // Output contact.
+    //std::vector<Contact> contact = {cta, ctb};
     
     holscat = 0.083; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.0;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
-    UsadelSystem usys(mesh, contact, holscat, holabso);
+    UsadelSystem usys(mesh, holscat, holabso, tval);
     
     maxit = 200;  // Maximum number of iterations. Typically: 100-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
@@ -170,7 +170,7 @@ int testSolve() {
     usys.initConstant();
     usys.solveNewton(maxit, nsub, tolp, tolr, verbose);
     
-    const char* filename = "out/test_field_x.csv";
+    const char* filename = "out/test/test_field_x.csv";
     std::cout << TAG_INFO << "Saving data to file '" << filename << "'...\n";
     usys.saveField(filename, ", ", 16);
     
@@ -184,12 +184,13 @@ int testWaveguideSolution() {
     std::cout << "====== TEST WAVEGUIDE SOLUTION ======\n";
     
     int length, width, maxit, nsub, verbose, found;
-    double dscat, dabso, tolp, tolr;
+    double dscat, dabso, tval, tolp, tolr;
     
     length = 20;  // Length of the waveguide (in units of the lattice step).
     width = 10;   // Width of the waveguide (in units of the lattice step).
     dscat = 5.;   // Scattering thickness L/lscat (in the direction of "length").
     dabso = 0.;   // Absorption thickness L/labso.
+    tval = 0.5;   // Transmission eigenvalue.
     
     maxit = 200;  // Maximum number of iterations. Typically: 100-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
@@ -198,7 +199,7 @@ int testWaveguideSolution() {
     verbose = 0;  // Verbosity level in standard output. 0=No output, 1=Display each iteration.
     
     // Solves the Usadel equation:
-    UsadelSystem usys(length, width, dscat, dabso);  // Create the reference Usadel System with waveguide geometry.
+    UsadelSystem usys(length, width, dscat, dabso, tval);  // Create the reference Usadel System with waveguide geometry.
     usys.initConstant();  // Initialize the Usadel solver (using contact guess).
     found = usys.solveNewton(maxit, nsub, tolp, tolr, verbose); // Solves the Usadel equation using the Newton method.
     
@@ -237,7 +238,7 @@ int testRhoBimodal() {
     
     ntval = 20; // Number of points on the curve [T, rho(T)].
     
-    UsadelSystem usys(length, width, dscat, dabso);  // Create the reference Usadel System with waveguide geometry.
+    UsadelSystem usys(length, width, dscat, dabso, 0.5);  // Create the reference Usadel System with waveguide geometry.
     
     const char* filename_distrib = "out/test/distrib/distrib_x.csv";
     const char* filename_field = "out/test/distrib/distrib_x_field.csv";
