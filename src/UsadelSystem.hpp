@@ -34,10 +34,11 @@ class UsadelSystem {
     // Getters:
     int getNPoint() const;
     MeshPoint getPoint(const int ipoint) const;
+    int indexOf(const int x, const int y) const;
     double getHolscat() const;
     double getHolabso() const;
     QVector getQVector(const int ipoint) const;
-    void getJVector(const int i, const int j, QVector& jv, Vector2D& dir) const;
+    QVector getJVector(const int ipoint, const Direction dir) const;
     double getRho() const;
     
     // Initializers/Setters:

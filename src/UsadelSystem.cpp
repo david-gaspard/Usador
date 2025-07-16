@@ -38,15 +38,21 @@ UsadelSystem::UsadelSystem(SquareMesh& mesh, std::vector<Contact>& contact, cons
 UsadelSystem::UsadelSystem(const int length, const int width, const double dscat, const double dabso) {
     //std::cout << TAG_INFO << "Creating UsadelSystem (waveguide template).\n";
     mesh = new SquareMesh();
+    mesh->addDisk(0, width/2, length/3);
     mesh->addRectangle(-length/2, length/2, -width/2, width/2);
     mesh->setBoundaryRegion(-length/2, -length/2, -width/2, width/2, WEST, BND_OPEN);
     mesh->setBoundaryRegion( length/2,  length/2, -width/2, width/2, EAST, BND_OPEN);
     mesh->fixNeighbors();
     
-    Vector2D c0a(-(length/2 + 0.5),  (width/2 + 0.5));
+    Vector2D c0a(-(length/2 + 0.5),  (width/2 + 0.5));  // Contact interactions at the boundaries.
     Vector2D c1a(-(length/2 + 0.5), -(width/2 + 0.5));
     Vector2D c0b( (length/2 + 0.5),  (width/2 + 0.5));
     Vector2D c1b( (length/2 + 0.5), -(width/2 + 0.5));
+    
+    // Vector2D c0a(-(length/2 - 0.5),  (width/2 + 0.5)); // Contact interactions in the bulk (near the boundaries).
+    // Vector2D c1a(-(length/2 - 0.5), -(width/2 + 0.5));
+    // Vector2D c0b( (length/2 - 0.5),  (width/2 + 0.5));
+    // Vector2D c1b( (length/2 - 0.5), -(width/2 + 0.5));
     
     contact = new std::vector<Contact>({Contact(c0a, c1a, +1, 0.5), Contact(c0b, c1b, -1, 0.5)});
     
@@ -85,6 +91,14 @@ MeshPoint UsadelSystem::getPoint(const int ipoint) const {
 }
 
 /**
+ * Returns the index of the given point (x, y).
+ * If (x, y) does not belong the mesh, then return BND_DEFAULT, a negative integer.
+ */
+int UsadelSystem::indexOf(const int x, const int y) const {
+    return mesh->indexOf(x, y);
+}
+
+/**
  * Returns the value of "holscat" which is defined by h/lscat, where "h" is the lattice step
  * (the unit length) and "lscat" is the scattering mean free path.
  */
@@ -114,12 +128,20 @@ QVector UsadelSystem::getQVector(const int ipoint) const {
 
 /**
  * Returns the value of the matrix current J defined by J = -(lscat/d) * Q * grad Q.
- * between point of index "i" and point of index "j" in the direction i -> j.
+ * between the point of index "ipoint" and the neighboring point in the direction given by "dir".
  * This function assumes the Q field given by the (theta, eta) parameters is solved.
  */
-void UsadelSystem::getJVector(const int i, const int j, QVector& jv, Vector2D& dir) const {
-    jv = getQVector(j).cross(getQVector(i)) * (I/(DIMENSION * holscat));
-    dir = Vector2D(mesh->getPoint(j)) - Vector2D(mesh->getPoint(i));
+QVector UsadelSystem::getJVector(const int ipoint, const Direction dir) const {
+    
+    MeshPoint p = mesh->getPoint(ipoint);
+    QVector qvj;
+    
+    if (dir == NORTH)      qvj = qvectorAtPos(field[0], p.north); // This version accounts for boundary conditions,
+    else if (dir == SOUTH) qvj = qvectorAtPos(field[0], p.south); // i.e., the neighboring point of 'p' may not belong to the mesh.
+    else if (dir == EAST)  qvj = qvectorAtPos(field[0], p.east);
+    else if (dir == WEST)  qvj = qvectorAtPos(field[0], p.west);
+    
+    return qvj.cross(getQVector(ipoint)) * (I/(DIMENSION * holscat));
 }
 
 /**
@@ -128,18 +150,20 @@ void UsadelSystem::getJVector(const int i, const int j, QVector& jv, Vector2D& d
  */
 double UsadelSystem::getRho() const {
     
-    dcomplex flux, fun;
+    dcomplex flux_v1, flux_v2, fun;
     double lenp, lenm, tval;
     
     tval = contact->at(0).getTransmission(); // Transmission eigenvalue, assumed to the same for all contact interactions.
     
-    flux = dcomplex(0., 0.);
+    flux_v1 = dcomplex(0., 0.);
+    flux_v2 = dcomplex(0., 0.);
     lenp = 0.;
     lenm = 0.;
     
     for (unsigned int ict = 0; ict < contact->size(); ict++) {// Loop on all the contact interactions.
         
-        flux += contact->at(ict).getFlux(*this);
+        flux_v1 += contact->at(ict).getFlux_v1(*this);
+        flux_v2 += contact->at(ict).getFlux_v2(*this);
         
         if (contact->at(ict).getSType() == +1) {
             lenp += contact->at(ict).getLength();
@@ -149,9 +173,11 @@ double UsadelSystem::getRho() const {
         }
     }
     
-    std::cout << TAG_INFO << "Total flux = " << flux << ", lenp = " << lenp << ", lenm = " << lenm << "\n";
+    std::cout << TAG_INFO << "In getRho(): lenp = " << lenp << ", lenm = " << lenm << "\n";
+    std::cout << TAG_INFO << "In getRho(): Total flux_v1 = " << flux_v1 << "\n";
+    std::cout << TAG_INFO << "In getRho(): Total flux_v2 = " << flux_v2 << " (returned value)\n";
     
-    fun = DEXTPOL * (I*std::sqrt(tval)/(2.*std::min(lenp, lenm))) * flux;
+    fun = DEXTPOL * (I*std::sqrt(tval)/(2.*std::min(lenp, lenm))) * flux_v2;
     
     return fun.imag()/(PI*tval*tval);
 }

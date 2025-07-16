@@ -235,7 +235,7 @@ int testRhoBimodal() {
     tolr = 1e-10; // Tolerance over the norm of the residual compared to the norm of the initial residual. Typically: 1e-10.
     verbose = 0;  // Verbosity level in standard output. 0=No output, 1=Display each iteration.
     
-    ntval = 1; // Number of points on the curve [T, rho(T)].
+    ntval = 20; // Number of points on the curve [T, rho(T)].
     
     UsadelSystem usys(length, width, dscat, dabso);  // Create the reference Usadel System with waveguide geometry.
     

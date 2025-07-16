@@ -121,13 +121,13 @@ Vector2D Contact::getNormal() const {
  * 
  * @deprecated This is an old implementation unable to take into account the boundary conditions.
  */
-dcomplex Contact::getFlux_old(const UsadelSystem& usys) const {
+dcomplex Contact::getFlux_v1(const UsadelSystem& usys) const {
     
     const QVector lv(dcomplex(1., 0.), dcomplex(0., stype), dcomplex(0., 0.));  // Vector representation of Lambda_+-.
     
     MeshPoint p0, p1;
-    QVector jv, flux;
-    Vector2D dir, normal;
+    QVector jv, flux(0., 0., 0.);
+    Vector2D normal;
     
     normal = getNormal();  // Compute the normal vector to the contact interaction.
     std::cout << TAG_INFO << "Normal vector = " << normal << "\n";
@@ -138,7 +138,6 @@ dcomplex Contact::getFlux_old(const UsadelSystem& usys) const {
     // This is needed to check the bimodal distribution [TEST: testRhoBimodal()]....
     // .............................................................................
     
-    
     for (int i = 0; i < usys.getNPoint(); i++) {// Loop on the points.
         
         p0 = usys.getPoint(i);  // Get the point.
@@ -147,9 +146,9 @@ dcomplex Contact::getFlux_old(const UsadelSystem& usys) const {
             p1 = usys.getPoint(p0.south);
             if (intersects(Vector2D(p0), Vector2D(p1))) {// If the segment p0-p1 intersect the contact interaction, then add the contribution to the flux.
                 //std::cout << TAG_INFO << "Found intersection between p0 = " << Vector2D(p0) << " and p1 = " << Vector2D(p1) << " (south point), ";
-                usys.getJVector(i, p0.south, jv, dir);
+                jv = usys.getJVector(i, SOUTH);
                 //std::cout << "jv = " << jv << ", dir = " << dir << "\n";
-                flux += jv * dir.dot(normal);
+                flux += jv * normal.dot(Vector2D(0., -1.));
                 nintersec++;
             }
         }
@@ -157,50 +156,130 @@ dcomplex Contact::getFlux_old(const UsadelSystem& usys) const {
             p1 = usys.getPoint(p0.east);
             if (intersects(Vector2D(p0), Vector2D(p1))) {// If the segment p0-p1 intersect the contact interaction, then add the contribution to the flux.
                 //std::cout << TAG_INFO << "Found intersection between p0 = " << Vector2D(p0) << " and p1 = " << Vector2D(p1) << " (east point), ";
-                usys.getJVector(i, p0.east, jv, dir);
+                jv = usys.getJVector(i, EAST);
                 //std::cout << "jv = " << jv << ", dir = " << dir << "\n";
-                flux += jv * dir.dot(normal);
+                flux += jv * normal.dot(Vector2D(1., 0.));
                 nintersec++;
             }
         }
     }
     
-    std::cout << TAG_INFO << "flux = " << flux << ", length = " << getLength() << ", nintersec = " << nintersec << "\n";
+    std::cout << TAG_INFO << "getFlux_v1(): flux = " << flux << ", length = " << getLength() << ", nintersec = " << nintersec << "\n";
     
     flux *= getLength()/nintersec;  // Normalize the flux integral.
     
     return flux.dot(lv); // Returns the component tr(flux.Lambda_+-), instead of the matrix flux.
 }
 
+///**
+// * Returns the flux integral: Integral tr( J.Lambda_+- ) dS , where J is the matrix current density J = -(lscat/d) Q Grad(Q).
+// */
+//dcomplex Contact::getFlux_v2_old(const UsadelSystem& usys) const {
+//    
+//    const QVector lv(dcomplex(1., 0.), dcomplex(0., stype), dcomplex(0., 0.));  // Vector representation of Lambda_+-.
+//    QVector jv, flux;
+//    MeshPoint p0;
+//    Vector2D p0v, normal;
+//    int nintersec = 0; // Initialize the number of intersections.
+//    
+//    for (int i = 0; i < usys.getNPoint(); i++) {// Loop on the points.
+//        
+//        p0 = usys.getPoint(i);  // Get the point.
+//        p0v = Vector2D(p0);
+//        
+//        if (intersects(p0v, p0v + Vector2D(0., 1.))) {
+//            jv = usys.getJVector(i, NORTH);  // NB: This assumes another implementation of the getJVector() method.
+//            flux += jv * normal.dot(Vector2D(0., 1.));
+//            nintersec++;
+//        }
+//        
+//        // WARNING: This loop crosses the contact TWO TIMES per segment !!!
+//        // TWO OPTIONS: 
+//        // 1. Loop over the segments uniquely using the previous technique (south, east), but taking into account the (north, west) directions at the edges of the medium.
+//        // 2. Loop directly over the crossing segments by looking for the ranges [xmin, xmax] and [ymin, ymax] containing the contact interaction.
+//        
+//    }
+//    
+//    return flux.dot(lv); // Returns the component tr(flux.Lambda_+-), instead of the matrix flux.
+//}
 
 /**
  * Returns the flux integral: Integral tr( J.Lambda_+- ) dS , where J is the matrix current density J = -(lscat/d) Q Grad(Q).
  */
-dcomplex Contact::getFlux(const UsadelSystem& usys) const {
+dcomplex Contact::getFlux_v2(const UsadelSystem& usys) const {
     
     const QVector lv(dcomplex(1., 0.), dcomplex(0., stype), dcomplex(0., 0.));  // Vector representation of Lambda_+-.
-    QVector jv, flux;
-    MeshPoint p0;
-    Vector2D p0v, dir, normal;
-    int nintersec = 0; // Initialize the number of intersections.
+    const Vector2D normal = getNormal();
     
-    for (int i = 0; i < usys.getNPoint(); i++) {// Loop on the points.
-        
-        p0 = usys.getPoint(i);  // Get the point.
-        p0v = Vector2D(p0);
-        
-        if (intersects(p0v, p0v + Vector2D(0., 1.))) {
-            usys.getJVector(i, NORTH, jv, dir);  // NB: This assumes another implementation of the getJVector() method.
-            flux += jv * normal.dot(Vector2D(0., 1.));
-            nintersec++;
+    const int xmin = (int) std::ceil(std::min(c0.x, c1.x));
+    const int xmax = (int)std::floor(std::max(c0.x, c1.x));
+    const int ymin = (int) std::ceil(std::min(c0.y, c1.y));
+    const int ymax = (int)std::floor(std::max(c0.y, c1.y));
+    
+    QVector jv, flux(0., 0., 0.);
+    double xc, yc;
+    int x0, x1, y0, y1, i0, i1;
+    int nintersec = 0; 
+    
+    // 1. Look for intersections in the y direction:
+    if (c0.x != c1.x) {
+        for (int x = xmin; x <= xmax; x++) {
+            
+            yc = c0.y + (c1.y - c0.y)*(c0.x - x)/(c0.x - c1.x);  // Value of y intersecting the contact interaction.
+            
+            y0 = (int)std::floor(yc);
+            y1 = (int) std::ceil(yc);
+            
+            i0 = usys.indexOf(x, y0); // Two points: (x, y0), (x, y1), guaranteed to intersect the contact. But we do not know if they belong to the mesh....
+            i1 = usys.indexOf(x, y1);
+            
+            if (i0 >= 0) {// If (x, y0) belongs to the mesh, then look in the north direction.
+                jv = usys.getJVector(i0, NORTH);  // NB: This assumes another implementation of the getJVector() method.
+                flux += jv * normal.dot(Vector2D(0., +1.));
+                nintersec++;
+            }
+            else if (i1 >= 0) {// If (x, y1) belongs the mesh, then look in the south direction.
+                jv = usys.getJVector(i1, SOUTH);  // NB: This assumes another implementation of the getJVector() method.
+                flux += jv * normal.dot(Vector2D(0., -1.));
+                nintersec++;
+            }
+            else {
+                std::cout << TAG_WARN << "In getFlux_v2(): Some segments in direction 'y' do not belong to the mesh.\n";
+            }
         }
-        
-        // WARNING: This loop crosses the contact TWO TIMES per segment !!!
-        // TWO OPTIONS: 
-        // 1. Loop over the segments uniquely using the previous technique (south, east), but taking into account the (north, west) directions at the edges of the medium.
-        // 2. Loop directly over the crossing segments by looking for the ranges [xmin, xmax] and [ymin, ymax] containing the contact interaction.
-        
     }
     
-    return flux.dot(lv); // Returns the component tr(flux.Lambda_+-), instead of the matrix flux.
+    // 2. Look for intersections in the x direction:
+    if (c0.y != c1.y) {
+        for (int y = ymin; y <= ymax; y++) {
+            
+            xc = c0.x + (c1.x - c0.x)*(c0.y - y)/(c0.y - c1.y);  // Value of x intersecting the contact interaction.
+            
+            x0 = (int)std::floor(xc);
+            x1 = (int) std::ceil(xc);
+            
+            i0 = usys.indexOf(x0, y); // Two points: (x, y0), (x, y1), guaranteed to intersect the contact. But we do not know if they belong to the mesh....
+            i1 = usys.indexOf(x1, y);
+            
+            if (i0 >= 0) {// If (x0, y) belongs to the mesh, then look in the east direction.
+                jv = usys.getJVector(i0, EAST);  // NB: This assumes another implementation of the getJVector() method.
+                flux += jv * normal.dot(Vector2D(+1., 0.));
+                nintersec++;
+            }
+            else if (i1 >= 0) {// If (x1, y) belongs to the mesh, then look in the west direction.
+                jv = usys.getJVector(i1, WEST);  // NB: This assumes another implementation of the getJVector() method.
+                flux += jv * normal.dot(Vector2D(-1., 0.));
+                nintersec++;
+            }
+            else {
+                std::cout << TAG_WARN << "In getFlux_v2(): Some segments  in direction 'x' do not belong to the mesh.\n";
+            }
+        }
+    }
+    
+    std::cout << TAG_INFO << "getFlux_v2(): flux = " << flux << ", length = " << getLength() << ", nintersec = " << nintersec << "\n";
+    
+    flux *= getLength()/nintersec;  // Normalize the flux integral.
+    
+    return flux.dot(lv);
 }

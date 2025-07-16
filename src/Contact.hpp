@@ -39,8 +39,8 @@ class Contact {
     int getSType() const;
     double getLength() const;
     Vector2D getNormal() const;
-    dcomplex getFlux_old(const UsadelSystem& usys) const;
-    dcomplex getFlux(const UsadelSystem& usys) const;
+    dcomplex getFlux_v1(const UsadelSystem& usys) const;
+    dcomplex getFlux_v2(const UsadelSystem& usys) const;
     
     // Computational methods:
     bool intersects(Vector2D p0, Vector2D p1) const;
