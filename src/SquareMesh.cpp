@@ -351,6 +351,6 @@ void SquareMesh::saveMeshShort(const char* filename, const char* sep) const {
         }
         ofs << "\n";
     }
-        
+    
     ofs.close();
 }

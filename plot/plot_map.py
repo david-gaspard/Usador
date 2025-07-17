@@ -185,8 +185,8 @@ def plot_map(args):
     image = cmap(norm(matrix)) ## Create the bitmap image.
     ##print("[INFO] vmin = ", vmin, ", vmax = ", vmax)
     
-    pre, ext = os.path.splitext(field_file)
-    bitmap_file = pre + '_map.png'
+    ##pre, ext = os.path.splitext(field_file)
+    bitmap_file = field_path + '_map.png'
     mplt.imsave(bitmap_file, image)  ## Save the raw pixel-constrained bitmap to a PNG file.
     
     tikz_string = '''%% Generated on {timestamp} by {my_program} {my_copyright}
@@ -220,12 +220,12 @@ def plot_map(args):
         xmax   = xmax+0.5,
         ymin   = ymin-0.5,
         ymax   = ymax+0.5,
-        bitmap_file = bitmap_file,
+        bitmap_file = "\\jobname_map.png",
         boundary_code = boundary_to_tikz_code(mesh_file)
     )
     
     ## Export the TikZ code to a file and compile it:
-    tikz_file = pre + '.tikz'
+    tikz_file = field_path + '.tikz'
     print("[INFO] Writing TikZ file: '" + tikz_file + "'...")
     open(tikz_file, 'w').write(tikz_string)
     compile_tikz.compile_tikz(tikz_file) ## Compile the TikZ file.
