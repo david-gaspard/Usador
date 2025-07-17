@@ -1,11 +1,11 @@
 %% Created on 2025-07-09 at 19:53:35 CEST by David Gaspard (ORCID 0000-0002-4449-8782) <david.gaspard@espci.fr> under the MIT License.
-## Directories ##
+## Ignore directories ##
 bin/
 out/
 old/
-tikz/__pycache__/
+plot/__pycache__/
 
-## Binary files ##
+## Ignore binary files ##
 usador
 *.test
 *.pdf

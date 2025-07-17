@@ -289,9 +289,8 @@ void SquareMesh::printSummary() const {
 
 /**
  * Save the points to a file "filename" using the separator "sep".
- * The "verbosity" controls the amount of printed data.
  */
-void SquareMesh::saveMesh(const char* filename, const char* sep, const int verbosity) const {
+void SquareMesh::saveMesh(const char* filename, const char* sep) const {
     
     if (not ready) {
         throw std::logic_error("In saveMesh(): SquareMesh is not completely initialized. Please use fixNeighbors().");
@@ -302,36 +301,56 @@ void SquareMesh::saveMesh(const char* filename, const char* sep, const int verbo
     
     writeTimestamp(ofs, "%% ");
     
-    ofs << "%% SquareMesh with " << point.size() << " points.\n";
+    ofs << "%% SquareMesh with " << point.size() << " points.\n"
+        << "x" << sep << "y" << sep << "north" << sep << "south" << sep << "east" << sep << "west\n";
     
-    if (verbosity == 0) {
-        ofs << "x, y, bnd\n";
-        for (MeshPoint p : point) {
-            ofs << p.x << sep << p.y << sep;
-            if (p.north == BND_INPUT || p.south == BND_INPUT || p.east == BND_INPUT || p.west == BND_INPUT) {
-                ofs << "input";
-            }
-            else if (p.north == BND_OUTPUT || p.south == BND_OUTPUT || p.east == BND_OUTPUT || p.west == BND_OUTPUT) {
-                ofs << "output";
-            }
-            else if (p.north == BND_OPEN || p.south == BND_OPEN || p.east == BND_OPEN || p.west == BND_OPEN) {
-                ofs << "open";
-            }
-            else if (p.north == BND_MIRROR || p.south == BND_MIRROR || p.east == BND_MIRROR || p.west == BND_MIRROR) {
-                ofs << "mirror";
-            }
-            else {
-                ofs << "bulk";
-            }
-            ofs << "\n";
-        }
-    }
-    else {
-        ofs << "x, y, north, south, east, west\n";
-        for (MeshPoint p : point) {
-            ofs << p.x << sep << p.y << sep << p.north << sep << p.south << sep << p.east << sep << p.west << "\n";
-        }
+    for (MeshPoint p : point) {
+        ofs << p.x << sep << p.y << sep << boundaryTypeString(p.north) << sep 
+                                        << boundaryTypeString(p.south) << sep 
+                                        << boundaryTypeString(p.east) << sep 
+                                        << boundaryTypeString(p.west) << "\n";
     }
     
+    ofs.close();
+}
+
+/**
+ * Save the points to a file "filename" using the separator "sep".
+ * This is a short version for quick plots with less post-processing.
+ */
+void SquareMesh::saveMeshShort(const char* filename, const char* sep) const {
+    
+    if (not ready) {
+        throw std::logic_error("In saveMeshShort(): SquareMesh is not completely initialized. Please use fixNeighbors().");
+    }
+    
+    std::ofstream ofs;
+    ofs.open(filename);
+    
+    writeTimestamp(ofs, "%% ");
+    
+    ofs << "%% SquareMesh with " << point.size() << " points.\n" 
+        << "x" << sep << "y" << sep << "bnd\n";
+    
+    for (MeshPoint p : point) {
+        ofs << p.x << sep << p.y << sep;
+        if (p.north == BND_INPUT || p.south == BND_INPUT || p.east == BND_INPUT || p.west == BND_INPUT) {
+            ofs << "input";
+        }
+        else if (p.north == BND_OUTPUT || p.south == BND_OUTPUT || p.east == BND_OUTPUT || p.west == BND_OUTPUT) {
+            ofs << "output";
+        }
+        else if (p.north == BND_OPEN || p.south == BND_OPEN || p.east == BND_OPEN || p.west == BND_OPEN) {
+            ofs << "open";
+        }
+        else if (p.north == BND_MIRROR || p.south == BND_MIRROR || p.east == BND_MIRROR || p.west == BND_MIRROR) {
+            ofs << "mirror";
+        }
+        else {
+            ofs << "bulk";
+        }
+        ofs << "\n";
+    }
+        
     ofs.close();
 }

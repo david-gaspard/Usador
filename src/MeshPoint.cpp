@@ -24,3 +24,21 @@ MeshPoint::MeshPoint(const int x, const int y) {
  * Default constructor of MeshPoint.
  */
 MeshPoint::MeshPoint() : MeshPoint(0, 0) {}
+
+/**
+ * Returns a string version of the given boundary type.
+ */
+const std::string boundaryTypeString(const int bndtype) {
+    switch (bndtype) {
+        case BND_MIRROR:
+            return "mirror";
+        case BND_OPEN:
+            return "open";
+        case BND_INPUT:
+            return "input";
+        case BND_OUTPUT:
+            return "output";
+        default:
+            return std::to_string(bndtype);
+    }
+}

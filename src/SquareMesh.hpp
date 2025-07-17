@@ -61,7 +61,8 @@ class SquareMesh {
     
     // Output methods:
     void printSummary() const;
-    void saveMesh(const char* filename, const char* sep, const int verbosity) const;
+    void saveMesh(const char* filename, const char* sep) const;
+    void saveMeshShort(const char* filename, const char* sep) const;
     
 };
 

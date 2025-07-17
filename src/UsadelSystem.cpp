@@ -544,18 +544,6 @@ void UsadelSystem::initConstant() {
 }
 
 /**
- * Initialize the Q field using the quasi-one-dimensional solution known exactly in the waveguide geometry without absorption.
- * This function assumes the waveguide geometry without absorption and full channel control.
- * This function is mainly used for testing purposes because it is completely wrong if the geometry is not waveguide.
- * Therefore, it cannot be used as a guess for the Newton-Raphson method, in contrast to the other init*() methods.
- */
-void UsadelSystem::initWaveguide() {
-    
-    // TODO: To be implemented..............
-    
-}
-
-/**
  * Solve the Usadel System using the Newton-Raphson iterative algorithm.
  * This method does not call initializers (parameters (theta, eta) are zeros), but the usage of an appropriate ansatz
  * is highly recommended in order to accelerate convergence while avoiding improper solutions.
@@ -635,8 +623,8 @@ int UsadelSystem::solveNewton(const int maxit, const int nsub, const double tolp
  * 
  * @todo Call external scripts to plot the mesh properly with the contact interaction.
  */
-void UsadelSystem::saveMesh(const char* filename, const char* sep, const int verbosity) const {
-    mesh->saveMesh(filename, sep, verbosity);
+void UsadelSystem::saveMesh(const char* filename, const char* sep) const {
+    mesh->saveMesh(filename, sep);
 }
 
 /**
@@ -673,6 +661,32 @@ void UsadelSystem::saveField(const char* filename, const char* sep, const int pr
             << qv.getQ12().real() << sep << qv.getQ12().imag() << sep
             << qv.getQ21().real() << sep << qv.getQ21().imag() << "\n";
     }
+    
+    ofs.close();  // Close the file.
+    
+    ofs << std::setprecision(default_precision); // Restore default precision for printing.
+}
+
+/**
+ * Saves the intensities I_a from Re(Q_12), I_b from Re(Q_21), and I_ab from Im(Q_11) to a given file.
+ * This functions assumes the Q field is found.
+ */
+void UsadelSystem::saveIntensities(const char* filename, const char* sep, const int prec) const {
+    
+    std::ofstream ofs;  // Declare output stream object.
+    ofs.open(filename); // Open the file in write mode.
+    
+    const auto default_precision = ofs.precision(); // Saves the default precision.
+    ofs << std::setprecision(prec); // Set the printing precision.
+    
+    writeTimestamp(ofs, "%% "); // Apply a timestamp at the beginning.
+    
+    ofs << "%% Parameters: h/lscat = " << holscat << ", h/labso = " << holabso << "\n"
+        << "x, y, I_a, I_b, I_ab\n";
+    
+    // TODO: Compute the intensities and save directly to a file...................
+    // ............................................................................
+    // ............................................................................
     
     ofs.close();  // Close the file.
     

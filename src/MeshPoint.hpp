@@ -6,6 +6,7 @@
  ***/
 #ifndef _MESHPOINT_H
 #define _MESHPOINT_H
+#include <string>
 
 // Constants attached to the MeshPoint:
 static const int BND_MIRROR  = -1;  // Index of "neigh" used for mirror boundary conditions (zero current condition).
@@ -31,5 +32,7 @@ struct MeshPoint {
     MeshPoint();
     
 };
+
+const std::string boundaryTypeString(const int bndtype);
 
 #endif

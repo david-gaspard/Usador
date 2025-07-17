@@ -22,7 +22,7 @@ class UsadelSystem {
     double holabso;   // Mesh step divided by the absorption length (total length is not a well defined unit).
     int npoint;       // Total number of points in the "mesh".
     ComplexVector* field;  // Array containing the parameters (theta, eta) at each corresponding point in the mesh. Size: 2*npoint.
-    double tval;      // Transmission eigenvalue.
+    double tval;      // Transmission eigenvalue, between 0 and 1.
     dcomplex ga;      // Input contact parameter, gamma_a, given by sqrt(1/tval) + I*0^+.
     dcomplex gb;      // Output contact parameter, gamma_b, given by sqrt(1/tval) + I*0^+. They must be related by ga*gb = 1/tval + I*0^+.
     
@@ -57,8 +57,9 @@ class UsadelSystem {
     int solveNewton(const int maxit, const int nsub, const double tolp, const double tolr, const int verbose);
     
     // Output functions:
-    void saveMesh(const char* filename, const char* sep, const int verbosity) const;
+    void saveMesh(const char* filename, const char* sep) const;
     void saveField(const char* filename, const char* sep, const int prec) const;
+    void saveIntensities(const char* filename, const char* sep, const int prec) const;
     // TODO: Plot methods for boundaries and contact interactions......
     
     private:

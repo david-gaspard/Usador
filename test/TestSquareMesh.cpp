@@ -30,15 +30,16 @@ int testMeshBasic() {
     // Save the mesh to a file for checking:
     const char* filename_short = "out/test/test_mesh_short.csv";
     const char* filename_full = "out/test/test_mesh_full.csv";
+    const char* filename_bounds = "out/test/test_mesh_bounds.csv";
     const char* sep = ", ";
-    std::cout << TAG_INFO << "Saving SquareMesh to files '" << filename_short << "' and '" << filename_full << "'...\n";
-    mesh.saveMesh(filename_short, sep, 0);
-    mesh.saveMesh(filename_full,  sep, 1);
+    std::cout << TAG_INFO << "Saving SquareMesh to files '" << filename_short << "', '" << filename_full << "', '" << filename_bounds << "'...\n";
+    mesh.saveMeshShort(filename_short, sep);
+    mesh.saveMesh(filename_full,  sep);
     
     // Print the position of a given point:
-    const int i0 = 100;
-    MeshPoint p = mesh.getPoint(i0);
-    std::cout << TAG_INFO << "Point(" << i0 << ") = (" << p.x << ", " << p.y << ").\n";
+    //const int i0 = 100;
+    //MeshPoint p = mesh.getPoint(i0);
+    //std::cout << TAG_INFO << "Point(" << i0 << ") = (" << p.x << ", " << p.y << ").\n";
     
     return 0;
 }
@@ -61,7 +62,7 @@ int testMeshPolygon1() {
     // Save the mesh to a file for checking:
     const char* filename = "out/test/test_mesh_polygon_1.csv";
     std::cout << TAG_INFO << "Saving SquareMesh to file '" << filename << "'...\n";
-    mesh.saveMesh(filename, ", ", 0);
+    mesh.saveMeshShort(filename, ", ");
     
     return 0;
 }
@@ -89,7 +90,7 @@ int testMeshPolygon2() {
     // Save the mesh to a file for checking:
     const char* filename = "out/test/test_mesh_polygon_2.csv";
     std::cout << TAG_INFO << "Saving SquareMesh to file '" << filename << "'...\n";
-    mesh.saveMesh(filename, ", ", 0);
+    mesh.saveMeshShort(filename, ", ");
     
     return 0;
 }
@@ -112,7 +113,7 @@ int testMeshPolygon3() {
     // Save the mesh to a file for checking:
     const char* filename = "out/test/test_mesh_polygon_3.csv";
     std::cout << TAG_INFO << "Saving SquareMesh to file '" << filename << "'...\n";
-    mesh.saveMesh(filename, ", ", 0);
+    mesh.saveMeshShort(filename, ", ");
     
     return 0;
 }

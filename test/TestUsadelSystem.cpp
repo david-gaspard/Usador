@@ -8,29 +8,6 @@
 #include "BaseTools.hpp"
 #include <iomanip>
 
-///**
-// * Creates the reference UsadelSystem used for testing purposes.
-// */
-//UsadelSystem usadelSystemRef1(SquareMesh& mesh, std::vector<Contact>& contact) {
-//    
-//    double tval, holscat, holabso;
-//    
-//    mesh.addRectangle(-10, 10, -5, 5);
-//    mesh.setBoundaryRegion(-10, -10, -5, 5, BND_OPEN);
-//    mesh.setBoundaryRegion( 10,  10, -5, 5, BND_OPEN);
-//    mesh.fixNeighbors();
-//    
-//    tval = 0.5; // Transmission probability.
-//    Contact cta = Contact(Vector2D(-9.5, 5.5), Vector2D(-9.5, -5.5), +1, tval);
-//    Contact ctb = Contact(Vector2D(9.5, 5.5), Vector2D(9.5, -5.5), -1, tval);
-//    contact = {cta, ctb};  // Create contact interactions.
-//    
-//    holscat = 0.1;    // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
-//    holabso = 0.01;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
-//    
-//    return UsadelSystem(mesh, contact, holscat, holabso);
-//}
-
 /**
  * Try to extract the Q field at some point in the middle of the mesh.
  */
@@ -127,7 +104,7 @@ int testSaveField() {
     const uint64_t seed = 1;
     usys.initRandom(seed);  // Set the Q field to random to avoid trivial output.
     
-    const char* filename = "out/test_save_field.csv";
+    const char* filename = "out/test/test_save_field.csv";
     std::cout << TAG_INFO << "Saving random field to file '" << filename << "'...\n";
     usys.saveField(filename, ", ", 16);
     
@@ -275,7 +252,7 @@ int testRhoBimodal() {
     usys.saveField(filename_field, sep, prec);
     std::cout << TAG_INFO << "Field saved to file: '" << filename_field << "'.\n";
     
-    usys.saveMesh(filename_mesh, sep, 0);
+    usys.saveMesh(filename_mesh, sep);
     std::cout << TAG_INFO << "Mesh saved to file: '" << filename_mesh << "'.\n";
     
     return 0;
