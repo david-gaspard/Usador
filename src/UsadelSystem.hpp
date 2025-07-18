@@ -59,8 +59,6 @@ class UsadelSystem {
     // Output functions:
     void saveMesh(const char* filename, const char* sep) const;
     void saveField(const char* filename, const char* sep, const int prec) const;
-    void saveIntensities(const char* filename, const char* sep, const int prec) const;
-    // TODO: Plot methods for boundaries and contact interactions......
     
     private:
     

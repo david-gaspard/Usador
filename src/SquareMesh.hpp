@@ -34,6 +34,7 @@ class SquareMesh {
     // Getters:
     MeshPoint getPoint(const int i) const;
     int getNPoint() const;
+    int getNBoundary(const int bndtype) const;
     
     // Determine the index of a given point:
     int indexOf(const int x, const int y) const;

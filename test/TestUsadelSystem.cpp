@@ -124,15 +124,21 @@ int testSolve() {
     // Create a square mesh:
     SquareMesh mesh;
     mesh.addRectangle(-30, 30, -15, 15);
-    mesh.setBoundaryRegion(-30, -30, -14, 14, WEST, BND_INPUT);
-    mesh.setBoundaryRegion( 30,  30, -14, 14, EAST, BND_OUTPUT);
+    mesh.addDisk(0, 15, 22);
+    //mesh.removeDisk(0, -15, 12);
+    
+    mesh.setBoundaryRegion(-22, 22, 30, 40, NORTH, BND_OPEN);
+    mesh.setBoundaryRegion(-22, 22, 30, 40, EAST,  BND_OPEN);
+    mesh.setBoundaryRegion(-22, 22, 30, 40, WEST,  BND_OPEN);
+    mesh.setBoundaryRegion(-10, 10, -15, -15, SOUTH, BND_OPEN);
+    
+    mesh.setBoundaryRegion(-30, -30, -15, 15, WEST, BND_INPUT);
+    mesh.setBoundaryRegion( 30,  30, -15, 15, EAST, BND_OUTPUT);
+    
     mesh.fixNeighbors();
     
     // Contact interactions:
-    tval = 0.99; // Transmission probability.
-    //Contact cta = Contact(Vector2D(-30.5, 15.5), Vector2D(-30.5, -15.5), +1, tval); // Input contact.
-    //Contact ctb = Contact(Vector2D(30.5, 15.5), Vector2D(30.5, -15.5), -1, tval);   // Output contact.
-    //std::vector<Contact> contact = {cta, ctb};
+    tval = 0.5; // Transmission probability.
     
     holscat = 0.083; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.0;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -147,9 +153,16 @@ int testSolve() {
     usys.initConstant();
     usys.solveNewton(maxit, nsub, tolp, tolr, verbose);
     
-    const char* filename = "out/test/test_field_x.csv";
-    std::cout << TAG_INFO << "Saving data to file '" << filename << "'...\n";
-    usys.saveField(filename, ", ", 16);
+    const char* filename_field = "out/test/intensity/result_5.csv";
+    const char* filename_mesh  = "out/test/intensity/result_5_mesh.csv";
+    const char* sep = ", ";
+    const int prec = 16;
+    
+    std::cout << TAG_INFO << "Saving fields to file '" << filename_field << "'...\n";
+    usys.saveField(filename_field, sep, prec);
+    
+    std::cout << TAG_INFO << "Saving mesh to file '" << filename_mesh << "'...\n";
+    usys.saveMesh(filename_mesh, sep);
     
     return 0;
 }
@@ -268,10 +281,9 @@ int main(int argc, char** argv) {
     //testResidual();
     //testJacobian();
     //testSaveField();
-    //testSolve();
+    testSolve();
     //testWaveguideSolution();
-    
-    testRhoBimodal();
+    //testRhoBimodal();
     
     return 0;
 }

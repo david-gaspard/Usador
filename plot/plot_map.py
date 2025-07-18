@@ -86,7 +86,7 @@ def boundary_to_tikz_code(mesh_file):
     
     ls = csv.DictReader((line for line in fp if not line.startswith('%')), skipinitialspace=True)
     
-    string = "\\begin{scope}[mirror/.style={black}, open/.style={green}, input/.style={red}, output/.style={blue}]%\n"
+    string = "\\begin{scope}[mirror/.style={black, line cap=round}, open/.style={green!50, line cap=round}, input/.style={red!50, line cap=round}, output/.style={blue!50, line cap=round}]%\n"
     
     for p in ls:
         if (not p['north'].isdigit()):
@@ -132,7 +132,7 @@ def plot_map(args):
     
     column_name = args[1]  ## Interpret arg #1 as the name of the column in the field file.
     field_path  = args[2]  ## Interpret arg #1 as the name of the field file.
-    field_file = field_path + "_field.csv"
+    field_file = field_path + ".csv"
     mesh_file = field_path + "_mesh.csv"
     
     try:

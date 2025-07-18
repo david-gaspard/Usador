@@ -45,6 +45,25 @@ int SquareMesh::getNPoint() const {
 }
 
 /**
+ * Returns the number of boundary conditions of a certain type in the mesh.
+ * This method can be used for instance to determine the number of input/output channels in order to compute
+ * the intensity profile of transmission eigenchannels (see: saveIntensities()).
+ */
+int SquareMesh::getNBoundary(const int bndtype) const {
+    if (not ready) {
+        throw std::logic_error("In getNBoundary(): SquareMesh is not completely initialized. Please use fixNeighbors().");
+    }
+    
+    int nbnd = 0;
+    
+    for (MeshPoint p : point) {// Loop on the points, looking for boundary conditions.
+        nbnd += (p.north == bndtype) + (p.south == bndtype) + (p.east == bndtype) + (p.west == bndtype);
+    }
+    
+    return nbnd;
+}
+
+/**
  * Return the index of a given point in the mesh.
  * If the point does not exist, then return BND_DEFAULT (a negative value).
  */

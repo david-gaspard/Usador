@@ -620,22 +620,42 @@ int UsadelSystem::solveNewton(const int maxit, const int nsub, const double tolp
 
 /**
  * Save the mesh contained in the present UsadelSystem object.
- * 
- * @todo Call external scripts to plot the mesh properly with the contact interaction.
  */
 void UsadelSystem::saveMesh(const char* filename, const char* sep) const {
     mesh->saveMesh(filename, sep);
 }
 
 /**
- * Save the present field to a file of given "filename" using the string "sep" as a separator.
- * Columns are: x, y, theta_re, theta_im, eta_re, eta_im, q11_re, q11_im, q12_re, q12_im, q21_re, q21_im
+ * Save the present field to a file of given "filename" using the string "sep" as a separator and printing "prec" decimals.
+ * 
+ * Columns of the output file are: x, y, theta_re, theta_im, eta_re, eta_im, q11_re, q11_im, q12_re, q12_im, q21_re, q21_im, I_a, I_b, C_ab
+ * - Columns (x, y) are the coordinates of the points in the mesh.
+ * - Columns (theta_re, theta_im, eta_re, eta_im) are the real and imaginary parts of the standard angular parameters (theta, eta).
+ * - Columns (q11_re, q11_im, q12_re, q12_im, q21_re, q21_im) are the real and imaginary parts of the components of the Q field.
+ * - Columns (I_a, I_b, C_ab) are the normalized intensity profiles deduced from Re(Q_12), Re(Q_21), and Im(Q_11), respectively.
+ *   Theses intensity profiles are normalized such that the incident intensities in the input and output channels are equal to 1.
+ *   This fixes the absolute normalization of the intensity profiles and allow for comparison with simulations based on the wave equation.
+ * 
+ * Of course, this function also assumes the Q field is found.
  */
 void UsadelSystem::saveField(const char* filename, const char* sep, const int prec) const {
     
     MeshPoint p;
     dcomplex theta, eta;
     QVector qv;
+    int Na, Nb, Nv;
+    double rho, Ia, Ib, Cab;
+    
+    Na = mesh->getNBoundary(BND_INPUT);   // Number of input channels.
+    Nb = mesh->getNBoundary(BND_OUTPUT);  // Number of output channels.
+    Nv = std::min(Na, Nb);  // The number of eigenvalues is the minimum between the number of channels at the two ports (input/output).
+    rho = getRho();  // Extract the density of eigenvalues.
+    
+    if (rho < 0.) {// Warn the user about improper values of the transmission eigenvalue density rho(T).
+        std::cout << TAG_WARN << "Density rho=" << rho << " is negative. This may indicate we found an improper solution.\n";
+    } else if (rho < SQRTEPS) {
+        std::cout << TAG_WARN << "Density rho=" << rho << " is very small. This may indicate a .\n";
+    }
     
     std::ofstream ofs;  // Declare output stream object.
     ofs.open(filename); // Open the file in write mode.
@@ -645,48 +665,29 @@ void UsadelSystem::saveField(const char* filename, const char* sep, const int pr
     
     writeTimestamp(ofs, "%% "); // Apply a timestamp at the beginning.
     
-    ofs << "%% Parameters: h/lscat = " << holscat << ", h/labso = " << holabso << "\n"
-        << "x, y, theta_re, theta_im, eta_re, eta_im, q11_re, q11_im, q12_re, q12_im, q21_re, q21_im\n";
+    ofs << "%% Parameters: h/lscat = " << holscat << ", h/labso = " << holabso 
+        << ", Na = " << Na << ", Nb = " << Nb << ", tval = " << tval << ", rho = " << rho << "\n"
+        << "x, y, theta_re, theta_im, eta_re, eta_im, q11_re, q11_im, q12_re, q12_im, q21_re, q21_im, I_a, I_b, C_ab\n";
     
     for (int ipoint = 0; ipoint < npoint; ipoint++) {// Loop over the points of the mesh.
         
-        p = mesh->getPoint(ipoint);
+        p = mesh->getPoint(ipoint); // Extract the point to get its coordinates.
         theta = field[0][2*ipoint]; // Extract the angle parameters.
         eta   = field[0][2*ipoint + 1];
-        qv = QVector(theta, eta);
+        qv = QVector(theta, eta);  // Compute the Q field (in vector form) at the given point.
+        
+        Ia = Na*gb.real()*qv.getQ12().real()/(PI*Nv*rho);           // Eigenchannel intensity profile starting from input port.
+        Ib = Nb*ga.real()*qv.getQ21().real()/(PI*Nv*rho);           // Eigenchannel intensity profile starting from output port.
+        Cab = std::sqrt(Na*Nb/tval)*qv.getQ11().imag()/(PI*Nv*rho); // Correlator between input and output eigenchannels.
+        
         ofs << p.x << sep << p.y << sep
             << theta.real() << sep << theta.imag() << sep 
             << eta.real() << sep << eta.imag() << sep 
             << qv.getQ11().real() << sep << qv.getQ11().imag() << sep
             << qv.getQ12().real() << sep << qv.getQ12().imag() << sep
-            << qv.getQ21().real() << sep << qv.getQ21().imag() << "\n";
+            << qv.getQ21().real() << sep << qv.getQ21().imag() << sep
+            << Ia << sep << Ib << sep << Cab << "\n";
     }
-    
-    ofs.close();  // Close the file.
-    
-    ofs << std::setprecision(default_precision); // Restore default precision for printing.
-}
-
-/**
- * Saves the intensities I_a from Re(Q_12), I_b from Re(Q_21), and I_ab from Im(Q_11) to a given file.
- * This functions assumes the Q field is found.
- */
-void UsadelSystem::saveIntensities(const char* filename, const char* sep, const int prec) const {
-    
-    std::ofstream ofs;  // Declare output stream object.
-    ofs.open(filename); // Open the file in write mode.
-    
-    const auto default_precision = ofs.precision(); // Saves the default precision.
-    ofs << std::setprecision(prec); // Set the printing precision.
-    
-    writeTimestamp(ofs, "%% "); // Apply a timestamp at the beginning.
-    
-    ofs << "%% Parameters: h/lscat = " << holscat << ", h/labso = " << holabso << "\n"
-        << "x, y, I_a, I_b, I_ab\n";
-    
-    // TODO: Compute the intensities and save directly to a file...................
-    // ............................................................................
-    // ............................................................................
     
     ofs.close();  // Close the file.
     
