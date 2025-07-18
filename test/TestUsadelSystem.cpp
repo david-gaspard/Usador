@@ -153,16 +153,8 @@ int testSolve() {
     usys.initConstant();
     usys.solveNewton(maxit, nsub, tolp, tolr, verbose);
     
-    const char* filename_field = "out/test/intensity/result_5.csv";
-    const char* filename_mesh  = "out/test/intensity/result_5_mesh.csv";
-    const char* sep = ", ";
-    const int prec = 16;
-    
-    std::cout << TAG_INFO << "Saving fields to file '" << filename_field << "'...\n";
-    usys.saveField(filename_field, sep, prec);
-    
-    std::cout << TAG_INFO << "Saving mesh to file '" << filename_mesh << "'...\n";
-    usys.saveMesh(filename_mesh, sep);
+    const std::string path("out/test/intensity/result_x");
+    usys.saveAll(path);
     
     return 0;
 }
@@ -199,7 +191,6 @@ int testWaveguideSolution() {
     // TODO: Compute the reference solution.................................
     
     
-    
     return 0;
 }
 
@@ -212,7 +203,6 @@ int testRhoBimodal() {
     int length, width, found, ntval, maxit, nsub, verbose;
     double tval, rho, rho_expc, dscat, dabso, tavg_expc, holscat, holabso, tolp, tolr;
     
-    //SquareMesh mesh;  // Create a square mesh.
     length = 20;  // Length of the waveguide (in units of the lattice step). Must be even number here.
     width  = 10;  // Width of the waveguide (in units of the lattice step). Must be even number here.
     dscat = 5.;      // Scattering thickness.
@@ -230,14 +220,13 @@ int testRhoBimodal() {
     
     UsadelSystem usys(length, width, dscat, dabso, 0.5);  // Create the reference Usadel System with waveguide geometry.
     
-    const char* filename_distrib = "out/test/distrib/distrib_x.csv";
-    const char* filename_field = "out/test/distrib/distrib_x_field.csv";
-    const char* filename_mesh  = "out/test/distrib/distrib_x_mesh.csv";
+    const std::string path("out/test/distrib/test_x");
+    const std::string filename_distrib = path + "_distrib.csv";
     const char* sep = ", ";  // Separator used in the CSV file.
     const int prec = 16;  // Desired precision (in number of decimals).
     
     std::ofstream ofs;  // Declare output stream object.
-    ofs.open(filename_distrib); // Open the file in write mode.
+    ofs.open(filename_distrib.c_str()); // Open the file in write mode.
     const auto default_precision = ofs.precision(); // Saves the default precision.
     ofs << std::setprecision(prec); // Set the printing precision.
     
@@ -262,11 +251,7 @@ int testRhoBimodal() {
     ofs << std::setprecision(default_precision); // Restore default precision for printing.
     std::cout << TAG_INFO << "Distribution saved to file: '" << filename_distrib << "'.\n";
     
-    usys.saveField(filename_field, sep, prec);
-    std::cout << TAG_INFO << "Field saved to file: '" << filename_field << "'.\n";
-    
-    usys.saveMesh(filename_mesh, sep);
-    std::cout << TAG_INFO << "Mesh saved to file: '" << filename_mesh << "'.\n";
+    usys.saveAll(path);  // Save the last field for further testing.
     
     return 0;
 }

@@ -28,18 +28,12 @@ int testMeshBasic() {
     mesh.fixNeighbors();
     
     // Save the mesh to a file for checking:
-    const char* filename_short = "out/test/test_mesh_short.csv";
-    const char* filename_full = "out/test/test_mesh_full.csv";
-    const char* filename_bounds = "out/test/test_mesh_bounds.csv";
+    const std::string filename_short = "out/test/test_mesh_short.csv";
+    const std::string filename_full = "out/test/test_mesh_full.csv";
     const char* sep = ", ";
-    std::cout << TAG_INFO << "Saving SquareMesh to files '" << filename_short << "', '" << filename_full << "', '" << filename_bounds << "'...\n";
+    std::cout << TAG_INFO << "Saving SquareMesh to files '" << filename_short << "' and '" << filename_full << "'...\n";
     mesh.saveMeshShort(filename_short, sep);
     mesh.saveMesh(filename_full,  sep);
-    
-    // Print the position of a given point:
-    //const int i0 = 100;
-    //MeshPoint p = mesh.getPoint(i0);
-    //std::cout << TAG_INFO << "Point(" << i0 << ") = (" << p.x << ", " << p.y << ").\n";
     
     return 0;
 }
@@ -60,7 +54,7 @@ int testMeshPolygon1() {
     mesh.fixNeighbors();
     
     // Save the mesh to a file for checking:
-    const char* filename = "out/test/test_mesh_polygon_1.csv";
+    const std::string filename = "out/test/test_mesh_polygon_1.csv";
     std::cout << TAG_INFO << "Saving SquareMesh to file '" << filename << "'...\n";
     mesh.saveMeshShort(filename, ", ");
     
@@ -88,7 +82,7 @@ int testMeshPolygon2() {
     mesh.fixNeighbors();
     
     // Save the mesh to a file for checking:
-    const char* filename = "out/test/test_mesh_polygon_2.csv";
+    const std::string filename = "out/test/test_mesh_polygon_2.csv";
     std::cout << TAG_INFO << "Saving SquareMesh to file '" << filename << "'...\n";
     mesh.saveMeshShort(filename, ", ");
     
@@ -111,7 +105,7 @@ int testMeshPolygon3() {
     mesh.fixNeighbors();
     
     // Save the mesh to a file for checking:
-    const char* filename = "out/test/test_mesh_polygon_3.csv";
+    const std::string filename = "out/test/test_mesh_polygon_3.csv";
     std::cout << TAG_INFO << "Saving SquareMesh to file '" << filename << "'...\n";
     mesh.saveMeshShort(filename, ", ");
     

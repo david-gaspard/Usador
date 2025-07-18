@@ -303,24 +303,24 @@ void SquareMesh::fixNeighbors() {
  * Print a summary of the mesh.
  */
 void SquareMesh::printSummary() const {
-    std::cout << TAG_INFO << "SquareMesh with " << point.size() << " points.\n";
+    std::cout << TAG_INFO << "SquareMesh with Npoint=" << point.size() << ".\n";
 }
 
 /**
  * Save the points to a file "filename" using the separator "sep".
  */
-void SquareMesh::saveMesh(const char* filename, const char* sep) const {
+void SquareMesh::saveMesh(const std::string& filename, const char* sep) const {
     
     if (not ready) {
         throw std::logic_error("In saveMesh(): SquareMesh is not completely initialized. Please use fixNeighbors().");
     }
     
     std::ofstream ofs;
-    ofs.open(filename);
+    ofs.open(filename.c_str());
     
     writeTimestamp(ofs, "%% ");
     
-    ofs << "%% SquareMesh with " << point.size() << " points.\n"
+    ofs << "%% SquareMesh with Npoint=" << point.size() << ".\n"
         << "x" << sep << "y" << sep << "north" << sep << "south" << sep << "east" << sep << "west\n";
     
     for (MeshPoint p : point) {
@@ -337,18 +337,18 @@ void SquareMesh::saveMesh(const char* filename, const char* sep) const {
  * Save the points to a file "filename" using the separator "sep".
  * This is a short version for quick plots with less post-processing.
  */
-void SquareMesh::saveMeshShort(const char* filename, const char* sep) const {
+void SquareMesh::saveMeshShort(const std::string& filename, const char* sep) const {
     
     if (not ready) {
         throw std::logic_error("In saveMeshShort(): SquareMesh is not completely initialized. Please use fixNeighbors().");
     }
     
     std::ofstream ofs;
-    ofs.open(filename);
+    ofs.open(filename.c_str());
     
     writeTimestamp(ofs, "%% ");
     
-    ofs << "%% SquareMesh with " << point.size() << " points.\n" 
+    ofs << "%% SquareMesh with Npoint=" << point.size() << ".\n" 
         << "x" << sep << "y" << sep << "bnd\n";
     
     for (MeshPoint p : point) {

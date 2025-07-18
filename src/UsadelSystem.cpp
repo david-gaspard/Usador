@@ -46,7 +46,6 @@ UsadelSystem::UsadelSystem(SquareMesh& mesh, const double holscat, const double 
 UsadelSystem::UsadelSystem(const int length, const int width, const double dscat, const double dabso, const double tval) {
     //std::cout << TAG_INFO << "Creating UsadelSystem (waveguide template).\n";
     mesh = new SquareMesh();
-    mesh->addDisk(0, width/2, length/3);
     mesh->addRectangle(-length/2, length/2, -width/2, width/2);
     mesh->setBoundaryRegion(-length/2, -length/2, -width/2, width/2, WEST, BND_INPUT);
     mesh->setBoundaryRegion( length/2,  length/2, -width/2, width/2, EAST, BND_OUTPUT);
@@ -121,6 +120,13 @@ double UsadelSystem::getHolscat() const {
  */
 double UsadelSystem::getHolabso() const {
     return holabso;
+}
+
+/**
+ * Returns the transmission eigenvalue T between 0 and 1.
+ */
+double UsadelSystem::getTransmission() const {
+    return tval;
 }
 
 /**
@@ -602,7 +608,7 @@ int UsadelSystem::solveNewton(const int maxit, const int nsub, const double tolp
         
         if (verbose >= 1) {// Print the current status.
             std::cout << TAG_INFO << "#" << iter << " | fieldn = " << fieldnorm << ", deltan = " << deltanorm 
-                      << ", resn = " << resnorm << ", sub = " << s+1 << " (fac=" << fac << ")\n";
+                      << ", resn = " << resnorm << ", fac=" << fac << "\n";
         }
         
         // 4. Stopping criterion:
@@ -621,7 +627,7 @@ int UsadelSystem::solveNewton(const int maxit, const int nsub, const double tolp
 /**
  * Save the mesh contained in the present UsadelSystem object.
  */
-void UsadelSystem::saveMesh(const char* filename, const char* sep) const {
+void UsadelSystem::saveMesh(const std::string& filename, const char* sep) const {
     mesh->saveMesh(filename, sep);
 }
 
@@ -638,7 +644,7 @@ void UsadelSystem::saveMesh(const char* filename, const char* sep) const {
  * 
  * Of course, this function also assumes the Q field is found.
  */
-void UsadelSystem::saveField(const char* filename, const char* sep, const int prec) const {
+void UsadelSystem::saveField(const std::string& filename, const char* sep, const int prec) const {
     
     MeshPoint p;
     dcomplex theta, eta;
@@ -654,19 +660,19 @@ void UsadelSystem::saveField(const char* filename, const char* sep, const int pr
     if (rho < 0.) {// Warn the user about improper values of the transmission eigenvalue density rho(T).
         std::cout << TAG_WARN << "Density rho=" << rho << " is negative. This may indicate we found an improper solution.\n";
     } else if (rho < SQRTEPS) {
-        std::cout << TAG_WARN << "Density rho=" << rho << " is very small. This may indicate a .\n";
+        std::cout << TAG_WARN << "Density rho=" << rho << " is very small. This may indicate the edge of distribution rho(T).\n";
     }
     
     std::ofstream ofs;  // Declare output stream object.
-    ofs.open(filename); // Open the file in write mode.
+    ofs.open(filename.c_str()); // Open the file in write mode.
     
     const auto default_precision = ofs.precision(); // Saves the default precision.
     ofs << std::setprecision(prec); // Set the printing precision.
     
     writeTimestamp(ofs, "%% "); // Apply a timestamp at the beginning.
     
-    ofs << "%% Parameters: h/lscat = " << holscat << ", h/labso = " << holabso 
-        << ", Na = " << Na << ", Nb = " << Nb << ", tval = " << tval << ", rho = " << rho << "\n"
+    ofs << "%% Parameters: Npoint=" << npoint << ", h/lscat=" << holscat << ", h/labso=" << holabso 
+        << ", Na=" << Na << ", Nb=" << Nb << ", Tval=" << tval << ", rho(T)=" << rho << "\n"
         << "x, y, theta_re, theta_im, eta_re, eta_im, q11_re, q11_im, q12_re, q12_im, q21_re, q21_im, I_a, I_b, C_ab\n";
     
     for (int ipoint = 0; ipoint < npoint; ipoint++) {// Loop over the points of the mesh.
@@ -692,4 +698,21 @@ void UsadelSystem::saveField(const char* filename, const char* sep, const int pr
     ofs.close();  // Close the file.
     
     ofs << std::setprecision(default_precision); // Restore default precision for printing.
+}
+
+/**
+ * Save all the contextual data of the present UsadelSystem object in view of plotting the field.
+ */
+void UsadelSystem::saveAll(const std::string& path) {
+    
+    const std::string filename_field(path + ".csv");       // Example: "out/path/to/result_1.csv"
+    const std::string filename_mesh (path + "_mesh.csv");  // Example: "out/path/to/result_1_mesh.csv"
+    const char* sep = ", "; // Use default separator for CSV files.
+    const int prec = 16; // Use double precision accuracy for outputting real numbers.
+    
+    std::cout << TAG_INFO << "Saving fields to file '" << filename_field << "'...\n";
+    saveField(filename_field, sep, prec);
+    
+    std::cout << TAG_INFO << "Saving mesh to file '" << filename_mesh << "'...\n";
+    mesh->saveMesh(filename_mesh, sep);
 }

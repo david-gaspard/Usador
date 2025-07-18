@@ -3,7 +3,7 @@
 ##########################
 ## BUILD MAIN PROGRAM
 ##########################
-SRCLIST = $(shell find src/ -name "*.cpp")
+SRCLIST = $(shell find src/ -name "*.cpp" ! -name "Main.cpp")
 BINLIST = $(SRCLIST:src/%.cpp=bin/%.o)
 
 CC=g++
@@ -12,7 +12,7 @@ LIBS=-lumfpack
 
 all: directories usador
 
-usador: $(BINLIST) bin/main.o
+usador: $(BINLIST) src/Main.cpp
 	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
 
 bin/%.o: src/%.cpp 
@@ -36,6 +36,6 @@ test: directories $(TESTEXELIST)
 ## CLEAN ALL BUILDS AND TESTS
 ##################################
 clean:
-	rm -rfv usador $(BINLIST) $(TESTEXELIST)
+	rm -rfv usador bin/*.o $(TESTEXELIST)
 
 ###### END OF FILE ######

@@ -86,7 +86,7 @@ def boundary_to_tikz_code(mesh_file):
     
     ls = csv.DictReader((line for line in fp if not line.startswith('%')), skipinitialspace=True)
     
-    string = "\\begin{scope}[mirror/.style={black, line cap=round}, open/.style={green!50, line cap=round}, input/.style={red!50, line cap=round}, output/.style={blue!50, line cap=round}]%\n"
+    string = "\\begin{scope}[mirror/.style={black, thick}, open/.style={opacity=0}, input/.style={red!80, thick}, output/.style={blue!80, thick}]%\n"
     
     for p in ls:
         if (not p['north'].isdigit()):

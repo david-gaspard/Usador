@@ -39,6 +39,7 @@ class UsadelSystem {
     int indexOf(const int x, const int y) const;
     double getHolscat() const;
     double getHolabso() const;
+    double getTransmission() const;
     QVector getQVector(const int ipoint) const;
     QVector getJVector(const int ipoint, const int jpoint) const;
     double getRho() const;
@@ -57,8 +58,9 @@ class UsadelSystem {
     int solveNewton(const int maxit, const int nsub, const double tolp, const double tolr, const int verbose);
     
     // Output functions:
-    void saveMesh(const char* filename, const char* sep) const;
-    void saveField(const char* filename, const char* sep, const int prec) const;
+    void saveMesh(const std::string& filename, const char* sep) const;
+    void saveField(const std::string& filename, const char* sep, const int prec) const;
+    void saveAll(const std::string& path);
     
     private:
     
