@@ -16,8 +16,9 @@ int extractQPoint() {
     
     const int length = 20;
     const int width = 10;
+    const std::string name("TestExtractQPoint");
     
-    UsadelSystem usys(length, width, 5., 0.1, 0.5);  // Create the reference Usadel System with waveguide geometry.
+    UsadelSystem usys(name, length, width, 5., 0.1, 0.5);  // Create the reference Usadel System with waveguide geometry.
     
     const uint64_t seed = 1;
     usys.initRandom(seed);  // Set the Q field to random to avoid trivial output.
@@ -37,8 +38,9 @@ int extractQField() {
     
     const int length = 20;
     const int width = 10;
+    const std::string name("TestExtractQField");
     
-    UsadelSystem usys(length, width, 5., 0.1, 0.5);  // Create the reference Usadel System with waveguide geometry.
+    UsadelSystem usys(name, length, width, 5., 0.1, 0.5);  // Create the reference Usadel System with waveguide geometry.
     
     const uint64_t seed = 1;
     usys.initRandom(seed);  // Set the Q field to random to avoid trivial output.
@@ -60,8 +62,9 @@ int testResidual() {
     
     const int length = 20;
     const int width = 10;
+    const std::string name("TestResidual");
     
-    UsadelSystem usys(length, width, 5., 0.1, 0.5);  // Create the reference Usadel System with waveguide geometry.
+    UsadelSystem usys(name, length, width, 5., 0.1, 0.5);  // Create the reference Usadel System with waveguide geometry.
     
     const uint64_t seed = 1; // Initialize the Q field to random values to avoid trivial output.
     usys.initRandom(seed);
@@ -79,8 +82,9 @@ int testJacobian() {
     
     const int length = 20;
     const int width = 10;
+    const std::string name("TestJacobian");
     
-    UsadelSystem usys(length, width, 5., 0.1, 0.5);  // Create the reference Usadel System with waveguide geometry.
+    UsadelSystem usys(name, length, width, 5., 0.1, 0.5);  // Create the reference Usadel System with waveguide geometry.
     
     const uint64_t seed = 1; // Initialize the Q field to random values to avoid trivial output.
     usys.initRandom(seed);
@@ -98,8 +102,9 @@ int testSaveField() {
     
     const int length = 20;
     const int width = 10;
+    const std::string name("TestSaveField");
     
-    UsadelSystem usys(length, width, 5., 0.1, 0.5);  // Create the reference Usadel System with waveguide geometry.
+    UsadelSystem usys(name, length, width, 5., 0.1, 0.5);  // Create the reference Usadel System with waveguide geometry.
     
     const uint64_t seed = 1;
     usys.initRandom(seed);  // Set the Q field to random to avoid trivial output.
@@ -107,6 +112,30 @@ int testSaveField() {
     const char* filename = "out/test/test_save_field.csv";
     std::cout << TAG_INFO << "Saving random field to file '" << filename << "'...\n";
     usys.saveField(filename, ", ", 16);
+    
+    return 0;
+}
+
+/**
+ * Test the savePlot() method. In particular to check that the directory creation works well.
+ */
+int testSavePlot() {
+    std::cout << "====== TEST SAVE PLOT ======\n";
+    
+    const int length = 20;
+    const int width = 10;
+    const std::string name("TestSavePlot");
+    
+    UsadelSystem usys(name, length, width, 5., 0.1, 0.5);  // Create the reference Usadel System with waveguide geometry.
+    
+    const uint64_t seed = 1;
+    usys.initRandom(seed);  // Set the Q field to random to avoid trivial output.
+    
+    const std::string path = "out/test/testSavePlot/file_";
+    
+    usys.savePlot(path);
+    
+    // TODO: Create another script "plot_cut.py" to plot a cut of the intensity profile along a given path (this should be dealt with externally)....
     
     return 0;
 }
@@ -137,12 +166,13 @@ int testSolve() {
     
     mesh.fixNeighbors();
     
-    // Contact interactions:
+    // Parameters:
     tval = 0.5; // Transmission probability.
-    
     holscat = 0.083; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.0;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
-    UsadelSystem usys(mesh, holscat, holabso, tval);
+    const std::string name("TestSolve");
+    
+    UsadelSystem usys(name, mesh, holscat, holabso, tval);
     
     maxit = 200;  // Maximum number of iterations. Typically: 100-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
@@ -154,7 +184,7 @@ int testSolve() {
     usys.solveNewton(maxit, nsub, tolp, tolr, verbose);
     
     const std::string path("out/test/intensity/result_x");
-    usys.saveAll(path);
+    usys.savePlot(path);
     
     return 0;
 }
@@ -173,6 +203,7 @@ int testWaveguideSolution() {
     dscat = 5.;   // Scattering thickness L/lscat (in the direction of "length").
     dabso = 0.;   // Absorption thickness L/labso.
     tval = 0.5;   // Transmission eigenvalue.
+    const std::string name("TestWaveguideSolution");
     
     maxit = 200;  // Maximum number of iterations. Typically: 100-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
@@ -181,7 +212,7 @@ int testWaveguideSolution() {
     verbose = 0;  // Verbosity level in standard output. 0=No output, 1=Display each iteration.
     
     // Solves the Usadel equation:
-    UsadelSystem usys(length, width, dscat, dabso, tval);  // Create the reference Usadel System with waveguide geometry.
+    UsadelSystem usys(name, length, width, dscat, dabso, tval);  // Create the reference Usadel System with waveguide geometry.
     usys.initConstant();  // Initialize the Usadel solver (using contact guess).
     found = usys.solveNewton(maxit, nsub, tolp, tolr, verbose); // Solves the Usadel equation using the Newton method.
     
@@ -189,7 +220,7 @@ int testWaveguideSolution() {
     ComplexVector field_expc(2*usys.getNPoint());
     
     // TODO: Compute the reference solution.................................
-    
+    // WARN: This function is not completely implemented because the waveguide solution turns out to be correct (then maybe remove this function).
     
     return 0;
 }
@@ -209,6 +240,7 @@ int testRhoBimodal() {
     dabso = 0.0;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
     holscat = dscat/length;  // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     tavg_expc = 1./(1. + dscat/(2.*EXTRAPOLEN)); // Average transmission probability in the diffusive regime.
+    const std::string name("TestRhoBimodal");
     
     maxit = 200;  // Maximum number of iterations. Typically: 100-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
@@ -218,7 +250,7 @@ int testRhoBimodal() {
     
     ntval = 20; // Number of points on the curve [T, rho(T)].
     
-    UsadelSystem usys(length, width, dscat, dabso, 0.5);  // Create the reference Usadel System with waveguide geometry.
+    UsadelSystem usys(name, length, width, dscat, dabso, 0.5);  // Create the reference Usadel System with waveguide geometry.
     
     const std::string path("out/test/distrib/test_x");
     const std::string filename_distrib = path + "_distrib.csv";
@@ -251,7 +283,7 @@ int testRhoBimodal() {
     ofs << std::setprecision(default_precision); // Restore default precision for printing.
     std::cout << TAG_INFO << "Distribution saved to file: '" << filename_distrib << "'.\n";
     
-    usys.saveAll(path);  // Save the last field for further testing.
+    usys.savePlot(path);  // Save the last field for further testing.
     
     return 0;
 }
@@ -266,7 +298,8 @@ int main(int argc, char** argv) {
     //testResidual();
     //testJacobian();
     //testSaveField();
-    testSolve();
+    testSavePlot();
+    //testSolve();
     //testWaveguideSolution();
     //testRhoBimodal();
     

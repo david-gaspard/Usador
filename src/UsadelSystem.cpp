@@ -16,12 +16,13 @@
  * 
  * Arguments:
  * 
+ * name    = Name of the UsadelSystem (typically describing the system geometry) used for generating output files.
  * mesh    = Given SquareMesh object, properly initialized (see: SquareMesh).
  * holscat = Scattering strength, h/lscat, where "h" is the lattice step, and "lscat" is the mean free path.
  * holabso = Absorption strength, h/labso, where "h" is the lattice step, and "labso" is the ballistic absorption length.
  * tval    = Transmission eigenvalue, between 0 and 1.
  */
-UsadelSystem::UsadelSystem(SquareMesh& mesh, const double holscat, const double holabso, const double tval) {
+UsadelSystem::UsadelSystem(const std::string& name, SquareMesh& mesh, const double holscat, const double holabso, const double tval) {
     //std::cout << TAG_INFO << "Creating UsadelSystem.\n";
     this->mesh = new SquareMesh(mesh);  // Call copy constructor.
     this->holscat = holscat;
@@ -29,6 +30,7 @@ UsadelSystem::UsadelSystem(SquareMesh& mesh, const double holscat, const double 
     setTransmission(tval);
     npoint = mesh.getNPoint();
     field = new ComplexVector(2*npoint);
+    this->name = name;
 }
 
 /**
@@ -37,13 +39,14 @@ UsadelSystem::UsadelSystem(SquareMesh& mesh, const double holscat, const double 
  * 
  * Arguments:
  * 
+ * name   = Name of the UsadelSystem (typically describing the system geometry) used for generating output files.
  * length = Horizontal length of the waveguide in units of the lattice step.
  * width  = Vertical width of the waveguide in units of the lattice step.
- * dscat  = Scattering thickness, L/lscat.
- * dabso  = Absorption thickness, L/labso.
+ * dscat  = Scattering thickness, L/lscat, where "L" is the length of the waveguide and "lscat" is the scattering mean free path.
+ * dabso  = Absorption thickness, L/labso, where "L" is the length of the waveguide and "labso" is the ballistic absorption length.
  * tval   = Transmission eigenvalue, between 0 and 1.
  */
-UsadelSystem::UsadelSystem(const int length, const int width, const double dscat, const double dabso, const double tval) {
+UsadelSystem::UsadelSystem(const std::string& name, const int length, const int width, const double dscat, const double dabso, const double tval) {
     //std::cout << TAG_INFO << "Creating UsadelSystem (waveguide template).\n";
     mesh = new SquareMesh();
     mesh->addRectangle(-length/2, length/2, -width/2, width/2);
@@ -56,6 +59,7 @@ UsadelSystem::UsadelSystem(const int length, const int width, const double dscat
     setTransmission(tval);
     npoint = mesh->getNPoint();
     field = new ComplexVector(2*npoint);
+    this->name = name;
 }
 
 /**
@@ -127,6 +131,13 @@ double UsadelSystem::getHolabso() const {
  */
 double UsadelSystem::getTransmission() const {
     return tval;
+}
+
+/**
+ * Returns a deep copy of the name of the UsadelSystem.
+ */
+std::string UsadelSystem::getName() const {
+    return name;
 }
 
 /**
@@ -626,6 +637,7 @@ int UsadelSystem::solveNewton(const int maxit, const int nsub, const double tolp
 
 /**
  * Save the mesh contained in the present UsadelSystem object.
+ * @note The output of saveMesh() is now merged with that of saveField(). This function is thus no longer necessary.
  */
 void UsadelSystem::saveMesh(const std::string& filename, const char* sep) const {
     mesh->saveMesh(filename, sep);
@@ -634,8 +646,9 @@ void UsadelSystem::saveMesh(const std::string& filename, const char* sep) const 
 /**
  * Save the present field to a file of given "filename" using the string "sep" as a separator and printing "prec" decimals.
  * 
- * Columns of the output file are: x, y, theta_re, theta_im, eta_re, eta_im, q11_re, q11_im, q12_re, q12_im, q21_re, q21_im, I_a, I_b, C_ab
+ * Columns of the output file are: x, y, north, south, east, west, theta_re, theta_im, eta_re, eta_im, q11_re, q11_im, q12_re, q12_im, q21_re, q21_im, I_a, I_b, C_ab
  * - Columns (x, y) are the coordinates of the points in the mesh.
+ * - Columns (north, south, east, west) contains the indices of the neighbors if any. Otherwise, it contains the type of boundary condition for plotting.
  * - Columns (theta_re, theta_im, eta_re, eta_im) are the real and imaginary parts of the standard angular parameters (theta, eta).
  * - Columns (q11_re, q11_im, q12_re, q12_im, q21_re, q21_im) are the real and imaginary parts of the components of the Q field.
  * - Columns (I_a, I_b, C_ab) are the normalized intensity profiles deduced from Re(Q_12), Re(Q_21), and Im(Q_11), respectively.
@@ -643,6 +656,12 @@ void UsadelSystem::saveMesh(const std::string& filename, const char* sep) const 
  *   This fixes the absolute normalization of the intensity profiles and allow for comparison with simulations based on the wave equation.
  * 
  * Of course, this function also assumes the Q field is found.
+ * 
+ * Arguments:
+ * 
+ * filename = The output filename, preferably with the '.csv' extension.
+ * sep      = The separator string to use. Typically ',' for a CSV file.
+ * prec     = Number of decimal places desired. Typically 16 in double precision.
  */
 void UsadelSystem::saveField(const std::string& filename, const char* sep, const int prec) const {
     
@@ -671,9 +690,12 @@ void UsadelSystem::saveField(const std::string& filename, const char* sep, const
     
     writeTimestamp(ofs, "%% "); // Apply a timestamp at the beginning.
     
-    ofs << "%% Parameters: Npoint=" << npoint << ", h/lscat=" << holscat << ", h/labso=" << holabso 
-        << ", Na=" << Na << ", Nb=" << Nb << ", Tval=" << tval << ", rho(T)=" << rho << "\n"
-        << "x, y, theta_re, theta_im, eta_re, eta_im, q11_re, q11_im, q12_re, q12_im, q21_re, q21_im, I_a, I_b, C_ab\n";
+    ofs << "%% Parameters: name=" << name << ", Npoint=" << npoint << ", h/lscat=" << holscat << ", h/labso=" << holabso 
+        << ", Na=" << Na << ", Nb=" << Nb << ", Tval=" << tval << ", rho=" << rho << "\n"
+        << "x" << sep << "y" << sep << "north" << sep << "south" << sep << "east" << sep << "west" << sep 
+        << "theta_re" << sep << "theta_im" << sep << "eta_re" << sep << "eta_im" << sep 
+        << "q11_re" << sep << "q11_im" << sep << "q12_re" << sep << "q12_im" << sep << "q21_re" << sep << "q21_im" << sep 
+        << "I_a" << sep << "I_b" << sep << "C_ab\n";
     
     for (int ipoint = 0; ipoint < npoint; ipoint++) {// Loop over the points of the mesh.
         
@@ -687,6 +709,8 @@ void UsadelSystem::saveField(const std::string& filename, const char* sep, const
         Cab = std::sqrt(Na*Nb/tval)*qv.getQ11().imag()/(PI*Nv*rho); // Correlator between input and output eigenchannels.
         
         ofs << p.x << sep << p.y << sep
+            << boundaryTypeString(p.north) << sep << boundaryTypeString(p.south) << sep 
+            << boundaryTypeString(p.east)  << sep << boundaryTypeString(p.west)  << sep
             << theta.real() << sep << theta.imag() << sep 
             << eta.real() << sep << eta.imag() << sep 
             << qv.getQ11().real() << sep << qv.getQ11().imag() << sep
@@ -702,17 +726,21 @@ void UsadelSystem::saveField(const std::string& filename, const char* sep, const
 
 /**
  * Save all the contextual data of the present UsadelSystem object in view of plotting the field.
+ * This method also checks if the given path already exists. If directories are missing, then create them.
+ * If target files already exist, then increase the counter until unique filenames are found.
  */
-void UsadelSystem::saveAll(const std::string& path) {
+void UsadelSystem::savePlot(const std::string& path) {
     
-    const std::string filename_field(path + ".csv");       // Example: "out/path/to/result_1.csv"
-    const std::string filename_mesh (path + "_mesh.csv");  // Example: "out/path/to/result_1_mesh.csv"
-    const char* sep = ", "; // Use default separator for CSV files.
-    const int prec = 16; // Use double precision accuracy for outputting real numbers.
+    std::string filename_field; // Target filename.
     
-    std::cout << TAG_INFO << "Saving fields to file '" << filename_field << "'...\n";
-    saveField(filename_field, sep, prec);
+    uniqueFilename(path, ".csv", filename_field);  // Create a unique filename "filename_field". The result is of the form "<path><number><suffix>".
     
-    std::cout << TAG_INFO << "Saving mesh to file '" << filename_mesh << "'...\n";
-    mesh->saveMesh(filename_mesh, sep);
+    std::cout << TAG_INFO << "Saving fields to file: '" << filename_field << "'...\n";
+    saveField(filename_field, ", ", 16);
+    
+    std::string cmd("plot/plot_map.py I_a " + filename_field);
+    std::cout << TAG_EXEC << cmd << "\n";
+    if (std::system(cmd.c_str())) {
+        std::cout << TAG_WARN << "The plot script returned an error.\n";
+    }
 }

@@ -14,7 +14,7 @@
 
 ## PRESENTATION
 
-Usador is a C++ 2011 program to solve the matrix diffusion equation known as the *Usadel equation* [[1](#1)] describing the coherent propagation of a wave in a two-dimensional disordered medium.
+Usador is a C++ 2017 program to solve the matrix diffusion equation known as the *Usadel equation* [[1](#1)] describing the coherent propagation of a wave in a two-dimensional disordered medium.
 The name is an acronym for *"Usadel equation Solver for Arbitrary DisOrdered Regions"*.
 The solution of this equation provides the distribution of eigenvalues of the transmission matrix associated with the propagation of a wave between two surfaces located inside or at the edge of the medium.
 It also provides the disorder-averaged intensity profile of transmission eigenchannels (aka transmission eigenstates).

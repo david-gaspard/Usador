@@ -60,7 +60,7 @@ LATEX_PREAMBLE = r"""\usepackage[utf8]{inputenc}
 \pgfplotsset{
     compat=1.18,
 	every axis/.append style={
-        width=300pt,
+        width=0.9\textwidth,
 		axis line style={thin},
 		every axis title/.style={
             at={(0.5, 1)},

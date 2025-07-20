@@ -25,12 +25,13 @@ class UsadelSystem {
     double tval;      // Transmission eigenvalue, between 0 and 1.
     dcomplex ga;      // Input contact parameter, gamma_a, given by sqrt(1/tval) + I*0^+.
     dcomplex gb;      // Output contact parameter, gamma_b, given by sqrt(1/tval) + I*0^+. They must be related by ga*gb = 1/tval + I*0^+.
+    std::string name; // String containing the name of the system (typically describing the system geometry) which is used to generate file output.
     
     public:
     
     // Constructors/Destructors:
-    UsadelSystem(SquareMesh& mesh, const double holscat, const double holabso, const double tval);
-    UsadelSystem(const int length, const int width, const double dscat, const double dabso, const double tval);
+    UsadelSystem(const std::string& name, SquareMesh& mesh, const double holscat, const double holabso, const double tval);
+    UsadelSystem(const std::string& name, const int length, const int width, const double dscat, const double dabso, const double tval);
     ~UsadelSystem();
     
     // Getters:
@@ -40,6 +41,7 @@ class UsadelSystem {
     double getHolscat() const;
     double getHolabso() const;
     double getTransmission() const;
+    std::string getName() const;
     QVector getQVector(const int ipoint) const;
     QVector getJVector(const int ipoint, const int jpoint) const;
     double getRho() const;
@@ -60,7 +62,7 @@ class UsadelSystem {
     // Output functions:
     void saveMesh(const std::string& filename, const char* sep) const;
     void saveField(const std::string& filename, const char* sep, const int prec) const;
-    void saveAll(const std::string& path);
+    void savePlot(const std::string& path);
     
     private:
     
