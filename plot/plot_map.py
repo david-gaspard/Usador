@@ -9,7 +9,6 @@ import matplotlib.colors as mcol
 import compile_tikz
 
 ## Create the 'sunset' colormap originally created by David Gaspard in June 2024:
-MY_COPYRIGHT = "(c) 2025 David GASPARD (ORCID 0000-0002-4449-8782) <david.gaspard@espci.fr>"
 SUNSET_COLORS = [[1.00000, 1.00000, 1.00000],
                  [1.00000, 0.99337, 0.65453],
                  [1.00000, 0.96893, 0.46622],
@@ -115,6 +114,7 @@ def plot_map(args):
     """
     ## Check if the number of arguments is correct:
     if (len(args) != 3):
+        print("[ERROR] No input file, doing nothing...")
         print("[USAGE] " + args[0] + " COLUMN_NAME FIELD_FILE")
         return 1
     
@@ -156,7 +156,10 @@ def plot_map(args):
     ##mplt.colorbar()
     ##mplt.show()
     
-    vmin = matrix.min() ## Extract the depth range of the field [vmin, vmax].
+    if (column_name in ["I_a", "I_b", "C_ab"]):
+        vmin = 0  ## For positive definite quantities, the minimum value should be zero.
+    else:
+        vmin = matrix.min() ## Extract the depth range of the field [vmin, vmax].
     vmax = matrix.max()
     norm = mplt.Normalize(vmin=vmin, vmax=vmax)
     image = cmap(norm(matrix)) ## Create the bitmap image.
@@ -186,7 +189,7 @@ def plot_map(args):
 \end{{tikzpicture}}%""".format(#
         timestamp = datetime.datetime.now().astimezone().strftime("%F at %T %z"),
         my_program = args[0],
-        my_copyright = MY_COPYRIGHT,
+        my_copyright = compile_tikz.MY_COPYRIGHT,
         title  = "\\detokenize{" + field_file + "}\\\\ \\detokenize{"+ column_name + "}",
         xlabel = "$x$",
         ylabel = "$y$",

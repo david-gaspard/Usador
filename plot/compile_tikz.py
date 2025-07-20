@@ -10,6 +10,7 @@ import sys
 import os
 import shutil
 
+MY_COPYRIGHT = "(c) 2025 David GASPARD (ORCID 0000-0002-4449-8782) <david.gaspard@espci.fr>"
 LATEX_COMPILER = "pdflatex"    ## Compiler used to compile the LaTeX file.
 
 ## Define the LaTeX preamble (do not add LaTeX comments because line breaks are removed):
