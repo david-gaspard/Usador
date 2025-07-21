@@ -52,7 +52,7 @@ SUNSET_COLORS = [[1.00000, 1.00000, 1.00000],
                  [0.00000, 0.00000, 0.00000]]
 SUNSET_NSAMPLE = len(SUNSET_COLORS)
 SUNSET_NODES = np.linspace(0., 1., SUNSET_NSAMPLE)
-SUNSET_CMAP = mcol.LinearSegmentedColormap.from_list("sunset_cmap", list(zip(SUNSET_NODES, SUNSET_COLORS)))
+SUNSET_CMAP = mcol.LinearSegmentedColormap.from_list("sunset_cmap", list(zip(SUNSET_NODES, SUNSET_COLORS))).reversed() ## Reverse the colormap.
 SUNSET_CMAP.set_bad('white', 0.) ## Set the color when nan is encountered. Args: (color, opacity).
 
 def colormap_to_tikz_code(cmap, nsample):

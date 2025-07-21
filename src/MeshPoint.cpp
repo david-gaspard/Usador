@@ -9,21 +9,21 @@
 /**
  * Constructor of a MeshPoint with default unset boundaries.
  */
-MeshPoint::MeshPoint(const int x, const int y) {
+MeshPoint::MeshPoint(const int x, const int y, const int bndtype) {
     
     this->x = x;
     this->y = y;
     
-    north = BND_DEFAULT;
-    south = BND_DEFAULT;
-    east  = BND_DEFAULT;
-    west  = BND_DEFAULT;
+    north = bndtype;
+    south = bndtype;
+    east  = bndtype;
+    west  = bndtype;
 }
 
 /**
  * Default constructor of MeshPoint.
  */
-MeshPoint::MeshPoint() : MeshPoint(0, 0) {}
+MeshPoint::MeshPoint() : MeshPoint(0, 0, BND_MIRROR) {}
 
 /**
  * Returns a string version of the given boundary type.

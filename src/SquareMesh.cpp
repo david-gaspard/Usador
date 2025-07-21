@@ -75,7 +75,7 @@ int SquareMesh::indexOf(const int x, const int y) const {
             return i;
         }
     }
-    return BND_DEFAULT;
+    return -1;
 }
 
 /**
@@ -88,23 +88,24 @@ bool SquareMesh::containsPoint(const int x, const int y) const {
 /**
  * Add a single point to the mesh only if it is not already contained in the mesh.
  */
-void SquareMesh::addPoint(const int x, const int y) {
+void SquareMesh::addPoint(const int x, const int y, const int bndtype) {
     if (not containsPoint(x, y)) {
-        point.push_back(MeshPoint(x, y)); // Add point with default neighboring value.
+        ready = false;  // If the mesh is changed, then the neighbors must be recomputed.
+        point.push_back(MeshPoint(x, y, bndtype)); // Add point with default neighboring value.
     }
 }
 
 /**
  * Add a square region to the mesh.
  */
-void SquareMesh::addRectangle(int xmin, int xmax, int ymin, int ymax) {
+void SquareMesh::addRectangle(int xmin, int xmax, int ymin, int ymax, const int bndtype) {
     
     if (xmin > xmax) std::swap(xmin, xmax);
     if (ymin > ymax) std::swap(ymin, ymax);
     
     for (int y = ymax; y >= ymin; y--) {// Loop on the square lattice in reading order.
         for (int x = xmin; x <= xmax; x++) {
-            addPoint(x, y);
+            addPoint(x, y, bndtype);
         }
     }
 }
@@ -112,7 +113,7 @@ void SquareMesh::addRectangle(int xmin, int xmax, int ymin, int ymax) {
 /**
  * Add a circular region to the mesh.
  */
-void SquareMesh::addDisk(int x0, int y0, double radius) {
+void SquareMesh::addDisk(int x0, int y0, double radius, const int bndtype) {
     int xmin = (int) std::floor(x0 - radius);
     int xmax = (int)  std::ceil(x0 + radius);
     int ymin = (int) std::floor(y0 - radius);
@@ -124,7 +125,7 @@ void SquareMesh::addDisk(int x0, int y0, double radius) {
             dx = x - x0;
             dy = y - y0;
             if (dx*dx + dy*dy <= r2) {
-                addPoint(x, y);
+                addPoint(x, y, bndtype);
             }
         }
     }
@@ -133,7 +134,7 @@ void SquareMesh::addDisk(int x0, int y0, double radius) {
 /**
  * Add a polygon region to the mesh. Uses the even-odd filling rule.
  */
-void SquareMesh::addPolygon(const std::vector<Vector2D>& polygon) {
+void SquareMesh::addPolygon(const std::vector<Vector2D>& polygon, const int bndtype) {
     
     // 1. Determine the bounds of the polygon:
     int xmin, xmax, ymin, ymax;
@@ -145,7 +146,7 @@ void SquareMesh::addPolygon(const std::vector<Vector2D>& polygon) {
         for (int x = xmin; x <= xmax; x++) {
             p = Vector2D(x, y);   // Current point that we attempt to add to the mesh.
             if (p.windingNumber(polygon) % 2 != 0) {// Uses the even-odd rule to fill the polygon (fill if the winding number is odd).
-                addPoint(x, y);
+                addPoint(x, y, bndtype);
             }
         }
     }
@@ -154,7 +155,7 @@ void SquareMesh::addPolygon(const std::vector<Vector2D>& polygon) {
 /**
  * Add a polygon using the coordinates given by a file.
  */
-void SquareMesh::addPolygon(const char* filename, const double scale) {
+void SquareMesh::addPolygon(const char* filename, const double scale, const int bndtype) {
     
     std::vector<Vector2D> polygon;
     std::ifstream ifs(filename);  // Open the file.
@@ -181,15 +182,20 @@ void SquareMesh::addPolygon(const char* filename, const double scale) {
     
     ifs.close();
     
-    addPolygon(polygon);  // Add the parsed polygon.
+    addPolygon(polygon, bndtype);  // Add the parsed polygon.
 }
 
 /**
- * Remove the point at a given position.
+ * Remove the point at a given position (x, y) and assigns the boundary conditions to the neighboring points.
  */
 void SquareMesh::removePoint(const int x, const int y) {
-    int i = indexOf(x, y);
-    if (i >= 0) point.erase(point.begin() + i);
+    
+    int i = indexOf(x, y);  // Find the index of the point.
+    
+    if (i >= 0) {
+        ready = false;  // If the mesh is changed, then the neighbors must be recomputed.
+        point.erase(point.begin() + i);
+    }
 }
 
 /**
@@ -255,12 +261,12 @@ void SquareMesh::removePolygon(const std::vector<Vector2D>& polygon) {
  */
 void SquareMesh::setBoundaryPoint(const int x, const int y, const Direction dir, const int bndtype) {
     int i = indexOf(x, y);
-    if (i >= 0) {//Only works if the point is in the mesh.
+    if (i >= 0) {// Only works if the point is in the mesh.
         MeshPoint& p = point.at(i);
-        if (dir == NORTH && p.north < 0) p.north = bndtype;
-        else if (dir == SOUTH && p.south < 0) p.south = bndtype;
-        else if (dir == EAST && p.east < 0) p.east  = bndtype;
-        else if (dir == WEST && p.west < 0) p.west  = bndtype;
+        if ( (dir == DIR_ALL || dir == DIR_NORTH) && p.north < 0) p.north = bndtype;
+        if ( (dir == DIR_ALL || dir == DIR_SOUTH) && p.south < 0) p.south = bndtype;
+        if ( (dir == DIR_ALL || dir == DIR_EAST ) && p.east  < 0) p.east  = bndtype;
+        if ( (dir == DIR_ALL || dir == DIR_WEST ) && p.west  < 0) p.west  = bndtype;
     }
 }
 

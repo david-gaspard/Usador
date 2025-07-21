@@ -13,7 +13,7 @@ static const int BND_MIRROR  = -1;  // Index of "neigh" used for mirror boundary
 static const int BND_OPEN    = -2;  // Index of "neigh" used for open boundary conditions (extrapolated-length boundary conditions).
 static const int BND_INPUT   = -3;  // Index of "neigh" used for input boundary condition.
 static const int BND_OUTPUT  = -4;  // Index of "neigh" used for input boundary condition.
-static const int BND_DEFAULT = BND_MIRROR; // This is the default boundary condition (zero current condition).
+//static const int BND_DEFAULT = BND_MIRROR; // This is the default boundary condition (zero current condition).
 
 /**
  * Define the integer point type used in the square mesh.
@@ -28,7 +28,7 @@ struct MeshPoint {
     int west;  // Index of the nearest neighboring point at the west (x-1, y). If not in the mesh, it must be BND_OPEN or BND_MIRROR.
     
     // Constructors:
-    MeshPoint(const int x, const int y);
+    MeshPoint(const int x, const int y, const int bndtype);
     MeshPoint();
     
 };

@@ -49,9 +49,9 @@ UsadelSystem::UsadelSystem(const std::string& name, SquareMesh& mesh, const doub
 UsadelSystem::UsadelSystem(const std::string& name, const int length, const int width, const double dscat, const double dabso, const double tval) {
     //std::cout << TAG_INFO << "Creating UsadelSystem (waveguide template).\n";
     mesh = new SquareMesh();
-    mesh->addRectangle(-length/2, length/2, -width/2, width/2);
-    mesh->setBoundaryRegion(-length/2, -length/2, -width/2, width/2, WEST, BND_INPUT);
-    mesh->setBoundaryRegion( length/2,  length/2, -width/2, width/2, EAST, BND_OUTPUT);
+    mesh->addRectangle(-length/2, length/2, -width/2, width/2, BND_MIRROR);
+    mesh->setBoundaryRegion(-length/2, -length/2, -width/2, width/2, DIR_WEST, BND_INPUT);
+    mesh->setBoundaryRegion( length/2,  length/2, -width/2, width/2, DIR_EAST, BND_OUTPUT);
     mesh->fixNeighbors();
     
     holscat = dscat/length;
@@ -567,11 +567,11 @@ void UsadelSystem::initConstant() {
  * 
  * Arguments:
  * 
- * maxit   = Maximum number of iterations. Typically: 100-500.
+ * maxit   = Maximum number of iterations. Typically: 50-500.
  * nsub    = Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
  *           The smallest reduction factor is thus 2^-nsub and should be larger than the machine epsilon (2^-53).
- * tolp    = Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7.
- * tolr    = Tolerance over the norm of the residual compared to the norm of the initial residual. Typically: 1e-10.
+ * tolp    = Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7 or SQRTEPS.
+ * tolr    = Tolerance over the norm of the residual compared to the norm of the initial residual. Typically: 1e-10 or SQRTEPS.
  * verbose = Verbosity level in standard output. 0=No output, 1=Display each iteration.
  * 
  * Returns:
@@ -583,7 +583,7 @@ int UsadelSystem::solveNewton(const int maxit, const int nsub, const double tolp
     
     int found = 0;  // Return status. 0=No convergence (solution not found), 1=Success (found solution).
     int iter, s;    // Iteration indices.
-    double fac, resnorm, resnorm0, newresnorm, deltanorm, fieldnorm;
+    double fac, resnorm, resnorm0, newresnorm, /* deltanorm, */ fieldnorm, dfof, ror0;
     
     const int nparam = 2*npoint;          // Size of the vectors and matrix (number of columns, or number of rows).
     ComplexVector res(nparam), newfield(nparam), newres(nparam), delta(nparam);  // Allocate vectors: residual, new field, new residual, displacement.
@@ -592,9 +592,9 @@ int UsadelSystem::solveNewton(const int maxit, const int nsub, const double tolp
     residualVector(field[0], res); // Compute the residual from the current field.
     
     resnorm = res.norm(); // Compute the norm of the residual.
-    resnorm0 = resnorm;   // Store the norm of the first residual for the stopping criterion.
+    resnorm0 = std::max(resnorm, 1.);   // Store the norm of the first residual for the stopping criterion.
     
-    for (iter = 0; iter < maxit; iter++) {// Loop over the allowed Newton-Raphson iterations.
+    for (iter = 1; iter <= maxit; iter++) {// Loop over the allowed Newton-Raphson iterations.
         
         // 1. Solves the Jacobian system using UMFPACK to find the Newton-Raphson displacement:
         computeJacobian(field[0], jac);  // Compute the sparse Jacobian using finite differences. This allocates memory only at the first iteration.
@@ -602,7 +602,7 @@ int UsadelSystem::solveNewton(const int maxit, const int nsub, const double tolp
         
         // 2. Backtracking line search along the direction to minimize the residual (ensure convergence of Newton-Raphson):
         fac = -1.;  // Negative because the actual Newton-Raphson displacement is: newfield = field[0] - delta.
-        for (s = 0; s < nsub; s++) {
+        for (s = 1; s <= nsub; s++) {
             newfield = field[0] + fac*delta;
             residualVector(newfield, newres); // Compute the new residual corresponding to "newfield".
             newresnorm = newres.norm();
@@ -614,16 +614,18 @@ int UsadelSystem::solveNewton(const int maxit, const int nsub, const double tolp
         field[0] = newfield;   // The new field becomes the current one (deep copy).
         res = newres;          // The new residual becomes the current one (deep copy).
         resnorm = newresnorm;  // Update the residual norm with the new one.
-        deltanorm = delta.norm();
         fieldnorm = field[0].norm();
+        dfof = delta.norm()/std::max(fieldnorm, 1.);
+        ror0 = resnorm/resnorm0;
         
         if (verbose >= 1) {// Print the current status.
-            std::cout << TAG_INFO << "#" << iter << " | fieldn = " << fieldnorm << ", deltan = " << deltanorm 
-                      << ", resn = " << resnorm << ", fac=" << fac << "\n";
+            std::cout << std::setprecision(4) 
+                      << TAG_INFO << "#" << iter << "\t| f = " << fieldnorm << ",\tdf/f = " << dfof
+                      << ",\tr/r0 = " << ror0 << ",\tfac = " << (fac!=-1 ? "1/" : "") << 1./std::abs(fac) << "\n";
         }
         
         // 4. Stopping criterion:
-        if (deltanorm < tolp*std::max(fieldnorm, 1.) && resnorm < tolr*std::max(resnorm0, 1.)) {
+        if (dfof < tolp && ror0 < tolr) {
             if (verbose >= 1) {
                 std::cout << TAG_INFO << "Found solution\n";
             }

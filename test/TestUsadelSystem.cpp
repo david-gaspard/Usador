@@ -152,17 +152,17 @@ int testSolve() {
     
     // Create a square mesh:
     SquareMesh mesh;
-    mesh.addRectangle(-30, 30, -15, 15);
-    mesh.addDisk(0, 15, 22);
+    mesh.addRectangle(-30, 30, -15, 15, BND_MIRROR);
+    mesh.addDisk(0, 15, 22, BND_MIRROR);
     //mesh.removeDisk(0, -15, 12);
     
-    mesh.setBoundaryRegion(-22, 22, 30, 40, NORTH, BND_OPEN);
-    mesh.setBoundaryRegion(-22, 22, 30, 40, EAST,  BND_OPEN);
-    mesh.setBoundaryRegion(-22, 22, 30, 40, WEST,  BND_OPEN);
-    mesh.setBoundaryRegion(-10, 10, -15, -15, SOUTH, BND_OPEN);
+    mesh.setBoundaryRegion(-22, 22,  30,  40, DIR_NORTH, BND_OPEN);
+    mesh.setBoundaryRegion(-22, 22,  30,  40, DIR_EAST,  BND_OPEN);
+    mesh.setBoundaryRegion(-22, 22,  30,  40, DIR_WEST,  BND_OPEN);
+    mesh.setBoundaryRegion(-10, 10, -15, -15, DIR_SOUTH, BND_OPEN);
     
-    mesh.setBoundaryRegion(-30, -30, -15, 15, WEST, BND_INPUT);
-    mesh.setBoundaryRegion( 30,  30, -15, 15, EAST, BND_OUTPUT);
+    mesh.setBoundaryRegion(-30, -30, -15, 15, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRegion( 30,  30, -15, 15, DIR_EAST, BND_OUTPUT);
     
     mesh.fixNeighbors();
     
@@ -174,7 +174,7 @@ int testSolve() {
     
     UsadelSystem usys(name, mesh, holscat, holabso, tval);
     
-    maxit = 200;  // Maximum number of iterations. Typically: 100-500.
+    maxit = 200;  // Maximum number of iterations. Typically: 50-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
     tolp = 1e-7;  // Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7.
     tolr = 1e-10; // Tolerance over the norm of the residual compared to the norm of the initial residual. Typically: 1e-10.
@@ -205,7 +205,7 @@ int testWaveguideSolution() {
     tval = 0.5;   // Transmission eigenvalue.
     const std::string name("TestWaveguideSolution");
     
-    maxit = 200;  // Maximum number of iterations. Typically: 100-500.
+    maxit = 200;  // Maximum number of iterations. Typically: 50-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
     tolp = 1e-7;  // Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7.
     tolr = 1e-10; // Tolerance over the norm of the residual compared to the norm of the initial residual. Typically: 1e-10.
@@ -242,7 +242,7 @@ int testRhoBimodal() {
     tavg_expc = 1./(1. + dscat/(2.*EXTRAPOLEN)); // Average transmission probability in the diffusive regime.
     const std::string name("TestRhoBimodal");
     
-    maxit = 200;  // Maximum number of iterations. Typically: 100-500.
+    maxit = 200;  // Maximum number of iterations. Typically: 50-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
     tolp = 1e-7;  // Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7.
     tolr = 1e-10; // Tolerance over the norm of the residual compared to the norm of the initial residual. Typically: 1e-10.

@@ -39,17 +39,17 @@ UsadelSystem createAsymmetricWaveguide1() {
     const std::string name("asymmetric-waveguide-1");
     
     SquareMesh mesh;
-    mesh.addRectangle(-30, 30, -15, 15);
+    mesh.addRectangle(-30, 30, -15, 15, BND_MIRROR);
     
-    mesh.setBoundaryRegion(-30, -30, -15, 15, WEST, BND_INPUT);
-    mesh.setBoundaryRegion( 30,  30, -15, 15, EAST, BND_OUTPUT);
-    mesh.setBoundaryRegion(-10, 10, 15, 15, NORTH, BND_OPEN);
+    mesh.setBoundaryRegion(-30, -30, -15, 15, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRegion( 30,  30, -15, 15, DIR_EAST, BND_OUTPUT);
+    mesh.setBoundaryRegion(-10, 10, 15, 15, DIR_NORTH, BND_OPEN);
     
     mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
     
     holscat = 5./60; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.0;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
-    tval = 0.5;      // Transmission probability.
+    tval = 0.6791;   // Transmission probability (Tmax=0.679).
     
     return UsadelSystem(name, mesh, holscat, holabso, tval);
 }
@@ -63,20 +63,20 @@ UsadelSystem createAsymmetricWaveguide2() {
     const std::string name("asymmetric-waveguide-2");
     
     SquareMesh mesh;
-    mesh.addRectangle(-30, 30, -15, 15);
-    mesh.addDisk(0, 15, 22);
+    mesh.addRectangle(-30, 30, -15, 15, BND_MIRROR);
+    mesh.addDisk(0, 15, 22, BND_MIRROR);
     
-    mesh.setBoundaryRegion(-30, -30, -15, 15, WEST, BND_INPUT);
-    mesh.setBoundaryRegion( 30,  30, -15, 15, EAST, BND_OUTPUT);
-    mesh.setBoundaryRegion(-22, 22, 30, 40, NORTH, BND_OPEN);
-    mesh.setBoundaryRegion(-22, 22, 30, 40, EAST,  BND_OPEN);
-    mesh.setBoundaryRegion(-22, 22, 30, 40, WEST,  BND_OPEN);
+    mesh.setBoundaryRegion(-30, -30, -15, 15, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRegion( 30,  30, -15, 15, DIR_EAST, BND_OUTPUT);
+    mesh.setBoundaryRegion(-22, 22, 30, 40, DIR_NORTH, BND_OPEN);
+    mesh.setBoundaryRegion(-22, 22, 30, 40, DIR_EAST,  BND_OPEN);
+    mesh.setBoundaryRegion(-22, 22, 30, 40, DIR_WEST,  BND_OPEN);
     
     mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
     
     holscat = 5./60; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.0;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
-    tval = 0.5;      // Transmission probability.
+    tval = 0.73;     // Transmission probability (Tmax=0.679).
     
     return UsadelSystem(name, mesh, holscat, holabso, tval);
 }
@@ -84,24 +84,115 @@ UsadelSystem createAsymmetricWaveguide2() {
 /**
  * Create the UsadelSystem with open sides.
  */
-UsadelSystem createWaveguideOpenSides() {
+UsadelSystem createWaveguideOpenSides1() {
     
     double holscat, holabso, tval;
-    const std::string name("waveguide-open-sides");
+    const std::string name("waveguide-open-sides-1");
     
     SquareMesh mesh;
-    mesh.addRectangle(-30, 30, -15, 15);
+    mesh.addRectangle(-30, 30, -15, 15, BND_MIRROR);
     
-    mesh.setBoundaryRegion(-30, -30, -15, 15, WEST, BND_INPUT);
-    mesh.setBoundaryRegion( 30,  30, -15, 15, EAST, BND_OUTPUT);
-    mesh.setBoundaryRegion(-10, 10, +15, +15, NORTH, BND_OPEN);
-    mesh.setBoundaryRegion(-10, 10, -15, -15, SOUTH, BND_OPEN);
+    mesh.setBoundaryRegion(-30, -30, -15, 15, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRegion( 30,  30, -15, 15, DIR_EAST, BND_OUTPUT);
+    mesh.setBoundaryRegion(-10, 10, +15, +15, DIR_NORTH, BND_OPEN);
+    mesh.setBoundaryRegion(-10, 10, -15, -15, DIR_SOUTH, BND_OPEN);
     
     mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
     
     holscat = 5./60; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.0;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
-    tval = 0.3;      // Transmission probability.
+    tval = 0.33;     // Transmission probability close to Tmax.
+    
+    return UsadelSystem(name, mesh, holscat, holabso, tval);
+}
+
+/**
+ * Create the UsadelSystem with open sides.
+ */
+UsadelSystem createWaveguideOpenSides2() {
+    
+    double holscat, holabso, tval;
+    const std::string name("waveguide-open-sides-2");
+    
+    SquareMesh mesh;
+    mesh.addRectangle(-100, 100, -50, 50, BND_MIRROR);
+    
+    mesh.setBoundaryRegion(-100, -100, -50, 50, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRegion( 100,  100, -50, 50, DIR_EAST, BND_OUTPUT);
+    mesh.setBoundaryRegion(-65, -55,  50,  50, DIR_NORTH, BND_OPEN);
+    mesh.setBoundaryRegion(-5,  5, -50, -50, DIR_SOUTH, BND_OPEN);
+    mesh.setBoundaryRegion( 55,  65,  50,  50, DIR_NORTH, BND_OPEN);
+    
+    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    
+    holscat = 5./60; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
+    holabso = 0.0;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
+    tval = 0.62;     // Transmission probability close to Tmax.
+    
+    return UsadelSystem(name, mesh, holscat, holabso, tval);
+}
+
+/**
+ * Create a waveguide with absorbers.
+ */
+UsadelSystem createWaveguideAbsorbers1() {
+    
+    double holscat, holabso, tval;
+    const std::string name("waveguide-absorbers-1");
+    
+    SquareMesh mesh;
+    mesh.addRectangle(-100, 100, -50, 50, BND_MIRROR);
+    
+    mesh.removeDisk(-50,  30, 2);
+    mesh.setBoundaryRegion(-60, -40, 20, 40, DIR_ALL, BND_OPEN);
+    
+    mesh.removeDisk( 50, -30, 2);
+    mesh.setBoundaryRegion(40, 60, -40, -20, DIR_ALL, BND_OPEN);
+    
+    mesh.setBoundaryRegion(-100, -100, -50, 50, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRegion( 100,  100, -50, 50, DIR_EAST, BND_OUTPUT);
+    mesh.setBoundaryRegion(-10, 10, +15, +15, DIR_NORTH, BND_OPEN);
+    mesh.setBoundaryRegion(-10, 10, -15, -15, DIR_SOUTH, BND_OPEN);
+    
+    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    
+    holscat = 5./60; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
+    holabso = 0.0;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
+    tval = 0.5;     // Transmission probability close to Tmax.
+    
+    return UsadelSystem(name, mesh, holscat, holabso, tval);
+}
+
+/**
+ * Create a waveguide with absorbers.
+ */
+UsadelSystem createWaveguideAbsorbers2() {
+    
+    double holscat, holabso, tval;
+    const std::string name("waveguide-absorbers-2");
+    
+    SquareMesh mesh;
+    mesh.addRectangle(-100, 100, -50, 50, BND_MIRROR);
+    
+    mesh.removeDisk(-60,  30, 1.5);
+    mesh.setBoundaryRegion(-70, -50, 20, 40, DIR_ALL, BND_OPEN);
+    
+    mesh.removeDisk( 0, -30, 1.5);
+    mesh.setBoundaryRegion(-10, 10, -40, -20, DIR_ALL, BND_OPEN);
+    
+    mesh.removeDisk( 60,  30, 1.5);
+    mesh.setBoundaryRegion(50, 70, 20, 40, DIR_ALL, BND_OPEN);
+    
+    mesh.setBoundaryRegion(-100, -100, -50, 50, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRegion( 100,  100, -50, 50, DIR_EAST, BND_OUTPUT);
+    mesh.setBoundaryRegion(-10, 10, +15, +15, DIR_NORTH, BND_OPEN);
+    mesh.setBoundaryRegion(-10, 10, -15, -15, DIR_SOUTH, BND_OPEN);
+    
+    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    
+    holscat = 5./60; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
+    holabso = 0.0;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
+    tval = 0.5;     // Transmission probability close to Tmax.
     
     return UsadelSystem(name, mesh, holscat, holabso, tval);
 }
@@ -115,20 +206,105 @@ UsadelSystem createCircularCavity() {
     const std::string name("circular-cavity");
     
     SquareMesh mesh;
-    mesh.addDisk(0, 0, 50);
-    mesh.addRectangle(-52, -40, -15, 15);
-    mesh.addRectangle(-15, 15, 40, 52);
-    mesh.addRectangle(40, 52, -15, 15);
+    mesh.addDisk(0, 0, 50, BND_MIRROR);
+    mesh.addRectangle(-52, -40, -15, 15, BND_MIRROR);
+    mesh.addRectangle(-15, 15, 40, 52, BND_MIRROR);
+    mesh.addRectangle(40, 52, -15, 15, BND_MIRROR);
     
-    mesh.setBoundaryRegion(-52, -52, -15, 15, WEST, BND_INPUT);
-    mesh.setBoundaryRegion(-15, 15, 52, 52, NORTH, BND_OUTPUT);
-    mesh.setBoundaryRegion(52, 52, -15, 15, EAST, BND_OPEN);
+    mesh.setBoundaryRegion(-52, -52, -15, 15, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRegion(-15, 15, 52, 52, DIR_NORTH, BND_OUTPUT);
+    mesh.setBoundaryRegion(52, 52, -15, 15, DIR_EAST, BND_OPEN);
     
     mesh.fixNeighbors();
     
     holscat = 0.1;  // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.0;  // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
-    tval = 0.9;     // Transmission probability. It is amazing that Tmax=0.9 although the cavity is open (2/3 of channels are controlled).
+    tval = 0.9;     // Transmission probability. It is amazing that Tmax=0.9 although the cavity is open (only 2/3 of channels are controlled).
+    
+    return UsadelSystem(name, mesh, holscat, holabso, tval);
+}
+
+/**
+ * Create the UsadelSystem for a bigger circular cavity.
+ */
+UsadelSystem createCircularCavityBig() {
+    
+    double holscat, holabso, tval;
+    const std::string name("circular-cavity-big");
+    
+    SquareMesh mesh;
+    mesh.addDisk(0, 0, 100, BND_MIRROR);
+    mesh.addRectangle(-105, -80, -30, 30, BND_MIRROR);
+    mesh.addRectangle(-30, 30, 80, 105, BND_MIRROR);
+    mesh.addRectangle(80, 105, -30, 30, BND_MIRROR);
+    
+    mesh.setBoundaryRegion(-105, -105, -30, 30, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRegion(-30, 30, 105, 105, DIR_NORTH, BND_OUTPUT);
+    mesh.setBoundaryRegion(105, 105, -30, 30, DIR_EAST, BND_OPEN);
+    
+    mesh.fixNeighbors();
+    
+    holscat = 0.1;  // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
+    holabso = 0.0;  // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
+    tval = 0.8;     // Transmission probability. It is amazing that Tmax=0.9 although the cavity is open (only 2/3 of channels are controlled).
+    
+    return UsadelSystem(name, mesh, holscat, holabso, tval);
+}
+
+/**
+ * Create the UsadelSystem for a bigger circular cavity.
+ */
+UsadelSystem createCircularCavityHole() {
+    
+    double holscat, holabso, tval;
+    const std::string name("circular-cavity-hole");
+    
+    SquareMesh mesh;
+    mesh.addDisk(0, 0, 100, BND_MIRROR);
+    mesh.addRectangle(-105, -80, -30, 30, BND_MIRROR);
+    mesh.addRectangle(-30, 30, 80, 105, BND_MIRROR);
+    mesh.addRectangle(80, 105, -30, 30, BND_MIRROR);
+    
+    mesh.removeDisk(-49, 49, 5);
+    mesh.setBoundaryRegion(-60, -40, 40, 60, DIR_ALL, BND_OPEN);
+    
+    mesh.setBoundaryRegion(-105, -105, -30, 30, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRegion(-30, 30, 105, 105, DIR_NORTH, BND_OUTPUT);
+    mesh.setBoundaryRegion(105, 105, -30, 30, DIR_EAST, BND_OPEN);
+    
+    mesh.fixNeighbors();
+    
+    holscat = 0.1;  // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
+    holabso = 0.0;  // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
+    tval = 0.3;     // Transmission probability. It is amazing that Tmax=0.9 although the cavity is open (only 2/3 of channels are controlled).
+    
+    return UsadelSystem(name, mesh, holscat, holabso, tval);
+}
+
+/**
+ * Create the UsadelSystem for an alternative circular cavity.
+ */
+UsadelSystem createCircularCavityAlt() {
+    
+    double holscat, holabso, tval;
+    const std::string name("circular-cavity-alt");
+    
+    SquareMesh mesh;
+    mesh.addDisk(0, 0, 100, BND_MIRROR);
+    mesh.addRectangle(-105, -80, -30, 30, BND_MIRROR);
+    mesh.addRectangle(-30, 30, 80, 105, BND_MIRROR);
+    //mesh.addRectangle(80, 105, -30, 30, BND_MIRROR);
+    
+    mesh.setBoundaryRegion(-105, -105, -30, 30, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRegion(-30, 30, 105, 105, DIR_NORTH, BND_OUTPUT);
+    mesh.setBoundaryRegion(-80, -50, 50, 80, DIR_NORTH, BND_OPEN);
+    mesh.setBoundaryRegion(-80, -50, 50, 80, DIR_WEST, BND_OPEN);
+    
+    mesh.fixNeighbors();
+    
+    holscat = 0.1;  // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
+    holabso = 0.0;  // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
+    tval = 0.70;    // Transmission probability. Tmax=0.75 but only Tmax=0.70 converges in a first Newton-Raphson pass.
     
     return UsadelSystem(name, mesh, holscat, holabso, tval);
 }
@@ -142,17 +318,23 @@ UsadelSystem createEiffelTower() {
     const std::string name("eiffel-tower");
     
     SquareMesh mesh;
-    mesh.addPolygon("shape/eiffel-tower.csv", 50);
+    mesh.addPolygon("shape/eiffel-tower.csv", 50, BND_MIRROR);
+    mesh.removeDisk(0, 50, 5);
     
-    mesh.setBoundaryRegion(-52, -20, 0, 0, SOUTH, BND_INPUT);
-    mesh.setBoundaryRegion(0, 10, 195, 205, EAST, BND_OUTPUT);
-    mesh.setBoundaryRegion(20, 52, 0, 1, SOUTH, BND_OPEN);
+    mesh.setBoundaryRegion(-52, -20, 0, 0, DIR_SOUTH, BND_INPUT);
+    mesh.setBoundaryRegion(20, 52, 0, 1, DIR_SOUTH, BND_INPUT);
+    mesh.setBoundaryRegion(0, 10, 195, 205, DIR_EAST, BND_OUTPUT);
+    
+    mesh.setBoundaryRegion(-11, 11, 39, 61, DIR_NORTH, BND_OPEN);
+    mesh.setBoundaryRegion(-11, 11, 39, 61, DIR_SOUTH, BND_OPEN);
+    mesh.setBoundaryRegion(-11, 11, 39, 61, DIR_WEST, BND_OPEN);
+    mesh.setBoundaryRegion(-11, 11, 39, 61, DIR_EAST, BND_OPEN);
     
     mesh.fixNeighbors();
     
     holscat = 0.1;  // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.0;  // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
-    tval = 0.65;    // Transmission probability.
+    tval = 0.1;    // Transmission probability. Without absorber: Tmax=0.68.
     
     return UsadelSystem(name, mesh, holscat, holabso, tval);
 }
@@ -185,9 +367,10 @@ void plotMesh(UsadelSystem& usys) {
 /**
  * Compute the fields for a specific value of the transmission eigenvalue "tval".
  * Note that here the "fields" include:
- *    (1) the standard angular parameters (theta, eta), 
- *    (2) the components of the Q field, and 
- *    (3) the normalized intensity profiles I_a, I_b, C_ab.
+ *    (1) the points (x, y) and the boundary conditions (north, south, east, west),
+ *    (2) the standard angular parameters (theta, eta) with their real and imaginary parts, 
+ *    (3) the components of the Q field (real and imaginary parts), and 
+ *    (4) the normalized intensity profiles I_a, I_b, C_ab (positive real quantities).
  * The results are saved into a CSV file and plotted automatically by calling external scripts.
  */
 void computeFields(UsadelSystem& usys) {
@@ -195,7 +378,7 @@ void computeFields(UsadelSystem& usys) {
     int maxit, nsub, verbose;
     double tolp, tolr;
     
-    maxit = 200;  // Maximum number of iterations. Typically: 100-500.
+    maxit = 50;  // Maximum number of iterations. Typically: 50-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
     tolp = 1e-7;  // Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7.
     tolr = 1e-10; // Tolerance over the norm of the residual compared to the norm of the initial residual. Typically: 1e-10.
@@ -203,8 +386,11 @@ void computeFields(UsadelSystem& usys) {
     
     std::cout << TAG_INFO << "Computing fields from UsadelSystem with name=" << usys.getName() << ", Npoint=" << usys.getNPoint() << ", h/lscat=" << usys.getHolscat() << ", h/labso=" << usys.getHolabso() << ", Tval=" << usys.getTransmission() << ", maxit=" << maxit << ".\n";
     
+    //usys.setTransmission(0.70);
     usys.initConstant();                                 // Initialize the UsadelSystem using the currently best ansatz (constants).
     usys.solveNewton(maxit, nsub, tolp, tolr, verbose);  // Solve the Usadel equation using the Newton-Raphson method.
+    //usys.setTransmission(0.75);
+    //usys.solveNewton(maxit, nsub, tolp, tolr, verbose);
     
     // Save the data and plot:
     std::stringstream path;
@@ -225,7 +411,7 @@ void computeDistribution(UsadelSystem& usys) {
     tmin = 0.;    // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
     tmax = 1.;    // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
     
-    maxit = 200;  // Maximum number of iterations. Typically: 100-500.
+    maxit = 200;  // Maximum number of iterations. Typically: 50-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
     tolp = 1e-7;  // Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7.
     tolr = 1e-10; // Tolerance over the norm of the residual compared to the norm of the initial residual. Typically: 1e-10.
@@ -256,16 +442,22 @@ int main(int argc, char** argv) {
     
     std::cout << "****** This is " << PROGRAM_COPYRIGHT << " ******\n";
     
-    UsadelSystem usys = createWaveguide();
+    //UsadelSystem usys = createWaveguide();
     //UsadelSystem usys = createAsymmetricWaveguide1();
     //UsadelSystem usys = createAsymmetricWaveguide2();
-    //UsadelSystem usys = createWaveguideOpenSides();
+    //UsadelSystem usys = createWaveguideOpenSides1();
+    //UsadelSystem usys = createWaveguideOpenSides2();
+    //UsadelSystem usys = createWaveguideAbsorbers1();
+    //UsadelSystem usys = createWaveguideAbsorbers2();
     //UsadelSystem usys = createCircularCavity();
-    //UsadelSystem usys = createEiffelTower();
+    //UsadelSystem usys = createCircularCavityBig();
+    //UsadelSystem usys = createCircularCavityAlt();
+    //UsadelSystem usys = createCircularCavityHole();
+    UsadelSystem usys = createEiffelTower();
     
-    //plotMesh(usys);  // Plot the mesh only to check it is as expected.
+    plotMesh(usys);  // Plot the mesh only to check it is as expected.
     
-    computeFields(usys); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
+    //computeFields(usys); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
     
     //computeDistribution(usys); // Compute the transmission eigenvalue distribution rho(T) by scanning in T.
     

@@ -11,9 +11,9 @@
 #include "Vector2D.hpp"
 
 /**
- * Enumeration specifying the four possible directions on a square lattice:
+ * Enumeration specifying the four possible directions on a square lattice (plus the omni-directional element):
  */
-enum Direction {NORTH, SOUTH, EAST, WEST};
+enum Direction {DIR_NORTH, DIR_SOUTH, DIR_EAST, DIR_WEST, DIR_ALL};
 
 /**
  * Class defining the Square Mesh object.
@@ -41,11 +41,11 @@ class SquareMesh {
     bool containsPoint(const int x, const int y) const;
     
     // Add points:
-    void addPoint(const int x, const int y);
-    void addRectangle(int xmin, int xmax, int ymin, int ymax);
-    void addDisk(const int x0, const int y0, const double radius);
-    void addPolygon(const std::vector<Vector2D>& polygon);
-    void addPolygon(const char* filename, const double scale);
+    void addPoint(const int x, const int y, const int bndtype);
+    void addRectangle(int xmin, int xmax, int ymin, int ymax, const int bndtype);
+    void addDisk(const int x0, const int y0, const double radius, const int bndtype);
+    void addPolygon(const std::vector<Vector2D>& polygon, const int bndtype);
+    void addPolygon(const char* filename, const double scale, const int bndtype);
     
     // Remove points:
     void removePoint(const int x, const int y);
