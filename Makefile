@@ -7,7 +7,7 @@ SRCLIST = $(shell find src/ -name "*.cpp" ! -name "Main.cpp")
 BINLIST = $(SRCLIST:src/%.cpp=bin/%.o)
 
 CC=g++
-CFLAGS=-W -Wall -Wextra -std=c++17 -Isrc -Jbin -O2
+CFLAGS=-W -Wall -Wextra -std=c++17 -Isrc -Jbin -fopenmp -O2
 LIBS=-lumfpack
 
 all: directories usador

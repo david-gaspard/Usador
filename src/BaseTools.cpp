@@ -7,7 +7,6 @@
 #include "BaseTools.hpp"
 #include "Constants.hpp"
 #include <ctime>
-#include <chrono>
 #include <iomanip>
 #include <filesystem>
 #include <iostream>
@@ -42,4 +41,62 @@ void uniqueFilename(const std::string& path, const std::string& suffix, std::str
     }
     
     std::cout << TAG_WARN << "Could not find unique filename: '" << unique_filename << "'. Data will be lost...\n";
+}
+
+/**
+ * Returns a string version of the given time duration in seconds in the format HH:MM:SS.
+ */
+std::string timeToString(double time) {
+    
+    int time_hours   = (int) std::floor(time/3600.);
+    time -= 3600.*time_hours;
+    int time_minutes = (int) std::floor(time/60.);
+    time -= 60.*time_minutes;
+    int time_seconds = (int) std::floor(time);
+    
+    std::stringstream ss;
+    ss << std::setfill('0') << std::setw(2) << time_hours << ":" << std::setw(2) << time_minutes << ":" << std::setw(2) << time_seconds;
+    
+    return ss.str();
+}
+
+/**
+ * Print a progress bar indicator to std output.
+ * 
+ * Arguments:
+ * 
+ * cjob  = Number of completed jobs.
+ * njob  = Total number of jobs to be completed.
+ * msg   = Message to be shown in std output. Typically the name of the task.
+ * start = Time reference to some fixed point in the past.
+ */
+void printProgressBar(const int cjob, const int njob, const std::string& msg, const std::chrono::steady_clock::time_point& start) {
+    
+    double elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start).count()/1e6;
+    
+    // 1. Compute the estimated remaining time, expected time of arrival (ETA):
+    double eta = (elapsed_time * (njob - cjob))/cjob;  // ETA in number of seconds.
+    std::string eta_str = timeToString(eta);
+    
+    // 2. Compute the progress bar:
+    int len = (int) std::ceil(((double) BAR_LENGTH * cjob)/njob); // Length of the filled part of the progress bar.
+    int percent = (int) std::ceil((100.*cjob)/njob); // Completed jobs in percent.
+    int njobw = (int) std::ceil(std::log10(njob)); // Width of the number of jobs (in base-10 decimals).
+    
+    std::cout << std::setfill(' ')
+        << TAG_EXEC << msg << " [" << std::string(len, '#') << std::string(BAR_LENGTH - len, ' ') << "] " 
+        << std::setw(3) << percent << "% (" << std::setw(njobw) << cjob << "/" << std::setw(njobw) << njob << ")  ETA " << eta_str << "  \r" << std::flush;
+    
+}
+
+/**
+ * Finalize the progress bar by computing and returning the total elapsed time (in seconds).
+ */
+double endProgressBar(const std::chrono::steady_clock::time_point& start) {
+    
+    double elapsed_sec = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start).count()/1e6;
+    
+    std::cout << "\n" << TAG_EXEC << "Done in " << elapsed_sec << " s.\n";
+    
+    return elapsed_sec;
 }

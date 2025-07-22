@@ -115,7 +115,7 @@ def compile_tikz(filename_tikz):
     }
     
     ## 3. Prepare the UNIX commands to be executed:
-    cmd = "%(compiler)s -jobname '%(jobname)s' '\\documentclass[12pt]{article}%(preamble)s\\begin{document}\\noindent\\input{\detokenize{%(filename_tikz)s}}\\end{document}' | grep -C 1 -wi --color=auto '^!\\|^l\\|error\\|undefined\\|unknown\\|missing\\|runaway\\|misplaced\\|multiply\\|exceeded\\|too\\|ended\\|extra\\|double\\|forget\\|forgotten\\|unbounded\\|overfull\\|underfull' " % dic
+    cmd = "%(compiler)s -jobname '%(jobname)s' '\\documentclass[12pt]{article}%(preamble)s\\begin{document}\\noindent\\input{\detokenize{%(filename_tikz)s}}\\end{document}' | grep -C 1 -wi --color=auto '^!\\|^l\\|error\\|undefined\\|unknown\\|missing\\|runaway\\|misplaced\\|multiply\\|exceeded\\|too\\|ended\\|extra\\|forget\\|forgotten\\|unbounded\\|overfull\\|underfull' " % dic
     
     ##print("COMMAND: " + cmd)
     

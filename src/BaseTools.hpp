@@ -7,10 +7,14 @@
 #ifndef _BASE_TOOLS_H
 #define _BASE_TOOLS_H
 #include <fstream>
+#include <chrono>
 
 static const int MAX_FILENO = 10000; // Set a maximum file number (safety limit).
+static const int BAR_LENGTH = 50;    // Length of the progress bar in number of characters.
 
 void writeTimestamp(std::ofstream& ofs, const char* prefix);
 void uniqueFilename(const std::string& path, const std::string& suffix, std::string& unique_filename);
+void printProgressBar(const int cjob, const int njob, const std::string& msg, const std::chrono::steady_clock::time_point& start);
+double endProgressBar(const std::chrono::steady_clock::time_point& start);
 
 #endif

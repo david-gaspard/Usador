@@ -18,13 +18,15 @@ class UsadelSystem {
     private:
     
     SquareMesh* mesh; // Pointer to the mesh.
+    ComplexVector* field;  // Array containing the parameters (theta, eta) at each corresponding point in the mesh. Size: 2*npoint.
+    int npoint;       // Total number of points in the "mesh".
+    
     double holscat;   // Mesh step divided by the scattering mean free path (total length is not a well defined unit).
     double holabso;   // Mesh step divided by the absorption length (total length is not a well defined unit).
-    int npoint;       // Total number of points in the "mesh".
-    ComplexVector* field;  // Array containing the parameters (theta, eta) at each corresponding point in the mesh. Size: 2*npoint.
     double tval;      // Transmission eigenvalue, between 0 and 1.
     dcomplex ga;      // Input contact parameter, gamma_a, given by sqrt(1/tval) + I*0^+.
     dcomplex gb;      // Output contact parameter, gamma_b, given by sqrt(1/tval) + I*0^+. They must be related by ga*gb = 1/tval + I*0^+.
+    
     std::string name; // String containing the name of the system (typically describing the system geometry) which is used to generate file output.
     
     public:
@@ -32,6 +34,7 @@ class UsadelSystem {
     // Constructors/Destructors:
     UsadelSystem(const std::string& name, SquareMesh& mesh, const double holscat, const double holabso, const double tval);
     UsadelSystem(const std::string& name, const int length, const int width, const double dscat, const double dabso, const double tval);
+    UsadelSystem(const UsadelSystem& usys); // Explicit copy constructor.
     ~UsadelSystem();
     
     // Getters:

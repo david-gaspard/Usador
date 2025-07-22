@@ -157,7 +157,12 @@ def plot_map(args):
     ##mplt.show()
     
     if (column_name in ["I_a", "I_b", "C_ab"]):
-        vmin = 0  ## For positive definite quantities, the minimum value should be zero.
+        vmin_actual = matrix.min()
+        if (vmin_actual > 0):
+            vmin = 0  ## For positive definite quantities, the minimum value should be zero.
+        else:
+            vmin = vmin_actual
+            print("[WARN] Minimum value of intensity '" + column_name + "' is negative (" + str(vmin_actual) + "). This means that the solution failed to converge.")
     else:
         vmin = matrix.min() ## Extract the depth range of the field [vmin, vmax].
     vmax = matrix.max()

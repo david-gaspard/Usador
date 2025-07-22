@@ -24,12 +24,12 @@
  */
 UsadelSystem::UsadelSystem(const std::string& name, SquareMesh& mesh, const double holscat, const double holabso, const double tval) {
     //std::cout << TAG_INFO << "Creating UsadelSystem.\n";
-    this->mesh = new SquareMesh(mesh);  // Call copy constructor.
+    this->mesh = new SquareMesh(mesh);  // Call copy constructor (implicitly defined).
+    npoint = mesh.getNPoint();
+    field = new ComplexVector(2*npoint);
     this->holscat = holscat;
     this->holabso = holabso;
     setTransmission(tval);
-    npoint = mesh.getNPoint();
-    field = new ComplexVector(2*npoint);
     this->name = name;
 }
 
@@ -54,12 +54,26 @@ UsadelSystem::UsadelSystem(const std::string& name, const int length, const int 
     mesh->setBoundaryRegion( length/2,  length/2, -width/2, width/2, DIR_EAST, BND_OUTPUT);
     mesh->fixNeighbors();
     
+    npoint = mesh->getNPoint();
+    field = new ComplexVector(2*npoint);
     holscat = dscat/length;
     holabso = dabso/length;
     setTransmission(tval);
-    npoint = mesh->getNPoint();
-    field = new ComplexVector(2*npoint);
     this->name = name;
+}
+
+/**
+ * Define explicit copy constructor for the UsadelSystem object (because of pointers). Used especially in parallel computing.
+ */
+UsadelSystem::UsadelSystem(const UsadelSystem& usys) {
+    //std::cout << TAG_INFO << "Creating UsadelSystem (copy constructor).\n";
+    this->mesh = new SquareMesh(*usys.mesh);  // Call copy constructor (implicitly defined).
+    npoint = usys.mesh->getNPoint();
+    field = new ComplexVector(2*npoint);
+    this->holscat = usys.holscat;
+    this->holabso = usys.holabso;
+    setTransmission(usys.tval);
+    this->name = usys.name;
 }
 
 /**
@@ -70,7 +84,6 @@ UsadelSystem::~UsadelSystem() {
     delete mesh;
     delete field;
 }
-
 
 /**
  * Assigns the transmission value to the present Contact interaction object.
@@ -576,12 +589,11 @@ void UsadelSystem::initConstant() {
  * 
  * Returns:
  * 
- * found   = Flag equal to 0 if the Newton-Raphson algorithm did not convergence within the prescribed number of iterations,
- *           and 1 if a solution has been found, i.e., the convergence criteria have been met.
+ * niter   = Number of iterations used to meet the convergence criteria. If niter = maxit+1, then the iteration failed to reach convergence.
  */
 int UsadelSystem::solveNewton(const int maxit, const int nsub, const double tolp, const double tolr, const int verbose) {
     
-    int found = 0;  // Return status. 0=No convergence (solution not found), 1=Success (found solution).
+    //int found = 0;  // Return status. 0=No convergence (solution not found), 1=Success (found solution).
     int iter, s;    // Iteration indices.
     double fac, resnorm, resnorm0, newresnorm, /* deltanorm, */ fieldnorm, dfof, ror0;
     
@@ -629,12 +641,11 @@ int UsadelSystem::solveNewton(const int maxit, const int nsub, const double tolp
             if (verbose >= 1) {
                 std::cout << TAG_INFO << "Found solution\n";
             }
-            found = 1;
             break;
         }
     }
     
-    return found;
+    return iter;
 }
 
 /**
