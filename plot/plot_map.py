@@ -8,7 +8,7 @@ import matplotlib.pyplot as mplt
 import matplotlib.colors as mcol
 import compile_tikz
 
-## Create the 'sunset' colormap, a linearized luminance colormap originally created by David Gaspard in June 2024:
+## Create the 'sunset' colormap, a luminance-linearized colormap originally created by David Gaspard in June 2024:
 SUNSET_COLORS = [[1.00000, 1.00000, 1.00000],
                  [1.00000, 0.99337, 0.65453],
                  [1.00000, 0.96893, 0.46622],
@@ -62,7 +62,7 @@ def colormap_to_tikz_code(cmap, nsample):
     Returns a TikZ code version of the given colormap "cmap" using a given number of samples "nsample".
     Example output: 'colormap={temperature}{rgb255=(0,0,128) rgb255=(0,0,255) rgb255=(255,255,255) rgb255=(255,0,0) rgb255=(128,0,0)}'
     """
-    ##print("[INFO] cmap.name =", cmap.name, ", cmap.N =", cmap.N, ", cmap(0.5) =", cmap(0.5))
+    ##print(compile_tikz.TAG_INFO + "cmap.name =", cmap.name, ", cmap.N =", cmap.N, ", cmap(0.5) =", cmap(0.5))
     
     string = "colormap={" + cmap.name + "}{"
     
@@ -116,8 +116,8 @@ def plot_map(args):
     """
     ## Check if the number of arguments is correct:
     if (len(args) != 3):
-        print("[ERROR] Invalid number of arguments, doing nothing...")
-        print("[USAGE] " + args[0] + " COLUMN_NAME FIELD_FILE")
+        print(compile_tikz.TAG_ERROR + "Invalid number of arguments, doing nothing...")
+        print(compile_tikz.TAG_USAGE + args[0] + " COLUMN_NAME FIELD_FILE")
         return 1
     
     column_name = args[1]  ## Interpret arg #1 as the name of the column in the field file.
@@ -127,7 +127,7 @@ def plot_map(args):
     try:
         fp = open(field_file, 'r')
     except IOError as e:
-        print("[ERROR] Field file '" + field_file + " not found, aborting now...")
+        print(compile_tikz.TAG_ERROR + "Field file '" + field_file + " not found, aborting now...")
         return 1
     
     data = list(csv.DictReader((line for line in fp if not line.startswith('%')), skipinitialspace=True))
@@ -147,7 +147,7 @@ def plot_map(args):
         i = ymax - int(p['y'])
         j = int(p['x']) - xmin
         matrix[i, j] = float(p[column_name])
-        ##print("[INFO] matrix[", i, ",", j, "] = ", float(p[column_name]))
+        ##print(compile_tikz.TAG_INFO + "matrix[", i, ",", j, "] = ", float(p[column_name]))
     
     matrix = np.ma.array(matrix, mask=np.isnan(matrix))  ## Use a mask to escape nan values.
     ##print(matrix)
@@ -164,13 +164,13 @@ def plot_map(args):
             vmin = 0  ## For positive definite quantities, the minimum value should be zero.
         else:
             vmin = vmin_actual
-            print("[WARN] Minimum value of intensity '" + column_name + "' is negative (" + str(vmin_actual) + "). This means that the solution failed to converge.")
+            print(compile_tikz.TAG_WARN + "Minimum value of intensity '" + column_name + "' is negative (" + str(vmin_actual) + "). This means that the solution failed to converge.")
     else:
         vmin = matrix.min() ## Extract the depth range of the field [vmin, vmax].
     vmax = matrix.max()
     norm = mplt.Normalize(vmin=vmin, vmax=vmax)
     image = cmap(norm(matrix)) ## Create the bitmap image.
-    ##print("[INFO] vmin = ", vmin, ", vmax = ", vmax)
+    ##print(compile_tikz.TAG_INFO + "vmin = ", vmin, ", vmax = ", vmax)
     
     ##pre, ext = os.path.splitext(field_file)
     bitmap_file = file_path + '_map.png'
@@ -213,7 +213,7 @@ def plot_map(args):
     
     ## Export the TikZ code to a file and compile it:
     tikz_file = file_path + '.tikz'
-    print("[INFO] Writing TikZ file: '" + tikz_file + "'...")
+    print(compile_tikz.TAG_INFO + "Writing TikZ file: '" + tikz_file + "'...")
     open(tikz_file, 'w').write(tikz_code)
     compile_tikz.compile_tikz(tikz_file) ## Compile the TikZ file.
     

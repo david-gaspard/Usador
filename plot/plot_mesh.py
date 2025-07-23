@@ -48,8 +48,8 @@ def plot_mesh(args):
     """
     ## Check if the number of arguments is correct:
     if (len(args) != 2):
-        print("[ERROR] No input file, doing nothing...")
-        print("[USAGE] " + args[0] + " MESH_FILE")
+        print(compile_tikz.TAG_ERROR + "No input file, doing nothing...")
+        print(compile_tikz.TAG_USAGE + args[0] + " MESH_FILE")
         return 1
     
     mesh_file = args[1]
@@ -58,7 +58,7 @@ def plot_mesh(args):
     try:
         fp = open(mesh_file, 'r')
     except IOError as e:
-        print("[ERROR] Field file '" + mesh_file + " not found, aborting now...")
+        print(compile_tikz.TAG_ERROR + "Field file '" + mesh_file + " not found, aborting now...")
         return 1
     
     data = list(csv.DictReader((line for line in fp if not line.startswith('%')), skipinitialspace=True))
@@ -103,7 +103,7 @@ def plot_mesh(args):
     
     ## Export the TikZ code to a file and compile it:
     tikz_file = file_path + '.tikz'
-    print("[INFO] Writing TikZ file: '" + tikz_file + "'...")
+    print(compile_tikz.TAG_INFO + "Writing TikZ file: '" + tikz_file + "'...")
     open(tikz_file, 'w').write(tikz_code)
     compile_tikz.compile_tikz(tikz_file) ## Compile the TikZ file.
     

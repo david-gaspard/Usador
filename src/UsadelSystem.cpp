@@ -638,14 +638,14 @@ int UsadelSystem::solveNewton(const int maxit, const int nsub, const double told
         // 4. Stopping criterion:
         if (dfof < toldf && ror0 < tolr) {
             if (verbose >= 1) {
-                std::cout << TAG_INFO << "#" << iter << "\t| Found solution: df/f = " << dfof << " < toldf = " << toldf << ", and r/r0 = " << ror0 << " < tolr = " << tolr << "\n";
+                std::cout << TAG_INFO << "#" << iter << "\t| \033[92mFound solution\033[0m: df/f = " << dfof << " < toldf = " << toldf << ", and r/r0 = " << ror0 << " < tolr = " << tolr << "\n";
             }
             break;
         }
     }
     
     if (iter > maxit && verbose >= 1) {
-        std::cout << TAG_WARN << "#" << iter << "\t| Solution not found: df/f = " << dfof << " > toldf = " << toldf << ", and r/r0 = " << ror0 << " > tolr = " << tolr << "\n";
+        std::cout << TAG_WARN << "#" << iter << "\t| \033[91mSolution not found\033[0m: df/f = " << dfof << " > toldf = " << toldf << ", and r/r0 = " << ror0 << " > tolr = " << tolr << "\n";
     }
     
     return iter;
@@ -694,7 +694,7 @@ void UsadelSystem::saveField(const std::string& filename, const char* sep, const
     
     if (rho < 0.) {// Warn the user about improper values of the transmission eigenvalue density rho(T).
         std::cout << TAG_WARN << "Density rho=" << rho << " is negative. This may indicate an improper solution.\n";
-    } else if (rho < SQRTEPS) {
+    } else if (rho < CBRTEPS) {
         std::cout << TAG_WARN << "Density rho=" << rho << " is very small. This may indicate the gap of rho(T).\n";
     }
     

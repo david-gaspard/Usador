@@ -13,11 +13,11 @@
 typedef std::complex<double> dcomplex;
 
 // Printing tags:
-static const std::string TAG_INFO = "[INFO] ";    // Information tag.
-static const std::string TAG_WARN = "[WARN] ";    // Warning tag.
-static const std::string TAG_ERROR = "[ERROR] ";  // Error tag.
-static const std::string TAG_EXEC = "[EXEC] ";    // Execution tag.
-static const std::string PROGRAM_NAME_SHORT = "Usador v1.0";  // Information tag.
+static const std::string TAG_INFO = "[INFO] ";                     // Information tag.
+static const std::string TAG_WARN = "[\033[1;93mWARN\033[0m] ";    // Warning tag.
+static const std::string TAG_ERROR = "[\033[1;31mERROR\033[0m] ";  // Error tag.
+static const std::string TAG_EXEC = "[\033[1;95mEXEC\033[0m] ";    // Execution tag.
+static const std::string PROGRAM_NAME_SHORT = "Usador v1.0";  // Program name.
 static const std::string PROGRAM_NAME_FULL  = PROGRAM_NAME_SHORT + " - Usadel equation solver for arbitrary disordered regions";
 static const std::string PROGRAM_COPYRIGHT  = PROGRAM_NAME_SHORT + " (c) 2025 David GASPARD (ORCID 0000-0002-4449-8782) <david.gaspard@espci.fr>";
 

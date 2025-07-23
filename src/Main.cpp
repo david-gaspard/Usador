@@ -26,7 +26,7 @@ UsadelSystem createWaveguide() {
     width = 30;   // Width of the waveguide in units of the lattice step.
     dscat = 5.;   // Scattering thickness, L/lscat, where L is the length and lscat the scattering mean free path.
     dabso = 0.1;   // Absorption thickness, L/labso, where L is the length and labso the ballistic absorption length.
-    tval = 0.99;  // Transmission eigenvalue, between 0 and 1.
+    tval = 0.75;  // Transmission eigenvalue, between 0 and 1. For dscat=5, dabso=0.1, we have Tmax=0.75.
     
     return UsadelSystem(name, length, width, dscat, dabso, tval);  // Create the reference Usadel System with waveguide geometry.
 }
@@ -514,7 +514,7 @@ UsadelSystem createFiniteSlabTransmission() {
     
     dscat = 5.;   // Scattering thickness, L/lscat, where L is the slab thickness and lscat the scattering mean free path.
     dabso = 0.;   // Absorption thickness, L/labso, where L is the slab thickness and labso the ballistic absorption length.
-    tval = 0.30;  // Transmission probability. Tmax=0.3 for size_input=160, size_output=20, dscat=5, dabso=0.
+    tval = 0.40;  // Transmission probability. Tmax=0.3 for size_input=160, size_output=20, dscat=5, dabso=0.
     
     return UsadelSystem(name, mesh, dscat/thick, dabso/thick, tval);
 }
@@ -625,7 +625,7 @@ void computeFields(UsadelSystem& usys) {
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
     toldf = 1e-7; // Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7.
     tolr = 1e-10; // Tolerance over the norm of the residual compared to the norm of the initial residual. Typically: 1e-10.
-    verbose = 1;  // Verbosity level in standard output. 0=No output, 1=Display each iteration.
+    verbose = 1;  // Verbosity level of the Newton-Raphson solver. 0=No output, 1=Display each iteration.
     
     std::cout << TAG_INFO << "Computing fields from UsadelSystem with name=" << usys.getName() << ", Npoint=" << usys.getNPoint() << ", h/lscat=" << usys.getHolscat() << ", h/labso=" << usys.getHolabso() << ", Tval=" << usys.getTransmission() << ", maxit=" << maxit << ".\n";
     
@@ -688,15 +688,15 @@ void computeDistributionSerial(UsadelSystem& usys) {
     int ntval, maxit, nsub, verbose, niter;
     double tmin, tmax, tval, rho, toldf, tolr;
     
-    ntval = 32;    // Number of samples for the transmission eigenvalue.
-    tmin = 0.001;  // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    tmax = 0.4;    // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    ntval = 32; // Number of samples for the transmission eigenvalue.
+    tmin = 0.;  // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    tmax = 1.;  // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
     
     maxit = 50;   // Maximum number of iterations. Typically: 50-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
     toldf = 1e-7; // Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7.
     tolr = 1e-10; // Tolerance over the norm of the residual compared to the norm of the initial residual. Typically: 1e-10.
-    verbose = 0;  // Verbosity level in standard output. 0=No output, 1=Display each iteration.
+    verbose = 0;  // Verbosity level of the Newton-Raphson solver. 0=No output, 1=Display each iteration.
     
     std::cout << TAG_INFO << "Computing rho(T) from UsadelSystem with name=" << usys.getName() << ", Npoint=" << usys.getNPoint() << ", h/lscat=" << usys.getHolscat() << ", h/labso=" << usys.getHolabso() << ", NT=" << ntval << ", Trange=" << tmin << ":" << tmax << ", maxit=" << maxit << ".\n";
     
@@ -719,7 +719,7 @@ void computeDistributionSerial(UsadelSystem& usys) {
         rhodata[3*i+2] = niter;
         
         std::cout << TAG_INFO << "# " << (i+1) << "\t| tval=" << tval 
-                  << ",\trho=" << rho << ",\tniter=" << niter << ",\t" << (niter <= maxit ? "success" : "failure") << "\n";
+                  << ",\trho=" << rho << ",\tniter=" << niter << ",\t" << (niter <= maxit ? "\033[92msuccess\033[0m" : "\033[91mfailure\033[0m") << "\n";
     }
     
     double elapsed_time = endProgressBar(start);  // Finalize the progress bar and gets the total time (in seconds).
@@ -741,8 +741,8 @@ void computeDistributionOMP(UsadelSystem& usys) {
     double tmin, tmax, tval, rho, toldf, tolr;
     
     ntval = 32;   // Number of samples for the transmission eigenvalue.
-    tmin = 0.01;  // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    tmax = 0.4;   // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    tmin = 0.;  // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    tmax = 1.;   // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
     nthread = 10; // Number of execution threads for OpenMP (typically the number of CPU cores).
     
     maxit = 50;   // Maximum number of iterations. Typically: 50-500.
@@ -813,7 +813,7 @@ int main(int argc, char** argv) {
     
     std::cout << "****** This is " << PROGRAM_COPYRIGHT << " ******\n";
     
-    //UsadelSystem usys = createWaveguide();
+    UsadelSystem usys = createWaveguide();
     //UsadelSystem usys = createAsymmetricWaveguide1();
     //UsadelSystem usys = createAsymmetricWaveguide2();
     //UsadelSystem usys = createWaveguideOpenSides1();
@@ -830,7 +830,7 @@ int main(int argc, char** argv) {
     //UsadelSystem usys = createCircularCavityAlt();
     //UsadelSystem usys = createCircularCavityHole();
     //UsadelSystem usys = createEiffelTower();
-    UsadelSystem usys = createFiniteSlabTransmission();
+    //UsadelSystem usys = createFiniteSlabTransmission();
     //UsadelSystem usys = createFiniteSlabRemission1();
     //UsadelSystem usys = createFiniteSlabRemission2();
     

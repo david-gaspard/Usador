@@ -11,6 +11,13 @@ import os
 import shutil
 
 MY_COPYRIGHT = "(c) 2025 David GASPARD (ORCID 0000-0002-4449-8782) <david.gaspard@espci.fr>"
+
+TAG_INFO = "[INFO] "                     ## Information tag.
+TAG_WARN = "[\033[1;93mWARN\033[0m] "    ## Warning tag.
+TAG_ERROR = "[\033[1;31mERROR\033[0m] "  ## Error tag.
+TAG_EXEC = "[\033[1;95mEXEC\033[0m] "    ## Execution tag.
+TAG_USAGE = "[USAGE] "                   ## Usage tag.
+
 LATEX_COMPILER = "pdflatex"    ## Compiler used to compile the LaTeX file.
 
 ## Define the LaTeX preamble (do not add LaTeX comments because line breaks are removed):
@@ -97,10 +104,10 @@ def compile_tikz(filename_tikz):
     """
     ## 1. First check for possible errors:
     if (shutil.which(LATEX_COMPILER) == None):
-        print("[ERROR] LaTeX compiler not found: '" + LATEX_COMPILER + "'...")
+        print(TAG_ERROR + "LaTeX compiler not found: '" + LATEX_COMPILER + "'...")
         return 1
     if (not os.path.isfile(filename_tikz)):
-        print("[ERROR] TikZ file not found: '" + filename_tikz + "'...")
+        print(TAG_ERROR + "TikZ file not found: '" + filename_tikz + "'...")
         return 1
     
     ## 2. Prepare the substitution dictionary:
@@ -120,14 +127,14 @@ def compile_tikz(filename_tikz):
     ##print("COMMAND: " + cmd)
     
     ## 4. Execute the commands:
-    print("[INFO] Compiling TikZ file: '" + filename_tikz + "'...")
+    print(TAG_INFO + "Compiling TikZ file: '" + filename_tikz + "'...")
     os.system(cmd)
     
     ## 5. Removes LaTeX's auxiliary files:
     flist = [jobname + ".aux", jobname + ".log", jobname + ".out"]
     for f in flist:
         if (os.path.isfile(f)):
-            ##print("[INFO] Removing file: '" + f + "'...")
+            ##print(compile_tikz.TAG_INFO + "Removing file: '" + f + "'...")
             os.remove(f)
     
     return 0
@@ -151,9 +158,9 @@ def can_overwrite(filename):
     Returns True if the file can be overwritten, False otherwise.
     """
     if (os.path.isfile(filename)):
-        print("[WARN] File already exists: '" + filename + "'...")
+        print(TAG_WARN + "File already exists: '" + filename + "'...")
         if (not answer_is_yes("Overwrite ? (y/n): ")):
-            print("[INFO] OK, keeping file...")
+            print(TAG_INFO + "OK, keeping file...")
             return False
     return True
 
@@ -173,8 +180,8 @@ def main(args):
     Main function of the script. This function is called when the script is prompted. 
     """
     if (len(args) == 1):
-        print("[ERROR] No input file, doing nothing...")
-        print("[USAGE] " + args[0] + " file_1.tikz [file_2.tikz file_3.tikz ...] ")
+        print(TAG_ERROR + "No input file, doing nothing...")
+        print(TAG_USAGE + args[0] + " file_1.tikz [file_2.tikz file_3.tikz ...] ")
         return 1
     
     ## Compile all the given files:
