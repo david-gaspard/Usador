@@ -148,7 +148,7 @@ int testSolve() {
     std::cout << "====== TEST SOLVE ======\n";
     
     int maxit, nsub, verbose;
-    double tval, holscat, holabso, tolp, tolr;
+    double tval, holscat, holabso, toldf, tolr;
     
     // Create a square mesh:
     SquareMesh mesh;
@@ -176,12 +176,12 @@ int testSolve() {
     
     maxit = 200;  // Maximum number of iterations. Typically: 50-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
-    tolp = 1e-7;  // Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7.
+    toldf = 1e-7; // Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7.
     tolr = 1e-10; // Tolerance over the norm of the residual compared to the norm of the initial residual. Typically: 1e-10.
     verbose = 1;  // Verbosity level in standard output. 0=No output, 1=Display each iteration.
     
     usys.initConstant();
-    usys.solveNewton(maxit, nsub, tolp, tolr, verbose);
+    usys.solveNewton(maxit, nsub, toldf, tolr, verbose);
     
     const std::string path("out/test/intensity/result_x");
     usys.savePlot(path);
@@ -196,7 +196,7 @@ int testWaveguideSolution() {
     std::cout << "====== TEST WAVEGUIDE SOLUTION ======\n";
     
     int length, width, maxit, nsub, verbose, found;
-    double dscat, dabso, tval, tolp, tolr;
+    double dscat, dabso, tval, toldf, tolr;
     
     length = 20;  // Length of the waveguide (in units of the lattice step).
     width = 10;   // Width of the waveguide (in units of the lattice step).
@@ -207,14 +207,14 @@ int testWaveguideSolution() {
     
     maxit = 200;  // Maximum number of iterations. Typically: 50-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
-    tolp = 1e-7;  // Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7.
+    toldf = 1e-7; // Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7.
     tolr = 1e-10; // Tolerance over the norm of the residual compared to the norm of the initial residual. Typically: 1e-10.
     verbose = 0;  // Verbosity level in standard output. 0=No output, 1=Display each iteration.
     
     // Solves the Usadel equation:
     UsadelSystem usys(name, length, width, dscat, dabso, tval);  // Create the reference Usadel System with waveguide geometry.
     usys.initConstant();  // Initialize the Usadel solver (using contact guess).
-    found = usys.solveNewton(maxit, nsub, tolp, tolr, verbose); // Solves the Usadel equation using the Newton method.
+    found = usys.solveNewton(maxit, nsub, toldf, tolr, verbose); // Solves the Usadel equation using the Newton method.
     
     // Compare with the reference solution in the waveguide geometry:
     ComplexVector field_expc(2*usys.getNPoint());
@@ -232,7 +232,7 @@ int testRhoBimodal() {
     std::cout << "====== TEST RHO BIMODAL ======\n";
     
     int length, width, found, ntval, maxit, nsub, verbose;
-    double tval, rho, rho_expc, dscat, dabso, tavg_expc, holscat, holabso, tolp, tolr;
+    double tval, rho, rho_expc, dscat, dabso, tavg_expc, holscat, holabso, toldf, tolr;
     
     length = 20;  // Length of the waveguide (in units of the lattice step). Must be even number here.
     width  = 10;  // Width of the waveguide (in units of the lattice step). Must be even number here.
@@ -244,7 +244,7 @@ int testRhoBimodal() {
     
     maxit = 200;  // Maximum number of iterations. Typically: 50-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
-    tolp = 1e-7;  // Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7.
+    toldf = 1e-7; // Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7.
     tolr = 1e-10; // Tolerance over the norm of the residual compared to the norm of the initial residual. Typically: 1e-10.
     verbose = 0;  // Verbosity level in standard output. 0=No output, 1=Display each iteration.
     
@@ -272,7 +272,7 @@ int testRhoBimodal() {
         tval = (1. - std::cos((itval + 0.5)*PI/ntval))/2.;   // Choose Chebyshev nodes as the transmission eigenvalues (they are denser at the edges).
         usys.setTransmission(tval); // Assigns the transmission eigenvalue to all contact interactions.
         usys.initConstant();  // Initialize the Usadel solver (using contact guess).
-        found = usys.solveNewton(maxit, nsub, tolp, tolr, verbose); // Solves the Usadel equation using the Newton method.
+        found = usys.solveNewton(maxit, nsub, toldf, tolr, verbose); // Solves the Usadel equation using the Newton method.
         rho = usys.getRho();  // Actual distribution given by the program.
         rho_expc = tavg_expc/(2.*tval*std::sqrt(1. - tval));   // Expected distribution according to the bimodal law.
         ofs << tval << sep << rho << sep << rho_expc << sep << found << "\n";

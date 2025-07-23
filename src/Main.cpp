@@ -481,7 +481,7 @@ UsadelSystem createEiffelTower() {
     
     holscat = 0.1;  // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.0;  // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
-    tval = 0.1;    // Transmission probability. Without absorber: Tmax=0.68.
+    tval = 0.2;    // Transmission probability. Without absorber: Tmax=0.68.
     
     return UsadelSystem(name, mesh, holscat, holabso, tval);
 }
@@ -523,20 +523,20 @@ void plotMesh(UsadelSystem& usys) {
 void computeFields(UsadelSystem& usys) {
     
     int maxit, nsub, verbose;
-    double tolp, tolr;
+    double toldf, tolr;
     
-    maxit = 50;  // Maximum number of iterations. Typically: 50-500.
+    maxit = 50;   // Maximum number of iterations. Typically: 50-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
-    tolp = 1e-7;  // Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7.
+    toldf = 1e-7; // Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7.
     tolr = 1e-10; // Tolerance over the norm of the residual compared to the norm of the initial residual. Typically: 1e-10.
     verbose = 1;  // Verbosity level in standard output. 0=No output, 1=Display each iteration.
     
     std::cout << TAG_INFO << "Computing fields from UsadelSystem with name=" << usys.getName() << ", Npoint=" << usys.getNPoint() << ", h/lscat=" << usys.getHolscat() << ", h/labso=" << usys.getHolabso() << ", Tval=" << usys.getTransmission() << ", maxit=" << maxit << ".\n";
     
     usys.initConstant();                                 // Initialize the UsadelSystem using the currently best ansatz (constants).
-    usys.solveNewton(maxit, nsub, tolp, tolr, verbose);  // Solve the Usadel equation using the Newton-Raphson method.
+    usys.solveNewton(maxit, nsub, toldf, tolr, verbose);  // Solve the Usadel equation using the Newton-Raphson method.
     //usys.setTransmission(0.98);
-    //usys.solveNewton(maxit, nsub, tolp, tolr, verbose);
+    //usys.solveNewton(maxit, nsub, toldf, tolr, verbose);
     
     // Save the data and plot:
     std::stringstream path;
@@ -590,7 +590,7 @@ void plotDistribution(const UsadelSystem& usys, const double* rhodata, const int
 void computeDistributionSerial(UsadelSystem& usys) {
     
     int ntval, maxit, nsub, verbose, niter;
-    double tmin, tmax, tval, rho, tolp, tolr;
+    double tmin, tmax, tval, rho, toldf, tolr;
     
     ntval = 32;  // Number of samples for the transmission eigenvalue.
     tmin = 0.;    // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
@@ -598,7 +598,7 @@ void computeDistributionSerial(UsadelSystem& usys) {
     
     maxit = 50;   // Maximum number of iterations. Typically: 50-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
-    tolp = 1e-7;  // Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7.
+    toldf = 1e-7; // Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7.
     tolr = 1e-10; // Tolerance over the norm of the residual compared to the norm of the initial residual. Typically: 1e-10.
     verbose = 0;  // Verbosity level in standard output. 0=No output, 1=Display each iteration.
     
@@ -615,7 +615,7 @@ void computeDistributionSerial(UsadelSystem& usys) {
         
         tval = tmin + (tmax-tmin) * (1. - std::cos((i + 0.5)*PI/ntval))/2.;  // Choose Chebyshev nodes as the transmission eigenvalues (they are denser at the edges).
         usys.setTransmission(tval);   // Assigns the transmission eigenvalue.
-        niter = usys.solveNewton(maxit, nsub, tolp, tolr, verbose);  // Solve the Usadel equation using the Newton-Raphson method.
+        niter = usys.solveNewton(maxit, nsub, toldf, tolr, verbose);  // Solve the Usadel equation using the Newton-Raphson method.
         rho = usys.getRho();  // Compute the transmission eigenvalue distribution at the given 'tval'.
         
         rhodata[3*i] = tval;  // Save the data to the array 'rhodata'.
@@ -642,7 +642,7 @@ void computeDistributionSerial(UsadelSystem& usys) {
 void computeDistributionOMP(UsadelSystem& usys) {
     
     int i, ntval, maxit, nsub, verbose, niter, nthread;
-    double tmin, tmax, tval, rho, tolp, tolr;
+    double tmin, tmax, tval, rho, toldf, tolr;
     
     ntval = 128;  // Number of samples for the transmission eigenvalue.
     tmin = 0.;    // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
@@ -651,7 +651,7 @@ void computeDistributionOMP(UsadelSystem& usys) {
     
     maxit = 50;   // Maximum number of iterations. Typically: 50-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
-    tolp = 1e-7;  // Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7.
+    toldf = 1e-7; // Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7.
     tolr = 1e-10; // Tolerance over the norm of the residual compared to the norm of the initial residual. Typically: 1e-10.
     verbose = 0;  // Verbosity level in standard output. 0=No output, 1=Display each iteration.
     
@@ -682,7 +682,7 @@ void computeDistributionOMP(UsadelSystem& usys) {
             usys_loc->initConstant();  // Initialize the UsadelSystem using the currently best ansatz (constants).
                                        // WARNING: It may be more appropriate to use the previous solution as an ansatz.
             
-            niter = usys_loc->solveNewton(maxit, nsub, tolp, tolr, verbose);  // Solve the Usadel equation using the Newton-Raphson method.
+            niter = usys_loc->solveNewton(maxit, nsub, toldf, tolr, verbose);  // Solve the Usadel equation using the Newton-Raphson method.
             rho = usys_loc->getRho();  // Compute the transmission eigenvalue distribution at the given 'tval'.
             
             rhodata[3*i] = tval;  // Save the data to the array 'rhodata'.
@@ -735,9 +735,9 @@ int main(int argc, char** argv) {
     //UsadelSystem usys = createCircularCavityHole();
     UsadelSystem usys = createEiffelTower();
     
-    plotMesh(usys);  // Plot the mesh only to check it is as expected.
+    //plotMesh(usys);  // Plot the mesh only to check it is as expected.
     
-    //computeFields(usys); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
+    computeFields(usys); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
     
     //computeDistributionSerial(usys); // Compute the transmission eigenvalue distribution rho(T) by scanning in T.
     //computeDistributionOMP(usys); // Compute the transmission eigenvalue distribution rho(T). Parallelized version.

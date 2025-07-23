@@ -583,7 +583,7 @@ void UsadelSystem::initConstant() {
  * maxit   = Maximum number of iterations. Typically: 50-500.
  * nsub    = Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
  *           The smallest reduction factor is thus 2^-nsub and should be larger than the machine epsilon (2^-53).
- * tolp    = Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7 or SQRTEPS.
+ * toldf   = Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7 or SQRTEPS.
  * tolr    = Tolerance over the norm of the residual compared to the norm of the initial residual. Typically: 1e-10 or SQRTEPS.
  * verbose = Verbosity level in standard output. 0=No output, 1=Display each iteration.
  * 
@@ -591,11 +591,10 @@ void UsadelSystem::initConstant() {
  * 
  * niter   = Number of iterations used to meet the convergence criteria. If niter = maxit+1, then the iteration failed to reach convergence.
  */
-int UsadelSystem::solveNewton(const int maxit, const int nsub, const double tolp, const double tolr, const int verbose) {
+int UsadelSystem::solveNewton(const int maxit, const int nsub, const double toldf, const double tolr, const int verbose) {
     
-    //int found = 0;  // Return status. 0=No convergence (solution not found), 1=Success (found solution).
     int iter, s;    // Iteration indices.
-    double fac, resnorm, resnorm0, newresnorm, /* deltanorm, */ fieldnorm, dfof, ror0;
+    double fac, resnorm, resnorm0, newresnorm, fieldnorm, dfof, ror0;
     
     const int nparam = 2*npoint;          // Size of the vectors and matrix (number of columns, or number of rows).
     ComplexVector res(nparam), newfield(nparam), newres(nparam), delta(nparam);  // Allocate vectors: residual, new field, new residual, displacement.
@@ -637,12 +636,16 @@ int UsadelSystem::solveNewton(const int maxit, const int nsub, const double tolp
         }
         
         // 4. Stopping criterion:
-        if (dfof < tolp && ror0 < tolr) {
+        if (dfof < toldf && ror0 < tolr) {
             if (verbose >= 1) {
-                std::cout << TAG_INFO << "Found solution\n";
+                std::cout << TAG_INFO << "#" << iter << "\t| Found solution: df/f = " << dfof << " < toldf = " << toldf << ", and r/r0 = " << ror0 << " < tolr = " << tolr << "\n";
             }
             break;
         }
+    }
+    
+    if (iter > maxit && verbose >= 1) {
+        std::cout << TAG_WARN << "#" << iter << "\t| Solution not found: df/f = " << dfof << " > toldf = " << toldf << ", and r/r0 = " << ror0 << " > tolr = " << tolr << "\n";
     }
     
     return iter;

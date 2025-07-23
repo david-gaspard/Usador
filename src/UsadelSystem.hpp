@@ -17,8 +17,8 @@ class UsadelSystem {
     
     private:
     
-    SquareMesh* mesh; // Pointer to the mesh.
-    ComplexVector* field;  // Array containing the parameters (theta, eta) at each corresponding point in the mesh. Size: 2*npoint.
+    SquareMesh* mesh; // Pointer to the square mesh.
+    ComplexVector* field;  // Array containing the two complex parameters (theta, eta) at each corresponding point in the mesh. Size: 2*npoint.
     int npoint;       // Total number of points in the "mesh".
     
     double holscat;   // Mesh step divided by the scattering mean free path (total length is not a well defined unit).

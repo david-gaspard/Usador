@@ -46,7 +46,7 @@ void uniqueFilename(const std::string& path, const std::string& suffix, std::str
 /**
  * Returns a string version of the given time duration in seconds in the format HH:MM:SS.
  */
-std::string timeToString(double time) {
+const std::string timeToString(double time) {
     
     int time_hours   = (int) std::floor(time/3600.);
     time -= 3600.*time_hours;
