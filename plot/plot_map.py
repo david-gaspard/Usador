@@ -8,7 +8,7 @@ import matplotlib.pyplot as mplt
 import matplotlib.colors as mcol
 import compile_tikz
 
-## Create the 'sunset' colormap originally created by David Gaspard in June 2024:
+## Create the 'sunset' colormap, a linearized luminance colormap originally created by David Gaspard in June 2024:
 SUNSET_COLORS = [[1.00000, 1.00000, 1.00000],
                  [1.00000, 0.99337, 0.65453],
                  [1.00000, 0.96893, 0.46622],
@@ -52,7 +52,9 @@ SUNSET_COLORS = [[1.00000, 1.00000, 1.00000],
                  [0.00000, 0.00000, 0.00000]]
 SUNSET_NSAMPLE = len(SUNSET_COLORS)
 SUNSET_NODES = np.linspace(0., 1., SUNSET_NSAMPLE)
-SUNSET_CMAP = mcol.LinearSegmentedColormap.from_list("sunset_cmap", list(zip(SUNSET_NODES, SUNSET_COLORS))).reversed() ## Reverse the colormap.
+SUNSET_CMAP = mcol.LinearSegmentedColormap.from_list("sunset_cmap", list(zip(SUNSET_NODES, SUNSET_COLORS)))
+SUNSET_CMAP = SUNSET_CMAP.reversed() ## Reverse the colormap in order to get larger is lighter.
+                                     ## Note: Black on white is much more suitable for printing (since it reduces ink bleeding) and more efficient for reading (as reported by many studies) but, unfortunately, when it represents physical quantities it is less easy to interpret because white is generally associated with higher intensities.
 SUNSET_CMAP.set_bad('white', 0.) ## Set the color when nan is encountered. Args: (color, opacity).
 
 def colormap_to_tikz_code(cmap, nsample):
@@ -114,7 +116,7 @@ def plot_map(args):
     """
     ## Check if the number of arguments is correct:
     if (len(args) != 3):
-        print("[ERROR] No input file, doing nothing...")
+        print("[ERROR] Invalid number of arguments, doing nothing...")
         print("[USAGE] " + args[0] + " COLUMN_NAME FIELD_FILE")
         return 1
     

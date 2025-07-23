@@ -693,9 +693,9 @@ void UsadelSystem::saveField(const std::string& filename, const char* sep, const
     rho = getRho();  // Extract the density of eigenvalues.
     
     if (rho < 0.) {// Warn the user about improper values of the transmission eigenvalue density rho(T).
-        std::cout << TAG_WARN << "Density rho=" << rho << " is negative. This may indicate we found an improper solution.\n";
+        std::cout << TAG_WARN << "Density rho=" << rho << " is negative. This may indicate an improper solution.\n";
     } else if (rho < SQRTEPS) {
-        std::cout << TAG_WARN << "Density rho=" << rho << " is very small. This may indicate the edge of distribution rho(T).\n";
+        std::cout << TAG_WARN << "Density rho=" << rho << " is very small. This may indicate the gap of rho(T).\n";
     }
     
     std::ofstream ofs;  // Declare output stream object.
