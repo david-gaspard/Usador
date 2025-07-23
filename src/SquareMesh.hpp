@@ -55,7 +55,8 @@ class SquareMesh {
     
     // Assign boundary conditions:
     void setBoundaryPoint(const int x, const int y, const Direction dir, const int bndtype);
-    void setBoundaryRegion(int xmin, int xmax, int ymin, int ymax, const Direction dir, const int bndtype);
+    void setBoundaryRectangle(int xmin, int xmax, int ymin, int ymax, const Direction dir, const int bndtype);
+    void setBoundaryDisk(const int x0, const int y0, const double radius, const Direction dir, const int bndtype);
     
     // Finalize the mesh:
     void fixNeighbors();

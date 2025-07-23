@@ -42,9 +42,9 @@ UsadelSystem createAsymmetricWaveguide1() {
     SquareMesh mesh;
     mesh.addRectangle(-30, 30, -15, 15, BND_MIRROR);
     
-    mesh.setBoundaryRegion(-30, -30, -15, 15, DIR_WEST, BND_INPUT);
-    mesh.setBoundaryRegion( 30,  30, -15, 15, DIR_EAST, BND_OUTPUT);
-    mesh.setBoundaryRegion(-10, 10, 15, 15, DIR_NORTH, BND_OPEN);
+    mesh.setBoundaryRectangle(-30, -30, -15, 15, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRectangle( 30,  30, -15, 15, DIR_EAST, BND_OUTPUT);
+    mesh.setBoundaryRectangle(-10, 10, 15, 15, DIR_NORTH, BND_OPEN);
     
     mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
     
@@ -67,11 +67,11 @@ UsadelSystem createAsymmetricWaveguide2() {
     mesh.addRectangle(-30, 30, -15, 15, BND_MIRROR);
     mesh.addDisk(0, 15, 22, BND_MIRROR);
     
-    mesh.setBoundaryRegion(-30, -30, -15, 15, DIR_WEST, BND_INPUT);
-    mesh.setBoundaryRegion( 30,  30, -15, 15, DIR_EAST, BND_OUTPUT);
-    mesh.setBoundaryRegion(-22, 22, 30, 40, DIR_NORTH, BND_OPEN);
-    mesh.setBoundaryRegion(-22, 22, 30, 40, DIR_EAST,  BND_OPEN);
-    mesh.setBoundaryRegion(-22, 22, 30, 40, DIR_WEST,  BND_OPEN);
+    mesh.setBoundaryRectangle(-30, -30, -15, 15, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRectangle( 30,  30, -15, 15, DIR_EAST, BND_OUTPUT);
+    mesh.setBoundaryRectangle(-22, 22, 30, 40, DIR_NORTH, BND_OPEN);
+    mesh.setBoundaryRectangle(-22, 22, 30, 40, DIR_EAST,  BND_OPEN);
+    mesh.setBoundaryRectangle(-22, 22, 30, 40, DIR_WEST,  BND_OPEN);
     
     mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
     
@@ -93,10 +93,10 @@ UsadelSystem createWaveguideOpenSides1() {
     SquareMesh mesh;
     mesh.addRectangle(-30, 30, -15, 15, BND_MIRROR);
     
-    mesh.setBoundaryRegion(-30, -30, -15, 15, DIR_WEST, BND_INPUT);
-    mesh.setBoundaryRegion( 30,  30, -15, 15, DIR_EAST, BND_OUTPUT);
-    mesh.setBoundaryRegion(-10, 10, +15, +15, DIR_NORTH, BND_OPEN);
-    mesh.setBoundaryRegion(-10, 10, -15, -15, DIR_SOUTH, BND_OPEN);
+    mesh.setBoundaryRectangle(-30, -30, -15, 15, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRectangle( 30,  30, -15, 15, DIR_EAST, BND_OUTPUT);
+    mesh.setBoundaryRectangle(-10, 10, +15, +15, DIR_NORTH, BND_OPEN);
+    mesh.setBoundaryRectangle(-10, 10, -15, -15, DIR_SOUTH, BND_OPEN);
     
     mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
     
@@ -118,11 +118,11 @@ UsadelSystem createWaveguideOpenSides2() {
     SquareMesh mesh;
     mesh.addRectangle(-100, 100, -50, 50, BND_MIRROR);
     
-    mesh.setBoundaryRegion(-100, -100, -50, 50, DIR_WEST, BND_INPUT);
-    mesh.setBoundaryRegion( 100,  100, -50, 50, DIR_EAST, BND_OUTPUT);
-    mesh.setBoundaryRegion(-65, -55,  50,  50, DIR_NORTH, BND_OPEN);
-    mesh.setBoundaryRegion(-5,  5, -50, -50, DIR_SOUTH, BND_OPEN);
-    mesh.setBoundaryRegion( 55,  65,  50,  50, DIR_NORTH, BND_OPEN);
+    mesh.setBoundaryRectangle(-100, -100, -50, 50, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRectangle( 100,  100, -50, 50, DIR_EAST, BND_OUTPUT);
+    mesh.setBoundaryRectangle(-65, -55,  50,  50, DIR_NORTH, BND_OPEN);
+    mesh.setBoundaryRectangle(-5,  5, -50, -50, DIR_SOUTH, BND_OPEN);
+    mesh.setBoundaryRectangle( 55,  65,  50,  50, DIR_NORTH, BND_OPEN);
     
     mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
     
@@ -144,16 +144,16 @@ UsadelSystem createWaveguideAbsorbers1() {
     SquareMesh mesh;
     mesh.addRectangle(-100, 100, -50, 50, BND_MIRROR);
     
-    mesh.removeDisk(-50,  30, 2);
-    mesh.setBoundaryRegion(-60, -40, 20, 40, DIR_ALL, BND_OPEN);
+    mesh.removeDisk(-50, 30, 2.);
+    mesh.setBoundaryDisk(-50, 30, 3., DIR_ALL, BND_OPEN);
     
-    mesh.removeDisk( 50, -30, 2);
-    mesh.setBoundaryRegion(40, 60, -40, -20, DIR_ALL, BND_OPEN);
+    mesh.removeDisk( 50, -30, 2.);
+    mesh.setBoundaryDisk(50, -30, 3., DIR_ALL, BND_OPEN);
     
-    mesh.setBoundaryRegion(-100, -100, -50, 50, DIR_WEST, BND_INPUT);
-    mesh.setBoundaryRegion( 100,  100, -50, 50, DIR_EAST, BND_OUTPUT);
-    mesh.setBoundaryRegion(-10, 10, +15, +15, DIR_NORTH, BND_OPEN);
-    mesh.setBoundaryRegion(-10, 10, -15, -15, DIR_SOUTH, BND_OPEN);
+    mesh.setBoundaryRectangle(-100, -100, -50, 50, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRectangle( 100,  100, -50, 50, DIR_EAST, BND_OUTPUT);
+    mesh.setBoundaryRectangle(-10, 10, +15, +15, DIR_NORTH, BND_OPEN);
+    mesh.setBoundaryRectangle(-10, 10, -15, -15, DIR_SOUTH, BND_OPEN);
     
     mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
     
@@ -175,19 +175,19 @@ UsadelSystem createWaveguideAbsorbers2() {
     SquareMesh mesh;
     mesh.addRectangle(-100, 100, -50, 50, BND_MIRROR);
     
-    mesh.removeDisk(-60,  30, 1.5);
-    mesh.setBoundaryRegion(-70, -50, 20, 40, DIR_ALL, BND_OPEN);
+    mesh.removeDisk(-60, 30, 1.5);
+    mesh.setBoundaryDisk(-60, 30, 2.5, DIR_ALL, BND_OPEN);
     
     mesh.removeDisk( 0, -30, 1.5);
-    mesh.setBoundaryRegion(-10, 10, -40, -20, DIR_ALL, BND_OPEN);
+    mesh.setBoundaryDisk(0, -30, 2.5, DIR_ALL, BND_OPEN);
     
     mesh.removeDisk( 60,  30, 1.5);
-    mesh.setBoundaryRegion(50, 70, 20, 40, DIR_ALL, BND_OPEN);
+    mesh.setBoundaryDisk(60, 30, 2.5, DIR_ALL, BND_OPEN);
     
-    mesh.setBoundaryRegion(-100, -100, -50, 50, DIR_WEST, BND_INPUT);
-    mesh.setBoundaryRegion( 100,  100, -50, 50, DIR_EAST, BND_OUTPUT);
-    mesh.setBoundaryRegion(-10, 10, +15, +15, DIR_NORTH, BND_OPEN);
-    mesh.setBoundaryRegion(-10, 10, -15, -15, DIR_SOUTH, BND_OPEN);
+    mesh.setBoundaryRectangle(-100, -100, -50, 50, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRectangle( 100,  100, -50, 50, DIR_EAST, BND_OUTPUT);
+    mesh.setBoundaryRectangle(-10, 10, +15, +15, DIR_NORTH, BND_OPEN);
+    mesh.setBoundaryRectangle(-10, 10, -15, -15, DIR_SOUTH, BND_OPEN);
     
     mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
     
@@ -211,8 +211,8 @@ UsadelSystem createDoubleWaveguide1() {
     
     mesh.removeRectangle(-60, 60, -29, 31);
     
-    mesh.setBoundaryRegion(-100, -100, -50, 50, DIR_WEST, BND_INPUT);
-    mesh.setBoundaryRegion( 100,  100, -50, 50, DIR_EAST, BND_OUTPUT);
+    mesh.setBoundaryRectangle(-100, -100, -50, 50, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRectangle( 100,  100, -50, 50, DIR_EAST, BND_OUTPUT);
     
     mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
     
@@ -235,16 +235,115 @@ UsadelSystem createDoubleWaveguide2() {
     mesh.addRectangle(-100, 100, -50, 50, BND_MIRROR);
     
     mesh.removeRectangle(-60, 60, -29, 31);
-    mesh.setBoundaryRegion(-61, -61, -45, 45, DIR_EAST, BND_OPEN);
+    mesh.setBoundaryRectangle(-61, -61, -45, 45, DIR_EAST, BND_OPEN);
     
-    mesh.setBoundaryRegion(-100, -100, -50, 50, DIR_WEST, BND_INPUT);
-    mesh.setBoundaryRegion( 100,  100, -50, 50, DIR_EAST, BND_OUTPUT);
+    mesh.setBoundaryRectangle(-100, -100, -50, 50, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRectangle( 100,  100, -50, 50, DIR_EAST, BND_OUTPUT);
     
     mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
     
     holscat = 5./60; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.0;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
     tval = 0.50;     // Transmission probability close to Tmax=0.27.
+    
+    return UsadelSystem(name, mesh, holscat, holabso, tval);
+}
+
+/**
+ * Create a double waveguide.
+ */
+UsadelSystem createWaveguideObstacle1() {
+    
+    double holscat, holabso, tval;
+    const std::string name("waveguide-obstacle-1");
+    
+    SquareMesh mesh;
+    mesh.addRectangle(-100, 100, -50, 50, BND_MIRROR);
+    
+    //mesh.removeDisk(0, 0, 29);
+    //mesh.setBoundaryRectangle(1, 5, 28, 30, DIR_SOUTH, BND_OPEN);
+    
+    mesh.removeDisk(0, 0, 3.5);
+    mesh.removeDisk(0, 33, 3.5);
+    mesh.removeDisk(0, -33, 3.5);
+    mesh.setBoundaryRectangle(-10, 10, -40, 40, DIR_ALL, BND_OPEN);
+    
+    mesh.setBoundaryRectangle(-100, -100, -22, -11, DIR_WEST, BND_INPUT);
+    //mesh.setBoundaryRectangle( 100,  100, -50, 50, DIR_EAST, BND_OUTPUT);
+    mesh.setBoundaryRectangle( 100,  100, 11, 22, DIR_EAST, BND_OUTPUT);
+    
+    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    
+    holscat = 5./200; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
+    holabso = 0.0;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
+    tval = 0.25;     // Transmission probability close to Tmax=0.27.
+    
+    return UsadelSystem(name, mesh, holscat, holabso, tval);
+}
+
+/**
+ * Create a double circular waveguide.
+ */
+UsadelSystem createCircularDoubleWaveguide1() {
+    
+    double holscat, holabso, tval;
+    const std::string name("circular-double-waveguide-1");
+    
+    SquareMesh mesh;
+    mesh.addRectangle(-100, 100, -30, 30, BND_MIRROR);
+    mesh.addDisk(0, 0, 90, BND_MIRROR);
+    mesh.removeDisk(0, 0, 50);
+    
+    //mesh.removeDisk(0, 0, 10);
+    //mesh.setBoundaryDisk(0, 0, 11., DIR_ALL, BND_OPEN);
+    
+    mesh.removeDisk(0, 70, 2.5);
+    mesh.setBoundaryDisk(0, 70, 3.5, DIR_ALL, BND_OPEN);
+    
+    mesh.removeDisk(0, -70, 1.5);
+    mesh.setBoundaryDisk(0, -70, 2.5, DIR_ALL, BND_OPEN);
+    
+    mesh.addRectangle(-60, 60, -2, 2, BND_MIRROR);
+    
+    //mesh.addRectangle(-5, 5, 85, 100, BND_MIRROR);
+    //mesh.setBoundaryRectangle(-5, 5, 100, 100, DIR_NORTH, BND_OPEN);
+    
+    mesh.setBoundaryRectangle(-100, -100, -30, 30, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRectangle( 100,  100, -30, 30, DIR_EAST, BND_OUTPUT);
+    
+    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    
+    holscat = 5./200; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
+    holabso = 0.0;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
+    tval = 0.5;     // Transmission probability close to Tmax=0.27.
+    
+    return UsadelSystem(name, mesh, holscat, holabso, tval);
+}
+
+/**
+ * Create the UsadelSystem for a  circular cavity with opposite leads.
+ */
+UsadelSystem createCircularOpposite() {
+    
+    double holscat, holabso, tval;
+    const std::string name("circular-opposite");
+    
+    SquareMesh mesh;
+    mesh.addDisk(0, 0, 100, BND_MIRROR);
+    mesh.addRectangle(-110, -70, 5, 65, BND_MIRROR);
+    mesh.addRectangle(-110, -70, -65, -5, BND_MIRROR);
+    
+    mesh.addRectangle(90, 110, -30, 30, BND_MIRROR);
+    mesh.setBoundaryRectangle(110, 110, -30, 30, DIR_EAST, BND_INPUT);
+    
+    mesh.setBoundaryRectangle(-110, -110, 5, 65, DIR_WEST, BND_OPEN);
+    mesh.setBoundaryRectangle(-110, -110, -65, -5, DIR_WEST, BND_OUTPUT);
+    
+    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    
+    holscat = 5./200; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
+    holabso = 0.0;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
+    tval = 0.8;     // Transmission probability close to Tmax=0.27.
     
     return UsadelSystem(name, mesh, holscat, holabso, tval);
 }
@@ -263,9 +362,9 @@ UsadelSystem createCircularCavity() {
     mesh.addRectangle(-15, 15, 40, 52, BND_MIRROR);
     mesh.addRectangle(40, 52, -15, 15, BND_MIRROR);
     
-    mesh.setBoundaryRegion(-52, -52, -15, 15, DIR_WEST, BND_INPUT);
-    mesh.setBoundaryRegion(-15, 15, 52, 52, DIR_NORTH, BND_OUTPUT);
-    mesh.setBoundaryRegion(52, 52, -15, 15, DIR_EAST, BND_OPEN);
+    mesh.setBoundaryRectangle(-52, -52, -15, 15, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRectangle(-15, 15, 52, 52, DIR_NORTH, BND_OUTPUT);
+    mesh.setBoundaryRectangle(52, 52, -15, 15, DIR_EAST, BND_OPEN);
     
     mesh.fixNeighbors();
     
@@ -290,9 +389,9 @@ UsadelSystem createCircularCavityBig() {
     mesh.addRectangle(-30, 30, 80, 105, BND_MIRROR);
     mesh.addRectangle(80, 105, -30, 30, BND_MIRROR);
     
-    mesh.setBoundaryRegion(-105, -105, -30, 30, DIR_WEST, BND_INPUT);
-    mesh.setBoundaryRegion(-30, 30, 105, 105, DIR_NORTH, BND_OUTPUT);
-    mesh.setBoundaryRegion(105, 105, -30, 30, DIR_EAST, BND_OPEN);
+    mesh.setBoundaryRectangle(-105, -105, -30, 30, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRectangle(-30, 30, 105, 105, DIR_NORTH, BND_OUTPUT);
+    mesh.setBoundaryRectangle(105, 105, -30, 30, DIR_EAST, BND_OPEN);
     
     mesh.fixNeighbors();
     
@@ -318,11 +417,11 @@ UsadelSystem createCircularCavityHole() {
     mesh.addRectangle(80, 105, -30, 30, BND_MIRROR);
     
     mesh.removeDisk(-49, 49, 5);
-    mesh.setBoundaryRegion(-60, -40, 40, 60, DIR_ALL, BND_OPEN);
+    mesh.setBoundaryDisk(-49, 49, 6., DIR_ALL, BND_OPEN);
     
-    mesh.setBoundaryRegion(-105, -105, -30, 30, DIR_WEST, BND_INPUT);
-    mesh.setBoundaryRegion(-30, 30, 105, 105, DIR_NORTH, BND_OUTPUT);
-    mesh.setBoundaryRegion(105, 105, -30, 30, DIR_EAST, BND_OPEN);
+    mesh.setBoundaryRectangle(-105, -105, -30, 30, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRectangle(-30, 30, 105, 105, DIR_NORTH, BND_OUTPUT);
+    mesh.setBoundaryRectangle(105, 105, -30, 30, DIR_EAST, BND_OPEN);
     
     mesh.fixNeighbors();
     
@@ -347,10 +446,10 @@ UsadelSystem createCircularCavityAlt() {
     mesh.addRectangle(-30, 30, 80, 105, BND_MIRROR);
     //mesh.addRectangle(80, 105, -30, 30, BND_MIRROR);
     
-    mesh.setBoundaryRegion(-105, -105, -30, 30, DIR_WEST, BND_INPUT);
-    mesh.setBoundaryRegion(-30, 30, 105, 105, DIR_NORTH, BND_OUTPUT);
-    mesh.setBoundaryRegion(-80, -50, 50, 80, DIR_NORTH, BND_OPEN);
-    mesh.setBoundaryRegion(-80, -50, 50, 80, DIR_WEST, BND_OPEN);
+    mesh.setBoundaryRectangle(-105, -105, -30, 30, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRectangle(-30, 30, 105, 105, DIR_NORTH, BND_OUTPUT);
+    mesh.setBoundaryRectangle(-80, -50, 50, 80, DIR_NORTH, BND_OPEN);
+    mesh.setBoundaryRectangle(-80, -50, 50, 80, DIR_WEST, BND_OPEN);
     
     mesh.fixNeighbors();
     
@@ -372,15 +471,11 @@ UsadelSystem createEiffelTower() {
     SquareMesh mesh;
     mesh.addPolygon("shape/eiffel-tower.csv", 50, BND_MIRROR);
     mesh.removeDisk(0, 50, 5);
+    mesh.setBoundaryDisk(0, 50, 6., DIR_ALL, BND_OPEN);
     
-    mesh.setBoundaryRegion(-52, -20, 0, 0, DIR_SOUTH, BND_INPUT);
-    mesh.setBoundaryRegion(20, 52, 0, 1, DIR_SOUTH, BND_INPUT);
-    mesh.setBoundaryRegion(0, 10, 195, 205, DIR_EAST, BND_OUTPUT);
-    
-    mesh.setBoundaryRegion(-11, 11, 39, 61, DIR_NORTH, BND_OPEN);
-    mesh.setBoundaryRegion(-11, 11, 39, 61, DIR_SOUTH, BND_OPEN);
-    mesh.setBoundaryRegion(-11, 11, 39, 61, DIR_WEST, BND_OPEN);
-    mesh.setBoundaryRegion(-11, 11, 39, 61, DIR_EAST, BND_OPEN);
+    mesh.setBoundaryRectangle(-52, -20, 0, 0, DIR_SOUTH, BND_INPUT);
+    mesh.setBoundaryRectangle(20, 52, 0, 1, DIR_SOUTH, BND_INPUT);
+    mesh.setBoundaryRectangle(0, 10, 195, 205, DIR_EAST, BND_OUTPUT);
     
     mesh.fixNeighbors();
     
@@ -440,7 +535,7 @@ void computeFields(UsadelSystem& usys) {
     
     usys.initConstant();                                 // Initialize the UsadelSystem using the currently best ansatz (constants).
     usys.solveNewton(maxit, nsub, tolp, tolr, verbose);  // Solve the Usadel equation using the Newton-Raphson method.
-    //usys.setTransmission(0.58);
+    //usys.setTransmission(0.98);
     //usys.solveNewton(maxit, nsub, tolp, tolr, verbose);
     
     // Save the data and plot:
@@ -499,7 +594,7 @@ void computeDistributionSerial(UsadelSystem& usys) {
     
     ntval = 32;  // Number of samples for the transmission eigenvalue.
     tmin = 0.;    // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    tmax = 0.7;    // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    tmax = 1.;    // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
     
     maxit = 50;   // Maximum number of iterations. Typically: 50-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
@@ -629,19 +724,22 @@ int main(int argc, char** argv) {
     //UsadelSystem usys = createWaveguideOpenSides2();
     //UsadelSystem usys = createWaveguideAbsorbers1();
     //UsadelSystem usys = createWaveguideAbsorbers2();
-    UsadelSystem usys = createDoubleWaveguide1();
+    //UsadelSystem usys = createDoubleWaveguide1();
     //UsadelSystem usys = createDoubleWaveguide2();
+    //UsadelSystem usys = createWaveguideObstacle1();
+    //UsadelSystem usys = createCircularDoubleWaveguide1();
+    //UsadelSystem usys = createCircularOpposite();
     //UsadelSystem usys = createCircularCavity();
     //UsadelSystem usys = createCircularCavityBig();
     //UsadelSystem usys = createCircularCavityAlt();
     //UsadelSystem usys = createCircularCavityHole();
-    //UsadelSystem usys = createEiffelTower();
+    UsadelSystem usys = createEiffelTower();
     
-    //plotMesh(usys);  // Plot the mesh only to check it is as expected.
+    plotMesh(usys);  // Plot the mesh only to check it is as expected.
     
     //computeFields(usys); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
     
-    computeDistributionSerial(usys); // Compute the transmission eigenvalue distribution rho(T) by scanning in T.
+    //computeDistributionSerial(usys); // Compute the transmission eigenvalue distribution rho(T) by scanning in T.
     //computeDistributionOMP(usys); // Compute the transmission eigenvalue distribution rho(T). Parallelized version.
     
     return 0;

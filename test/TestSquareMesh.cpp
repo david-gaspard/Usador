@@ -16,13 +16,13 @@ int testMeshBasic() {
     SquareMesh mesh; // Declare the mesh.
     
     // Setup the mesh from geometry:
-    mesh.addRectangle(-10, 10, -5, 5);
-    mesh.addDisk(10, 5, 7.5);
+    mesh.addRectangle(-10, 10, -5, 5, BND_MIRROR);
+    mesh.addDisk(10, 5, 7.5, BND_MIRROR);
     mesh.removeRectangle(9, 11, 4, 6);
     
     // Setup boundary conditions (only vacuum because mirror is default):
-    mesh.setBoundaryRegion(-10, -10, -5, 5, WEST, BND_INPUT);
-    mesh.setBoundaryRegion( 10,  10, -5, 5, EAST, BND_OUTPUT);
+    mesh.setBoundaryRectangle(-10, -10, -5, 5, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRectangle( 10,  10, -5, 5, DIR_EAST, BND_OUTPUT);
     
     // Fix the nearest neighbors to finalize. This operation is mandatory:
     mesh.fixNeighbors();
@@ -48,7 +48,7 @@ int testMeshPolygon1() {
     
     SquareMesh mesh; // Declare the mesh.
     
-    mesh.addPolygon(polygon);
+    mesh.addPolygon(polygon, BND_MIRROR);
     
     // Fix the nearest neighbors to finalize. This operation is mandatory:
     mesh.fixNeighbors();
@@ -76,7 +76,7 @@ int testMeshPolygon2() {
     
     SquareMesh mesh; // Declare the mesh.
     
-    mesh.addPolygon(polygon);
+    mesh.addPolygon(polygon, BND_MIRROR);
     
     // Fix the nearest neighbors to finalize. This operation is mandatory:
     mesh.fixNeighbors();
@@ -99,7 +99,7 @@ int testMeshPolygon3() {
     
     double scale = 60; // Scales the polygon.
     
-    mesh.addPolygon("shape/eiffel-tower.csv", scale);
+    mesh.addPolygon("shape/eiffel-tower.csv", scale, BND_MIRROR);
     
     // Fix the nearest neighbors to finalize. This operation is mandatory:
     mesh.fixNeighbors();

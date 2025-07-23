@@ -257,7 +257,6 @@ void SquareMesh::removePolygon(const std::vector<Vector2D>& polygon) {
 
 /**
  * Setup the boundary condition for the point at the given position (x, y).
- * This function must be called after fix_neighbors() methods.
  */
 void SquareMesh::setBoundaryPoint(const int x, const int y, const Direction dir, const int bndtype) {
     int i = indexOf(x, y);
@@ -271,10 +270,9 @@ void SquareMesh::setBoundaryPoint(const int x, const int y, const Direction dir,
 }
 
 /**
- * Setup the same boundary condition for a region of points.
- * This function must be called after fix_neighbors() methods.
+ * Setup the same boundary condition for a rectangular region of points.
  */
-void SquareMesh::setBoundaryRegion(int xmin, int xmax, int ymin, int ymax, const Direction dir, const int bndtype) {
+void SquareMesh::setBoundaryRectangle(int xmin, int xmax, int ymin, int ymax, const Direction dir, const int bndtype) {
     
     if (xmin > xmax) std::swap(xmin, xmax);
     if (ymin > ymax) std::swap(ymin, ymax);
@@ -282,6 +280,27 @@ void SquareMesh::setBoundaryRegion(int xmin, int xmax, int ymin, int ymax, const
     for (int y = ymax; y >= ymin; y--) {// Loop on the square lattice in reading order.
         for (int x = xmin; x <= xmax; x++) {
             setBoundaryPoint(x, y, dir, bndtype);
+        }
+    }
+}
+
+/**
+ * Setup the boundary condition 'bndtype' in a disk region of points.
+ */
+void SquareMesh::setBoundaryDisk(const int x0, const int y0, const double radius, const Direction dir, const int bndtype) {
+    int xmin = (int) std::floor(x0 - radius);
+    int xmax = (int)  std::ceil(x0 + radius);
+    int ymin = (int) std::floor(y0 - radius);
+    int ymax = (int)  std::ceil(y0 + radius);
+    int r2 = (int) std::ceil(radius*radius);
+    int dx, dy;
+    for (int y = ymax; y >= ymin; y--) {// Loop on the square lattice in reading order.
+        for (int x = xmin; x <= xmax; x++) {
+            dx = x - x0;
+            dy = y - y0;
+            if (dx*dx + dy*dy <= r2) {
+                setBoundaryPoint(x, y, dir, bndtype);
+            }
         }
     }
 }

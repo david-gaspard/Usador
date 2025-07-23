@@ -156,13 +156,13 @@ int testSolve() {
     mesh.addDisk(0, 15, 22, BND_MIRROR);
     //mesh.removeDisk(0, -15, 12);
     
-    mesh.setBoundaryRegion(-22, 22,  30,  40, DIR_NORTH, BND_OPEN);
-    mesh.setBoundaryRegion(-22, 22,  30,  40, DIR_EAST,  BND_OPEN);
-    mesh.setBoundaryRegion(-22, 22,  30,  40, DIR_WEST,  BND_OPEN);
-    mesh.setBoundaryRegion(-10, 10, -15, -15, DIR_SOUTH, BND_OPEN);
+    mesh.setBoundaryRectangle(-22, 22,  30,  40, DIR_NORTH, BND_OPEN);
+    mesh.setBoundaryRectangle(-22, 22,  30,  40, DIR_EAST,  BND_OPEN);
+    mesh.setBoundaryRectangle(-22, 22,  30,  40, DIR_WEST,  BND_OPEN);
+    mesh.setBoundaryRectangle(-10, 10, -15, -15, DIR_SOUTH, BND_OPEN);
     
-    mesh.setBoundaryRegion(-30, -30, -15, 15, DIR_WEST, BND_INPUT);
-    mesh.setBoundaryRegion( 30,  30, -15, 15, DIR_EAST, BND_OUTPUT);
+    mesh.setBoundaryRectangle(-30, -30, -15, 15, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRectangle( 30,  30, -15, 15, DIR_EAST, BND_OUTPUT);
     
     mesh.fixNeighbors();
     

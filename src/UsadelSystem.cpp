@@ -50,8 +50,8 @@ UsadelSystem::UsadelSystem(const std::string& name, const int length, const int 
     //std::cout << TAG_INFO << "Creating UsadelSystem (waveguide template).\n";
     mesh = new SquareMesh();
     mesh->addRectangle(-length/2, length/2, -width/2, width/2, BND_MIRROR);
-    mesh->setBoundaryRegion(-length/2, -length/2, -width/2, width/2, DIR_WEST, BND_INPUT);
-    mesh->setBoundaryRegion( length/2,  length/2, -width/2, width/2, DIR_EAST, BND_OUTPUT);
+    mesh->setBoundaryRectangle(-length/2, -length/2, -width/2, width/2, DIR_WEST, BND_INPUT);
+    mesh->setBoundaryRectangle( length/2,  length/2, -width/2, width/2, DIR_EAST, BND_OUTPUT);
     mesh->fixNeighbors();
     
     npoint = mesh->getNPoint();
