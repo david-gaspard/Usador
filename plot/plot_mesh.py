@@ -1,10 +1,106 @@
 #!/usr/bin/env python3
 #-*- coding: utf-8 -*-
-## Created on 2025-07-20 at 19:15:01 CEST by David Gaspard (ORCID 0000-0002-4449-8782) <david.gaspard@espci.fr> under the MIT License.
-## Python script to plot a mesh file. The input data must have the form [x, y, north, south, east, west].
+## Created on 2025-07-30 at 11:55:37 CEST by David Gaspard (ORCID 0000-0002-4449-8782) <david.gaspard@espci.fr> under the MIT License.
+## Based on a previous script created on 2025-07-20 at 19:15:01 CEST by the same author.
+## Python script to plot a mesh file. This version optimizes the TikZ code to create paths of one piece.
+## This optimization allows to use the path decoration in TikZ, hence improving the rendering.
 import sys, os, datetime, csv
 import numpy as np
 import compile_tikz
+
+BOUNDARY_STYLE = """mirror/.style={black},
+    input/.style={red, decoration={markings, mark=between positions 0 and 1 step 1.3mm with {\\fill (-0.5mm, 1mm) -- (0mm, 0mm) -- (0.5mm, 1mm) --cycle;}, pre length=0.5mm, post length=0.5mm}, postaction={decorate}},
+    output/.style={blue, decoration={markings, mark=between positions 0 and 1 step 1.3mm with {\\fill (-0.5mm, 0mm) -- (0mm, 1mm) -- (0.5mm, 0mm) --cycle;}, pre length=0.5mm, post length=0.5mm}, postaction={decorate}},
+    open/.style={green!80!black, decoration={markings, mark=between positions 0 and 1 step 1.3mm with {\\fill (-0.5mm, 0mm) arc[start angle=180, end angle=0, radius=0.5mm] --cycle;}, pre length=0.5mm, post length=0.5mm}, postaction={decorate}}"""
+
+
+def point_equal(p1, p2):
+    """
+    Returns true if the two points are equal up to a small number.
+    """
+    return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1]) < 1e-8
+
+def merge_segments(segments):
+    """
+    Merge the segments using a single-pass algorithm and return the number of merges.
+    This functions must be called iteratively until the number of merges is zero (i.e., the list does not change anymore).
+    """
+    copied = len(segments) * [False]  ## Mask indicating if the segment has been treated.
+    nmerge = 0  ## Total number of merges.
+    
+    ##print(compile_tikz.TAG_INFO + "Number of segments before merge =", len(segments))
+    
+    ## 1. Merge segments:
+    for i in range(len(segments)):
+        if (not copied[i]):
+            for j in range(i+1, len(segments)):
+                if (segments[i][0] == segments[j][0] and not copied[j]):  ## If same kind of boundary condition.
+                    if (point_equal(segments[i][-1], segments[j][1])):
+                        segments[i].extend(segments[j][2:])
+                        copied[j] = True
+                        nmerge += 1
+                    elif (point_equal(segments[i][1], segments[j][-1])):
+                        segments[i][1:1] = segments[j][1:-1]
+                        copied[j] = True
+                        nmerge += 1
+    
+    ## 2. Remove copied segments:
+    for i in range(len(segments)-1, -1, -1):
+        if (copied[i]):
+            del segments[i]
+    
+    ##print(compile_tikz.TAG_INFO + "Number of merges =", nmerge)
+    
+    return nmerge
+
+def cross2d(a, b):
+    """
+    Compute the vector product between two 2D vectors.
+    """
+    return a[0] * b[1] - a[1] * b[0]
+
+def angle(p1, p2, p3):
+    """
+    Compute the signed angle between the vector p1 -> p2 and the vector p2 -> p3.
+    The value is positive for counterclockwise rotations and negative otherwise.
+    Return the angle in degrees.
+    """
+    v1 = np.asarray(p2) - np.asarray(p1)
+    v2 = np.asarray(p3) - np.asarray(p2)
+    
+    cosa = v1.dot(v2)/(np.linalg.norm(v1) * np.linalg.norm(v2))
+    sgn = 1 if cross2d(v1, v2) > 0 else -1
+    
+    return sgn * np.rad2deg(np.arccos(cosa))
+
+def simplify_segments(segments):
+    """
+    Simplify the given list "segments" by removing the useless points, i.e., points which do not correspond to changes of direction.
+    List segments has the format: [["mirror", (x1, y1), (x2, y2), (x3, y3), ...], ["mirror", (x1, y1), ...], ["input", (x1, y1), ...], ["output", (x1, y1), ...], ...].
+    """
+    npoint = 0  ## Number of points.
+    ndel = 0    ## Total number of deleted points.
+    
+    ## Loop on individual segments:
+    for s in segments:
+        
+        useless = len(s) * [False]
+        npoint += len(s)-1
+        
+        ## 1. Detect useless points (if deflection is less than 1 deg):
+        for i in range(2, len(s)-1):
+            if (abs(angle(s[i-1], s[i], s[i+1])) < 1.):
+                useless[i] = True
+        
+        # 2. Remove useless points:
+        for i in range(len(s)-2, 1, -1):
+            if (useless[i]):
+                del s[i]
+                ndel += 1
+    
+    ##print(compile_tikz.TAG_INFO + "Simplification result: Deleted", ndel, "over", npoint, "points (", (100.*ndel/npoint), "%).")
+    
+    return ndel
 
 def boundary_to_tikz_code(data):
     """
@@ -12,35 +108,53 @@ def boundary_to_tikz_code(data):
     The data contains the fields [x, y, north, south, east, west]. The components 'x' and 'y' are assumed to be integers, 
     and the direction components can be either point indices or boundary conditions ('mirror', 'open', 'input', or 'output').
     """
-    string = "\\begin{scope}[mirror/.style={black, very thin, line cap=round}, open/.style={green, line cap=round}, input/.style={red!80, line cap=round}, output/.style={blue!80, line cap=round}]%\n"
-    
+    ## 1. Create a list of segments on the boundary. The boundary must be travelled in the clockwise direction:
+    segments = []  ## Format: [["mirror", (x1, y1), (x2, y2)], ["open", (x1, y1), (x2, y2)], ...]
     for p in data:
         if (not p['north'].isdigit()):
-            x0 = int(p['x']) - 0.5;
-            y0 = int(p['y']) + 0.5;
-            x1 = int(p['x']) + 0.5;
-            y1 = int(p['y']) + 0.5;
-            string += "\\draw[{bnd}] (axis cs:{x0}, {y0}) -- (axis cs:{x1}, {y1});\n".format(bnd=p['north'], x0=x0, y0=y0, x1=x1, y1=y1)
+            x1 = int(p['x']) - 0.5
+            y1 = int(p['y']) + 0.5
+            x2 = int(p['x']) + 0.5
+            y2 = int(p['y']) + 0.5
+            segments.append([p['north'], (x1, y1), (x2, y2)])
         if (not p['south'].isdigit()):
-            x0 = int(p['x']) + 0.5;
-            y0 = int(p['y']) - 0.5;
-            x1 = int(p['x']) - 0.5;
-            y1 = int(p['y']) - 0.5;
-            string += "\\draw[{bnd}] (axis cs:{x0}, {y0}) -- (axis cs:{x1}, {y1});\n".format(bnd=p['south'], x0=x0, y0=y0, x1=x1, y1=y1)
+            x1 = int(p['x']) + 0.5
+            y1 = int(p['y']) - 0.5
+            x2 = int(p['x']) - 0.5
+            y2 = int(p['y']) - 0.5
+            segments.append([p['south'], (x1, y1), (x2, y2)])
         if (not p['east'].isdigit()):
-            x0 = int(p['x']) + 0.5;
-            y0 = int(p['y']) + 0.5;
-            x1 = int(p['x']) + 0.5;
-            y1 = int(p['y']) - 0.5;
-            string += "\\draw[{bnd}] (axis cs:{x0}, {y0}) -- (axis cs:{x1}, {y1});\n".format(bnd=p['east'], x0=x0, y0=y0, x1=x1, y1=y1)
+            x1 = int(p['x']) + 0.5
+            y1 = int(p['y']) + 0.5
+            x2 = int(p['x']) + 0.5
+            y2 = int(p['y']) - 0.5
+            segments.append([p['east'], (x1, y1), (x2, y2)])
         if (not p['west'].isdigit()):
-            x0 = int(p['x']) - 0.5;
-            y0 = int(p['y']) - 0.5;
-            x1 = int(p['x']) - 0.5;
-            y1 = int(p['y']) + 0.5;
-            string += "\\draw[{bnd}] (axis cs:{x0}, {y0}) -- (axis cs:{x1}, {y1});\n".format(bnd=p['west'], x0=x0, y0=y0, x1=x1, y1=y1)
+            x1 = int(p['x']) - 0.5
+            y1 = int(p['y']) - 0.5
+            x2 = int(p['x']) - 0.5
+            y2 = int(p['y']) + 0.5
+            segments.append([p['west'], (x1, y1), (x2, y2)])
     
-    return string + "\\end{scope}"
+    ## 2. Merge the segments iteratively:
+    while True:
+        nmerge = merge_segments(segments)
+        if (nmerge == 0):
+            break
+    
+    ## 3. Simplify the path:
+    simplify_segments(segments)
+    
+    ## 4. Convert the path to TikZ code:
+    string = "\\begin{scope}%% Draw boundaries\n"
+    
+    for s in segments:
+        string += "\\draw[{bnd}] (axis cs:{x}, {y})".format(bnd=s[0], x=s[1][0], y=s[1][1])
+        for i in range(2, len(s)):
+            string += " -- (axis cs:{x}, {y})".format(x=s[i][0], y=s[i][1])
+        string += ";\n"
+    
+    return string + "\\end{scope}%"
 
 def plot_mesh(args):
     """
@@ -63,28 +177,27 @@ def plot_mesh(args):
     
     data = list(csv.DictReader((line for line in fp if not line.startswith('%')), skipinitialspace=True))
     
+    ## Extract the bounds of the mesh:
     xmesh = np.asarray([int(p['x']) for p in data], dtype=int)
     ymesh = np.asarray([int(p['y']) for p in data], dtype=int)
-    
     xmin = xmesh.min()
     xmax = xmesh.max()
     ymin = ymesh.min()
     ymax = ymesh.max()
     
     tikz_code = """%% Generated on {timestamp} by {my_program} {my_copyright}
-\\begin{{tikzpicture}}%
+\\begin{{tikzpicture}}[%
+    {boundary_style},
+]%
 \\begin{{axis}}[%
     title={{\\detokenize{{{mesh_file}}}}},
     xlabel={{{xlabel}}},
     ylabel={{{ylabel}}},
     xmin={xmin}, xmax={xmax},
     ymin={ymin}, ymax={ymax},
-    %%legend style={{at={{(1, 1)}}, anchor=center, cells={{anchor=west}}}},
-    table/col sep=comma,
     axis equal,
     enlargelimits=true, %% Allow for larger view.
 ]%
-%%\\addplot[mark=*, black!20, mark size=0.2, only marks] table[x=x,y=y]{{\\jobname.csv}};
 {boundary_code}
 \\end{{axis}}%
 \\end{{tikzpicture}}%""".format(
@@ -98,6 +211,7 @@ def plot_mesh(args):
         xmax   = xmax+0.5,
         ymin   = ymin-0.5,
         ymax   = ymax+0.5,
+        boundary_style = BOUNDARY_STYLE,
         boundary_code = boundary_to_tikz_code(data)
     )
     

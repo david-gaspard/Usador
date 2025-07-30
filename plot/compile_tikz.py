@@ -48,6 +48,8 @@ LATEX_PREAMBLE = r"""\usepackage[utf8]{inputenc}
 \newcommand{\fimag}[1]{{#1}_{\rm i}}
 \newcommand{\cc}[1]{{#1}^*}
 \newcommand{\herm}[1]{#1^{\dagger}}
+\newcommand{\lscat}{\ell_{\rm s}}
+\newcommand{\labso}{\ell_{\rm a}}
 \definecolor{pyplot1}{HTML}{1F77B4}
 \definecolor{pyplot2}{HTML}{FF7F0E}
 \definecolor{pyplot3}{HTML}{2CA02C}

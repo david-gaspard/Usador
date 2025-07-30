@@ -33,7 +33,6 @@ def plot_distrib(args):
         failure={{red, mark=triangle*, mark size=1.7}}%% No comma.
     }},
     scatter src=explicit symbolic,
-    axis on top=true,
     unbounded coords=jump,  %% Discard NaN's and negative entries.
     clip marker paths=true, %% Clips the marks out of the axis frame.
     clip mode=individual,   %% Ensure the marks do not overlay the other curves.
