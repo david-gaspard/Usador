@@ -70,10 +70,8 @@ UsadelSystem::UsadelSystem(const UsadelSystem& usys) {
     this->mesh = new SquareMesh(*usys.mesh);  // Call copy constructor (implicitly defined).
     npoint = usys.mesh->getNPoint();
     field = new ComplexVector(2*npoint);
-    this->holscat = usys.holscat;
-    this->holabso = usys.holabso;
-    setTransmission(usys.tval);
     this->name = usys.name;
+    copy(usys); // Copy the field contained in the given UsadelSystem to the present UsadelSystem.
 }
 
 /**
@@ -95,6 +93,19 @@ void UsadelSystem::setTransmission(const double tval) {
     this->tval = tval;
     this->ga = dcomplex(std::sqrt(1./tval), SQRTEPS);
     this->gb = this->ga;
+}
+
+/**
+ * Copy the solution of the Usadel equation stored in the given UsadelSystem to the present UsadelSystem.
+ */
+void UsadelSystem::copy(const UsadelSystem& usys) {
+    if (this->name != usys.name) {
+        throw std::invalid_argument("In copy(): Copying two UsadelSystem with different names is forbidden.");
+    }
+    setTransmission(usys.tval);
+    this->holscat = usys.holscat;
+    this->holabso = usys.holabso;
+    field[0] = usys.field[0];  // Deep copy the field.
 }
 
 /***********************************************************
@@ -528,6 +539,8 @@ int UsadelSystem::testJacobian(const double tolerr) const {
 /**
  * Initialize the Q field to random values according to a given "seed".
  * This method ensures the Q values are picked up isotropically on the Q^2 = 1 manifold.
+ * 
+ * @deprecated This method provides a very bad ansatz to initialize the Newton-Raphson solver. It is only used for testing purposes.
  */
 void UsadelSystem::initRandom(const uint64_t seed) {
     double q1r, q1i, q2r, q2i, q3r, q3i;
@@ -575,7 +588,7 @@ void UsadelSystem::initConstant() {
 
 /**
  * Solve the Usadel System using the Newton-Raphson iterative algorithm.
- * This method does not call initializers (parameters (theta, eta) are zeros), but the usage of an appropriate ansatz
+ * This method does not call initializers (parameters (theta, eta) are not initialized), but the usage of an appropriate ansatz
  * is highly recommended in order to accelerate convergence while avoiding improper solutions.
  * 
  * Arguments:
@@ -583,8 +596,8 @@ void UsadelSystem::initConstant() {
  * maxit   = Maximum number of iterations. Typically: 50-500.
  * nsub    = Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
  *           The smallest reduction factor is thus 2^-nsub and should be larger than the machine epsilon (2^-53).
- * toldf   = Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7 or SQRTEPS.
- * tolr    = Tolerance over the norm of the residual compared to the norm of the initial residual. Typically: 1e-10 or SQRTEPS.
+ * toldf   = Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7 or SQRTEPS=1e-8.
+ * tolr    = Tolerance over the norm of the residual compared to the norm of the initial residual. Typically: 1e-10 or SQRTEPS=1e-8.
  * verbose = Verbosity level in standard output. 0=No output, 1=Display each iteration.
  * 
  * Returns:
@@ -638,14 +651,16 @@ int UsadelSystem::solveNewton(const int maxit, const int nsub, const double told
         // 4. Stopping criterion:
         if (dfof < toldf && ror0 < tolr) {
             if (verbose >= 1) {
-                std::cout << TAG_INFO << "#" << iter << "\t| \033[92mFound solution\033[0m: df/f = " << dfof << " < toldf = " << toldf << ", and r/r0 = " << ror0 << " < tolr = " << tolr << "\n";
+                std::cout << TAG_INFO << "#" << iter << "\t| \033[92mFound solution\033[0m: df/f = "
+                          << dfof << " < toldf = " << toldf << ", and r/r0 = " << ror0 << " < tolr = " << tolr << "\n";
             }
             break;
         }
     }
     
     if (iter > maxit && verbose >= 1) {
-        std::cout << TAG_WARN << "#" << iter << "\t| \033[91mSolution not found\033[0m: df/f = " << dfof << " > toldf = " << toldf << ", and r/r0 = " << ror0 << " > tolr = " << tolr << "\n";
+        std::cout << TAG_WARN << "#" << iter << "\t| \033[91mSolution not found\033[0m: df/f = " 
+                  << dfof << " > toldf = " << toldf << ", and r/r0 = " << ror0 << " > tolr = " << tolr << "\n";
     }
     
     return iter;
@@ -694,8 +709,8 @@ void UsadelSystem::saveField(const std::string& filename, const char* sep, const
     
     if (rho < 0.) {// Warn the user about improper values of the transmission eigenvalue density rho(T).
         std::cout << TAG_WARN << "Density rho=" << rho << " is negative. This may indicate an improper solution.\n";
-    } else if (rho < CBRTEPS) {
-        std::cout << TAG_WARN << "Density rho=" << rho << " is very small. This may indicate the gap of rho(T).\n";
+    } else if (rho < RHOMIN) {
+        std::cout << TAG_WARN << "Density rho=" << rho << " is very small (<" << RHOMIN << "). This may indicate the gap of rho(T).\n";
     }
     
     std::ofstream ofs;  // Declare output stream object.

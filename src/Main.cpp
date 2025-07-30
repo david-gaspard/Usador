@@ -250,6 +250,337 @@ UsadelSystem createDoubleWaveguide2() {
 }
 
 /**
+ * Create a double waveguide with a minute asymmetry.
+ */
+UsadelSystem createDoubleWaveguide3() {
+    
+    double holscat, holabso, tval;
+    const std::string name("double-waveguide-3");
+    
+    SquareMesh mesh;
+    mesh.addDisk(0, 0, 100, BND_MIRROR);
+    mesh.removeDisk(0, 0, 78);
+    mesh.removeHalfDisk(0, 0, 82);
+    
+    mesh.addRectangle(-90, -75, -15, 15, BND_MIRROR);
+    mesh.setBoundaryRectangle(-75, -75, -15, 15, DIR_EAST, BND_OPEN);
+    
+    mesh.addRectangle(-110, -85, -20, 20, BND_MIRROR);
+    mesh.setBoundaryRectangle(-110, -110, -50, 50, DIR_WEST, BND_INPUT);
+    
+    mesh.addRectangle(85, 110, -20, 20, BND_MIRROR);
+    mesh.setBoundaryRectangle( 110,  110, -50, 50, DIR_EAST, BND_OUTPUT);
+    
+    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    
+    holscat = 5./60; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
+    holabso = 0.0;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
+    tval = 0.25;     // Transmission probability close to Tmax.
+    
+    return UsadelSystem(name, mesh, holscat, holabso, tval);
+}
+
+/**
+ * Create a double waveguide with a minute asymmetry due to a lossy constriction.
+ */
+UsadelSystem createDoubleWaveguide4() {
+    
+    double holscat, holabso, tval;
+    const std::string name("double-waveguide-4");
+    
+    SquareMesh mesh;
+    mesh.addRectangle(-100, 100, -50, 50, BND_MIRROR);
+    //mesh.removeRectangle(-59, 80, -30, 32);
+    mesh.removeRectangle(-59, 80, -30, 30);
+    mesh.removeRectangle(-59, -55, 30, 35);
+    
+    mesh.setBoundaryRectangle(-60, -60, -35, 35, DIR_EAST, BND_OPEN);
+    
+    mesh.setBoundaryRectangle(-100, -100, -50, 50, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRectangle( 100,  100, -50, 50, DIR_EAST, BND_OUTPUT);
+    
+    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    
+    holscat = 5./200; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
+    holabso = 0.;    // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
+    tval = 0.55;     // Transmission probability close to Tmax.
+    
+    return UsadelSystem(name, mesh, holscat, holabso, tval);
+}
+
+/**
+ * Create a double waveguide with an asymmetry due to a lossy constriction.
+ */
+UsadelSystem createDoubleWaveguide5() {
+    
+    double holscat, holabso, tval;
+    const std::string name("double-waveguide-5");
+    
+    SquareMesh mesh;
+    mesh.addRectangle(-100, 100, -50, 50, BND_MIRROR);
+    mesh.removeRectangle(-80, 80, -30, 30);
+    mesh.removeRectangle(-80, -75, 30, 35);
+    mesh.removeRectangle(-80, -75, 45, 50);
+    
+    mesh.setBoundaryRectangle(-80, -75, 36, 36, DIR_SOUTH, BND_OPEN);
+    mesh.setBoundaryRectangle(-80, -75, 44, 44, DIR_NORTH, BND_OPEN);
+    
+    mesh.setBoundaryRectangle(-100, -100, -50, 50, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRectangle( 100,  100, -50, 50, DIR_EAST, BND_OUTPUT);
+    
+    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    
+    holscat = 5./200; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
+    holabso = 0.;    // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
+    tval = 0.8;     // Transmission probability close to Tmax.
+    
+    return UsadelSystem(name, mesh, holscat, holabso, tval);
+}
+
+/**
+ * Create a double waveguide with an asymmetry due to lossy channels.
+ */
+UsadelSystem createDoubleWaveguide6() {
+    
+    double holscat, holabso, tval;
+    const std::string name("double-waveguide-6");
+    
+    SquareMesh mesh;
+    mesh.addRectangle(-100, 100, -50, 50, BND_MIRROR);
+    mesh.removeRectangle(-80, 80, -30, 30);
+    
+    mesh.setBoundaryRectangle(60, 80, 50, 50, DIR_NORTH, BND_OPEN);
+    
+    mesh.setBoundaryRectangle(-100, -100, -50, 50, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRectangle( 100,  100, -50, 50, DIR_EAST, BND_OUTPUT);
+    
+    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    
+    holscat = 5./200; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
+    holabso = 0.;    // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
+    tval = 0.7;     // Transmission probability close to Tmax.
+    
+    return UsadelSystem(name, mesh, holscat, holabso, tval);
+}
+
+/**
+ * Create a double waveguide with an asymmetry due to lossy channels.
+ */
+UsadelSystem createDoubleWaveguide7() {
+    
+    double holscat, holabso, tval;
+    const std::string name("double-waveguide-7");
+    
+    SquareMesh mesh;
+    mesh.addRectangle(-100, 100, -50, 50, BND_MIRROR);
+    mesh.removeRectangle(-80, 80, -30, 30);
+    
+    mesh.addRectangle(40, 60, 10, 30, BND_MIRROR);
+    //mesh.setBoundaryRectangle(40, 60, 10, 10, DIR_SOUTH, BND_OPEN);
+    mesh.addRectangle(-60, 60, -10, 10, BND_MIRROR);
+    mesh.setBoundaryRectangle(-60, -60, -10, 10, DIR_WEST, BND_OPEN);
+    
+    mesh.setBoundaryRectangle(-100, -100, -50, 50, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRectangle( 100,  100, -50, 50, DIR_EAST, BND_OUTPUT);
+    
+    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    
+    holscat = 5./200; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
+    holabso = 0.;    // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
+    tval = 0.3;     // Transmission probability close to Tmax.
+    
+    return UsadelSystem(name, mesh, holscat, holabso, tval);
+}
+
+/**
+ * Create a double waveguide with an asymmetry due to lossy channels.
+ */
+UsadelSystem createDoubleWaveguide8() {
+    
+    double holscat, holabso, tval;
+    const std::string name("double-waveguide-8");
+    
+    SquareMesh mesh;
+    mesh.addRectangle(-100, 100, -50, 70, BND_MIRROR);
+    mesh.removeRectangle(-80, 80, -30, 30);
+    
+    mesh.addRectangle(40, 60, 10, 30, BND_MIRROR);
+    //mesh.addRectangle(20, 60, -10, 10, BND_MIRROR);
+    //mesh.setBoundaryRectangle(20, 20, -10, 10, DIR_WEST, BND_OPEN);
+    
+    //mesh.addRectangle(-60, 60, -10, 10, BND_MIRROR);
+    //mesh.setBoundaryRectangle(-60, -60, -10, 10, DIR_WEST, BND_OPEN);
+    
+    mesh.addRectangle(20, 60, -10, 10, BND_MIRROR);
+    mesh.setBoundaryRectangle(20, 60, -10, -10, DIR_SOUTH, BND_OPEN);
+    
+    mesh.setBoundaryRectangle(-100, -100, -70, 70, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRectangle( 100,  100, -70, 70, DIR_EAST, BND_OUTPUT);
+    
+    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    
+    holscat = 5./200; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
+    holabso = 0.;    // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
+    tval = 0.3;     // Transmission probability close to Tmax.
+    
+    return UsadelSystem(name, mesh, holscat, holabso, tval);
+}
+
+/**
+ * Create a double waveguide with an asymmetry with one short lossy channel and one long lossless channel.
+ */
+UsadelSystem createDoubleWaveguide9() {
+    
+    double holscat, holabso, tval;
+    const std::string name("double-waveguide-9");
+    
+    SquareMesh mesh;
+    mesh.addRectangle(-110, 110, -50, 50, BND_MIRROR);
+    mesh.removeRectangle(-90, 90, -30, 30);
+    
+    // Add maze in lossless channel:
+    mesh.addRectangle(-70, -10, -30, 10, BND_MIRROR);
+    mesh.removeRectangle(-50, -30, -50, -10);
+    
+    mesh.addRectangle(10, 70, -30, 10, BND_MIRROR);
+    mesh.removeRectangle(30, 50, -50, -10);
+    
+    // Add losses in short channel:
+    //mesh.addRectangle(70, 90, 50, 70, BND_MIRROR);
+    //mesh.setBoundaryRectangle(70, 90, 70, 70, DIR_NORTH, BND_OPEN);
+    
+    //mesh.addRectangle(90, 110, 50, 70, BND_MIRROR);
+    //mesh.addRectangle(-110, 110, 70, 90, BND_MIRROR);
+    //mesh.setBoundaryRectangle(-110, -110, 70, 90, DIR_WEST, BND_OPEN);
+    
+    mesh.addRectangle(90, 110, 50, 70, BND_MIRROR);
+    mesh.setBoundaryRectangle(90, 110, 70, 70, DIR_NORTH, BND_OPEN);
+    
+    mesh.setBoundaryRectangle(-110, -110, -50, 50, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRectangle( 110,  110, -50, 50, DIR_EAST, BND_OUTPUT);
+    
+    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    
+    holscat = 5./200; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
+    holabso = 0.;    // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
+    tval = 0.97;     // Transmission probability close to Tmax.
+    
+    return UsadelSystem(name, mesh, holscat, holabso, tval);
+}
+
+/**
+ * Create a double waveguide with an asymmetry with one short lossy channel and one long lossless channel.
+ */
+UsadelSystem createDoubleWaveguide10() {
+    
+    double holscat, holabso, tval;
+    const std::string name("double-waveguide-10");
+    
+    SquareMesh mesh;
+    
+    // Add maze in lossless channel:
+    mesh.addRectangle(-110, 110, -110, 110, BND_MIRROR);
+    mesh.removeRectangle( -90,  90,  70,  90);
+    mesh.removeRectangle( -90,  90, -10,  10);
+    mesh.removeRectangle( -90,  90, -90, -70);
+    mesh.removeRectangle( -10,  10, -90,  90);
+    mesh.removeRectangle(-110, -30,  30,  50);
+    mesh.removeRectangle(  30, 110,  30,  50);
+    mesh.removeRectangle(-110, -30, -50, -30);
+    mesh.removeRectangle(  30, 110, -50, -30);
+    
+    // Add losses in short channel:
+    mesh.addRectangle(90, 110, 110, 130, BND_MIRROR);
+    mesh.setBoundaryRectangle(90, 110, 130, 130, DIR_NORTH, BND_OPEN);
+    
+    mesh.setBoundaryRectangle(-110, -110, 50, 110, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRectangle( 110,  110, 50, 110, DIR_EAST, BND_OUTPUT);
+    
+    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    
+    holscat = 5./200; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
+    holabso = 0.;    // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
+    tval = 0.5;     // Transmission probability close to Tmax.
+    
+    return UsadelSystem(name, mesh, holscat, holabso, tval);
+}
+
+/**
+ * Create a double waveguide with an asymmetry with one short lossy channel and one long lossless channel.
+ */
+UsadelSystem createDoubleWaveguide11() {
+    
+    double holscat, holabso, tval;
+    const std::string name("double-waveguide-11");
+    
+    SquareMesh mesh;
+    
+    // Add maze in lossless channel:
+    mesh.addRectangle(-110, 110, -70, 70, BND_MIRROR);
+    mesh.removeRectangle( -90,  90,  30,  50);
+    
+    mesh.removeRectangle( -90, -70, -50,  50);
+    mesh.removeRectangle( -10,  10, -50,  50);
+    mesh.removeRectangle(  70,  90, -50,  50);
+    
+    mesh.removeRectangle( -50, -30, -70,  10);
+    mesh.removeRectangle(  30,  50, -70,  10);
+    
+    // Add losses in short channel:
+    mesh.addRectangle(90, 110, 70, 90, BND_MIRROR);
+    mesh.setBoundaryRectangle(90, 110, 90, 90, DIR_NORTH, BND_OPEN);
+    
+    mesh.setBoundaryRectangle(-110, -110, -70, 70, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRectangle( 110,  110, -70, 70, DIR_EAST, BND_OUTPUT);
+    
+    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    
+    holscat = 0.025; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
+    holabso = 0.;    // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
+    tval = 0.833;     // Transmission probability close to Tmax.
+    
+    return UsadelSystem(name, mesh, holscat, holabso, tval);
+}
+
+/**
+ * Create a double waveguide with an asymmetry with one short lossy channel and one long lossless channel.
+ * Same as createDoubleWaveguide11() but for h/lscat = 0.1 (lscat = half the tube diameter, the recommended value).
+ */
+UsadelSystem createDoubleWaveguide12() {
+    
+    double holscat, holabso, tval;
+    const std::string name("double-waveguide-12");
+    
+    SquareMesh mesh;
+    
+    // Add maze in lossless channel:
+    mesh.addRectangle(-110, 110, -70, 70, BND_MIRROR);
+    mesh.removeRectangle( -90,  90,  30,  50);
+    
+    mesh.removeRectangle( -90, -70, -50,  50);
+    mesh.removeRectangle( -10,  10, -50,  50);
+    mesh.removeRectangle(  70,  90, -50,  50);
+    
+    mesh.removeRectangle( -50, -30, -70,  10);
+    mesh.removeRectangle(  30,  50, -70,  10);
+    
+    // Add losses in short channel:
+    mesh.addRectangle(90, 110, 70, 90, BND_MIRROR);
+    mesh.setBoundaryRectangle(90, 110, 90, 90, DIR_NORTH, BND_OPEN);
+    
+    mesh.setBoundaryRectangle(-110, -110, -70, 70, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRectangle( 110,  110, -70, 70, DIR_EAST, BND_OUTPUT);
+    
+    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    
+    holscat = 0.1; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
+    holabso = 0.;  // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
+    tval = 0.9;    // Transmission probability close to Tmax.
+    
+    return UsadelSystem(name, mesh, holscat, holabso, tval);
+}
+
+/**
  * Create a double waveguide.
  */
 UsadelSystem createWaveguideObstacle1() {
@@ -489,15 +820,45 @@ UsadelSystem createEiffelTower() {
 /**
  * Create a finite slab with a focusing point.
  */
-UsadelSystem createFiniteSlabTransmission() {
+UsadelSystem createFiniteSlabTransmission1() {
     
     int width, thick, size_input, size_output, y_output;
     double dscat, dabso, tval;
-    const std::string name("finite-slab-transmission");
+    const std::string name("finite-slab-transmission-1");
+    
+    width = 300;        // Transverse width of the slab. Typically = 300.
+    thick = 100;        // Thickness of the slab. Typically = 100.
+    size_input  = 160;  // Diameter of the input beam. Typically: 160.
+    size_output = 20;   // Diameter of the target (output beam). Typically: 20.
+    y_output = 0;       // Position of the output beam. Typically: 0.
+    
+    SquareMesh mesh;
+    mesh.addRectangle(-thick/2, thick/2, -width/2, width/2, BND_OPEN);
+    
+    mesh.setBoundaryDisk(-thick/2, 0, size_input/2, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryDisk(thick/2, y_output, size_output/2, DIR_EAST, BND_OUTPUT);
+    
+    mesh.fixNeighbors();
+    
+    dscat = 5.;   // Scattering thickness, L/lscat, where L is the slab thickness and lscat the scattering mean free path.
+    dabso = 0.;   // Absorption thickness, L/labso, where L is the slab thickness and labso the ballistic absorption length.
+    tval = 0.3;  // Transmission probability. Tmax=0.3 for size_input=160, size_output=20, dscat=5, dabso=0.
+    
+    return UsadelSystem(name, mesh, dscat/thick, dabso/thick, tval);
+}
+
+/**
+ * Create a finite slab with a focusing point.
+ */
+UsadelSystem createFiniteSlabTransmission2() {
+    
+    int width, thick, size_input, size_output, y_output;
+    double dscat, dabso, tval;
+    const std::string name("finite-slab-transmission-2");
     
     width = 300;       // Transverse width of the slab. Typically = 300.
     thick = 100;       // Thickness of the slab. Typically = 100.
-    size_input = 160;  // Diameter of the input beam. Typically: 160.
+    size_input  = 20;  // Diameter of the input beam. Typically: 160.
     size_output = 20;  // Diameter of the target (output beam). Typically: 20.
     y_output = 0;      // Position of the output beam. Typically: 0.
     
@@ -507,14 +868,41 @@ UsadelSystem createFiniteSlabTransmission() {
     mesh.setBoundaryDisk(-thick/2, 0, size_input/2, DIR_WEST, BND_INPUT);
     mesh.setBoundaryDisk(thick/2, y_output, size_output/2, DIR_EAST, BND_OUTPUT);
     
-    //mesh.setBoundaryDisk(0, +width/2, thick/2, DIR_NORTH, BND_INPUT);
-    //mesh.setBoundaryDisk(0, -width/2, thick/2, DIR_SOUTH, BND_INPUT);
+    mesh.fixNeighbors();
+    
+    dscat = 5.;   // Scattering thickness, L/lscat, where L is the slab thickness and lscat the scattering mean free path.
+    dabso = 0.;   // Absorption thickness, L/labso, where L is the slab thickness and labso the ballistic absorption length.
+    tval = 0.3;  // Transmission probability. Tmax=0.3 for size_input=160, size_output=20, dscat=5, dabso=0.
+    
+    return UsadelSystem(name, mesh, dscat/thick, dabso/thick, tval);
+}
+
+/**
+ * Create a finite slab with a focusing point.
+ */
+UsadelSystem createFiniteSlabTransmission3() {
+    
+    int width, thick, size_input, size_output, y_output;
+    double dscat, dabso, tval;
+    const std::string name("finite-slab-transmission-3");
+    
+    width = 300;       // Transverse width of the slab. Typically = 300.
+    thick = 100;       // Thickness of the slab. Typically = 100.
+    size_input  = 160;  // Diameter of the input beam. Typically: 160.
+    size_output = 160;  // Diameter of the target (output beam). Typically: 20.
+    y_output = 0;      // Position of the output beam. Typically: 0.
+    
+    SquareMesh mesh;
+    mesh.addRectangle(-thick/2, thick/2, -width/2, width/2, BND_OPEN);
+    
+    mesh.setBoundaryDisk(-thick/2, 0, size_input/2, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryDisk(thick/2, y_output, size_output/2, DIR_EAST, BND_OUTPUT);
     
     mesh.fixNeighbors();
     
     dscat = 5.;   // Scattering thickness, L/lscat, where L is the slab thickness and lscat the scattering mean free path.
     dabso = 0.;   // Absorption thickness, L/labso, where L is the slab thickness and labso the ballistic absorption length.
-    tval = 0.40;  // Transmission probability. Tmax=0.3 for size_input=160, size_output=20, dscat=5, dabso=0.
+    tval = 0.3;  // Transmission probability. Tmax=0.3 for size_input=160, size_output=20, dscat=5, dabso=0.
     
     return UsadelSystem(name, mesh, dscat/thick, dabso/thick, tval);
 }
@@ -561,9 +949,71 @@ UsadelSystem createFiniteSlabRemission2() {
     
     width = 300;       // Transverse width of the slab.
     thick = 100;       // Thickness of the slab.
-    size_input = 15;   // Diameter of the input beam.
-    size_output = 15;  // Diameter of the target (output beam).
-    separation = 20;   // Distance between the input and otput beams.
+    size_input = 20;   // Diameter of the input beam.
+    size_output = 20;  // Diameter of the target (output beam).
+    separation = 40;   // Distance between the input and otput beams.
+    y_input = (size_output + separation)/2;  // Position of the input beam ensuring that the distance with respect to the upper and lower edges are equal.
+    
+    SquareMesh mesh;
+    mesh.addRectangle(-thick/2, thick/2, -width/2, width/2, BND_OPEN);
+    
+    mesh.setBoundaryDisk(-thick/2, y_input, size_input/2, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryDisk(-thick/2, y_input - size_input/2 - separation - size_output/2, size_output/2, DIR_WEST, BND_OUTPUT);
+    
+    mesh.fixNeighbors();
+    
+    dscat = 5.;   // Scattering thickness, L/lscat, where L is the slab thickness and lscat the scattering mean free path.
+    dabso = 0.;   // Absorption thickness, L/labso, where L is the slab thickness and labso the ballistic absorption length.
+    tval = 0.15;  // Transmission probability.
+    
+    return UsadelSystem(name, mesh, dscat/thick, dabso/thick, tval);
+}
+
+/**
+ * Create a finite slab with a focusing point.
+ */
+UsadelSystem createFiniteSlabRemission3() {
+    
+    int width, thick, size_input, size_output, separation, y_input;
+    double dscat, dabso, tval;
+    const std::string name("finite-slab-remission-3");
+    
+    width = 300;       // Transverse width of the slab.
+    thick = 100;       // Thickness of the slab.
+    size_input = 30;   // Diameter of the input beam.
+    size_output = 30;  // Diameter of the target (output beam).
+    separation = 60;   // Distance between the input and otput beams.
+    y_input = (size_output + separation)/2;  // Position of the input beam ensuring that the distance with respect to the upper and lower edges are equal.
+    
+    SquareMesh mesh;
+    mesh.addRectangle(-thick/2, thick/2, -width/2, width/2, BND_OPEN);
+    
+    mesh.setBoundaryDisk(-thick/2, y_input, size_input/2, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryDisk(-thick/2, y_input - size_input/2 - separation - size_output/2, size_output/2, DIR_WEST, BND_OUTPUT);
+    
+    mesh.fixNeighbors();
+    
+    dscat = 5.;   // Scattering thickness, L/lscat, where L is the slab thickness and lscat the scattering mean free path.
+    dabso = 0.;   // Absorption thickness, L/labso, where L is the slab thickness and labso the ballistic absorption length.
+    tval = 0.15;  // Transmission probability.
+    
+    return UsadelSystem(name, mesh, dscat/thick, dabso/thick, tval);
+}
+
+/**
+ * Create a finite slab with a focusing point.
+ */
+UsadelSystem createFiniteSlabDoubleRemission() {
+    
+    int width, thick, size_input, size_output, separation, y_input;
+    double dscat, dabso, tval;
+    const std::string name("finite-slab-double-remission");
+    
+    width = 300;       // Transverse width of the slab.
+    thick = 100;       // Thickness of the slab.
+    size_input = 30;   // Diameter of the input beam.
+    size_output = 30;  // Diameter of the target (output beam).
+    separation = 60;   // Distance between the input and otput beams.
     y_input = (size_output + size_input)/2 + separation;  // Position of the center of the input beam.
     
     SquareMesh mesh;
@@ -577,7 +1027,7 @@ UsadelSystem createFiniteSlabRemission2() {
     
     dscat = 5.;   // Scattering thickness, L/lscat, where L is the slab thickness and lscat the scattering mean free path.
     dabso = 0.;   // Absorption thickness, L/labso, where L is the slab thickness and labso the ballistic absorption length.
-    tval = 0.25;  // Transmission probability.
+    tval = 0.15;  // Transmission probability.
     
     return UsadelSystem(name, mesh, dscat/thick, dabso/thick, tval);
 }
@@ -621,8 +1071,8 @@ void computeFields(UsadelSystem& usys) {
     int maxit, nsub, verbose;
     double toldf, tolr;
     
-    maxit = 50;   // Maximum number of iterations. Typically: 50-500.
-    nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
+    maxit = 100;   // Maximum number of iterations. Typically: 50-500.
+    nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). Typically: 30.
     toldf = 1e-7; // Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7.
     tolr = 1e-10; // Tolerance over the norm of the residual compared to the norm of the initial residual. Typically: 1e-10.
     verbose = 1;  // Verbosity level of the Newton-Raphson solver. 0=No output, 1=Display each iteration.
@@ -631,8 +1081,10 @@ void computeFields(UsadelSystem& usys) {
     
     usys.initConstant();                                 // Initialize the UsadelSystem using the currently best ansatz (constants).
     usys.solveNewton(maxit, nsub, toldf, tolr, verbose);  // Solve the Usadel equation using the Newton-Raphson method.
-    //usys.setTransmission(0.35);
-    //usys.solveNewton(maxit, nsub, toldf, tolr, verbose);
+    usys.setTransmission(0.31);
+    usys.solveNewton(maxit, nsub, toldf, tolr, verbose);
+    usys.setTransmission(0.32);
+    usys.solveNewton(maxit, nsub, toldf, tolr, verbose);
     
     // Save the data and plot:
     std::stringstream path;
@@ -688,11 +1140,11 @@ void computeDistributionSerial(UsadelSystem& usys) {
     int ntval, maxit, nsub, verbose, niter;
     double tmin, tmax, tval, rho, toldf, tolr;
     
-    ntval = 32; // Number of samples for the transmission eigenvalue.
-    tmin = 0.;  // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    tmax = 1.;  // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    ntval = 64;    // Number of samples for the transmission eigenvalue. Typically: 32 for quick plots (see alos the OPenMP version), 256 for final renders.
+    tmin = 0.001;  // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    tmax = 0.1;    // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
     
-    maxit = 50;   // Maximum number of iterations. Typically: 50-500.
+    maxit = 30;   // Maximum number of iterations. Typically: 50-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
     toldf = 1e-7; // Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7.
     tolr = 1e-10; // Tolerance over the norm of the residual compared to the norm of the initial residual. Typically: 1e-10.
@@ -700,12 +1152,16 @@ void computeDistributionSerial(UsadelSystem& usys) {
     
     std::cout << TAG_INFO << "Computing rho(T) from UsadelSystem with name=" << usys.getName() << ", Npoint=" << usys.getNPoint() << ", h/lscat=" << usys.getHolscat() << ", h/labso=" << usys.getHolabso() << ", NT=" << ntval << ", Trange=" << tmin << ":" << tmax << ", maxit=" << maxit << ".\n";
     
+    const std::string msg = "distrib, serial";
+    int cjob = 0;  // Initialize the number of completed jobs.
     auto start = std::chrono::steady_clock::now(); // Gets the current time.
     
     double* rhodata = new double[3*ntval];  // Temporary array for storing the numerical results [T, rho(T), niter].
     
     usys.setTransmission(tmin + (tmax-tmin) * (1. - std::cos(0.5*PI/ntval))/2.);   // Assigns the 'tmin' before initializing.
     usys.initConstant(); // Initialize the UsadelSystem using the currently best ansatz (constants).
+    
+    UsadelSystem usys_prev(usys); // Create a deep copy of the UsadelSystem containing the previous result.
     
     for (int i = 0; i < ntval; i++) {// Loop over the points of the mesh.
         
@@ -718,17 +1174,35 @@ void computeDistributionSerial(UsadelSystem& usys) {
         rhodata[3*i+1] = rho;
         rhodata[3*i+2] = niter;
         
-        std::cout << TAG_INFO << "# " << (i+1) << "\t| tval=" << tval 
-                  << ",\trho=" << rho << ",\tniter=" << niter << ",\t" << (niter <= maxit ? "\033[92msuccess\033[0m" : "\033[91mfailure\033[0m") << "\n";
+        std::cout << TAG_INFO << "# " << (i+1) << std::string(6-std::floor(std::log10(i+1)), ' ') << std::fixed << std::setprecision(6) 
+                  << "| tval=" << tval << "   rho=" << rho << "   niter=" << niter 
+                  << "   " << (niter <= maxit ? "\033[92msuccess\033[0m" : "\033[91mfailure\033[0m") << std::string(50, ' ') << "\n";
+        
+        cjob++;
+        printProgressBar(cjob, ntval, msg, start); // Print the progress bar. Must be critical since 'cjob' is a OMP-Shared variable.
+        
+        if (niter > maxit) {// Exit on failure to avoid loosing time (the subsequent results will fail anyway).
+            std::cout << "\n" << TAG_WARN << "Detected failure, exiting now...\n";
+            ntval = cjob;
+            break;
+        }
+        else {// If successful convergence, then overwrite the previous
+            usys_prev.copy(usys);
+        }
+        
     }
     
     double elapsed_time = endProgressBar(start);  // Finalize the progress bar and gets the total time (in seconds).
     
+    // Save the distribution to a file and plot it:
     plotDistribution(usys, rhodata, ntval, tmin, tmax, maxit, elapsed_time);
-    
     delete[] rhodata;
+    
+    // Save the last field (with Tmax) and plot it:
+    std::stringstream path;
+    path << "out/" << usys_prev.getName() << "/holabso_" << usys_prev.getHolabso() << "/tval_" << usys_prev.getTransmission() << "/result_";
+    usys_prev.savePlot(path.str());
 }
-
 
 /**
  * Compute the transmission eigenvalue distribution by solving the Usadel equation for different values of the transmission eigenvalue "tval".
@@ -740,12 +1214,12 @@ void computeDistributionOMP(UsadelSystem& usys) {
     int i, ntval, maxit, nsub, verbose, niter, nthread;
     double tmin, tmax, tval, rho, toldf, tolr;
     
-    ntval = 32;   // Number of samples for the transmission eigenvalue.
-    tmin = 0.;  // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    tmax = 1.;   // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    nthread = 10; // Number of execution threads for OpenMP (typically the number of CPU cores).
+    ntval = 20;    // Number of samples for the transmission eigenvalue. Typically: 32 for quick plots, 256 for final renders (see the serial version).
+    tmin = 0.001;  // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    tmax = 0.1;   // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    nthread = 10;  // Number of execution threads for OpenMP (typically the number of CPU cores).
     
-    maxit = 50;   // Maximum number of iterations. Typically: 50-500.
+    maxit = 30;   // Maximum number of iterations. Typically: 50-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
     toldf = 1e-7; // Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7.
     tolr = 1e-10; // Tolerance over the norm of the residual compared to the norm of the initial residual. Typically: 1e-10.
@@ -813,7 +1287,7 @@ int main(int argc, char** argv) {
     
     std::cout << "****** This is " << PROGRAM_COPYRIGHT << " ******\n";
     
-    UsadelSystem usys = createWaveguide();
+    //UsadelSystem usys = createWaveguide();
     //UsadelSystem usys = createAsymmetricWaveguide1();
     //UsadelSystem usys = createAsymmetricWaveguide2();
     //UsadelSystem usys = createWaveguideOpenSides1();
@@ -822,6 +1296,16 @@ int main(int argc, char** argv) {
     //UsadelSystem usys = createWaveguideAbsorbers2();
     //UsadelSystem usys = createDoubleWaveguide1();
     //UsadelSystem usys = createDoubleWaveguide2();
+    //UsadelSystem usys = createDoubleWaveguide3();
+    //UsadelSystem usys = createDoubleWaveguide4();
+    //UsadelSystem usys = createDoubleWaveguide5();
+    //UsadelSystem usys = createDoubleWaveguide6();
+    //UsadelSystem usys = createDoubleWaveguide7();
+    //UsadelSystem usys = createDoubleWaveguide8();
+    //UsadelSystem usys = createDoubleWaveguide9();
+    //UsadelSystem usys = createDoubleWaveguide10();
+    //UsadelSystem usys = createDoubleWaveguide11();
+    //UsadelSystem usys = createDoubleWaveguide12();
     //UsadelSystem usys = createWaveguideObstacle1();
     //UsadelSystem usys = createCircularDoubleWaveguide1();
     //UsadelSystem usys = createCircularOpposite();
@@ -830,15 +1314,19 @@ int main(int argc, char** argv) {
     //UsadelSystem usys = createCircularCavityAlt();
     //UsadelSystem usys = createCircularCavityHole();
     //UsadelSystem usys = createEiffelTower();
-    //UsadelSystem usys = createFiniteSlabTransmission();
+    //UsadelSystem usys = createFiniteSlabTransmission1();
+    //UsadelSystem usys = createFiniteSlabTransmission2();
+    //UsadelSystem usys = createFiniteSlabTransmission3();
     //UsadelSystem usys = createFiniteSlabRemission1();
     //UsadelSystem usys = createFiniteSlabRemission2();
+    UsadelSystem usys = createFiniteSlabRemission3();
+    //UsadelSystem usys = createFiniteSlabDoubleRemission();
     
     //plotMesh(usys);  // Plot the mesh only to check it is as expected.
     
-    computeFields(usys); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
+    //computeFields(usys); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
     
-    //computeDistributionSerial(usys); // Compute the transmission eigenvalue distribution rho(T) by scanning in T.
+    computeDistributionSerial(usys); // Compute the transmission eigenvalue distribution rho(T) by scanning in T.
     //computeDistributionOMP(usys); // Compute the transmission eigenvalue distribution rho(T). Parallelized version.
     
     return 0;

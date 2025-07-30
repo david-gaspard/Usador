@@ -182,7 +182,7 @@ def plot_map(args):
     title={{{title}}},
     xlabel={{{xlabel}}},
     ylabel={{{ylabel}}},
-    colorbar, %% Enable colobar.
+    colorbar, %% Enable colorbar.
     point meta min={vmin}, %% Set colorbar range.
     point meta max={vmax},
     {colorbar_string},

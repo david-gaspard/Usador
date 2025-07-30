@@ -235,6 +235,27 @@ void SquareMesh::removeDisk(const int x0, const int y0, const double radius) {
 }
 
 /**
+ * Remove half a circular region from the mesh (only the upper half disk).
+ */
+void SquareMesh::removeHalfDisk(const int x0, const int y0, const double radius) {
+    int xmin = (int) std::floor(x0 - radius);
+    int xmax = (int)  std::ceil(x0 + radius);
+    int ymin = y0;
+    int ymax = (int)  std::ceil(y0 + radius);
+    int r2 = (int) std::ceil(radius*radius);
+    int dx, dy;
+    for (int y = ymax; y >= ymin; y--) {// Loop on the square lattice in reading order.
+        for (int x = xmin; x <= xmax; x++) {
+            dx = x - x0;
+            dy = y - y0;
+            if (dx*dx + dy*dy <= r2) {
+                removePoint(x, y);
+            }
+        }
+    }
+}
+
+/**
  * Removes a polygon region from the mesh. Uses the even-odd rule.
  */
 void SquareMesh::removePolygon(const std::vector<Vector2D>& polygon) {

@@ -51,6 +51,7 @@ class SquareMesh {
     void removePoint(const int x, const int y);
     void removeRectangle(int xmin, int xmax, int ymin, int ymax);
     void removeDisk(const int x0, const int y0, const double radius);
+    void removeHalfDisk(const int x0, const int y0, const double radius);
     void removePolygon(const std::vector<Vector2D>& polygon);
     
     // Assign boundary conditions:

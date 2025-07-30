@@ -51,6 +51,7 @@ class UsadelSystem {
     
     // Initializers/Setters:
     void setTransmission(const double tval);
+    void copy(const UsadelSystem& usys);
     void initRandom(const uint64_t seed);
     void initConstant();
     void initWaveguide();
