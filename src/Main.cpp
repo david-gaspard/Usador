@@ -22,11 +22,11 @@ UsadelSystem createWaveguide() {
     double dscat, dabso, tval;
     const std::string name("waveguide");
     
-    length = 60;  // Length of the waveguide in units of the lattice step.
-    width = 30;   // Width of the waveguide in units of the lattice step.
-    dscat = 5.;   // Scattering thickness, L/lscat, where L is the length and lscat the scattering mean free path.
-    dabso = 0.1;   // Absorption thickness, L/labso, where L is the length and labso the ballistic absorption length.
-    tval = 0.75;  // Transmission eigenvalue, between 0 and 1. For dscat=5, dabso=0.1, we have Tmax=0.75.
+    length = 150;  // Length of the waveguide in units of the lattice step.
+    width = 150;   // Width of the waveguide in units of the lattice step.
+    dscat = 10.;   // Scattering thickness, L/lscat, where L is the length and lscat the scattering mean free path.
+    dabso = 0.;    // Absorption thickness, L/labso, where L is the length and labso the ballistic absorption length.
+    tval = 0.999;   // Transmission eigenvalue, between 0 and 1. For dscat=5, dabso=0.1, we have Tmax=0.75.
     
     return UsadelSystem(name, length, width, dscat, dabso, tval);  // Create the reference Usadel System with waveguide geometry.
 }
@@ -828,21 +828,21 @@ UsadelSystem createFiniteSlabTransmission1() {
     
     width = 300;        // Transverse width of the slab. Typically = 300.
     thick = 100;        // Thickness of the slab. Typically = 100.
-    size_input  = 160;  // Diameter of the input beam. Typically: 160.
-    size_output = 20;   // Diameter of the target (output beam). Typically: 20.
+    size_input  = width/2;  // Diameter of the input beam. Typically: width/2.
+    size_output = width/8;   // Diameter of the target (output beam). Typically: width/8.
     y_output = 0;       // Position of the output beam. Typically: 0.
     
     SquareMesh mesh;
-    mesh.addRectangle(-thick/2, thick/2, -width/2, width/2, BND_OPEN);
+    mesh.addRectangle(0, thick, -width/2, width/2, BND_OPEN);
     
-    mesh.setBoundaryDisk(-thick/2, 0, size_input/2, DIR_WEST, BND_INPUT);
-    mesh.setBoundaryDisk(thick/2, y_output, size_output/2, DIR_EAST, BND_OUTPUT);
+    mesh.setBoundaryDisk(0, 0, size_input/2, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryDisk(thick, y_output, size_output/2, DIR_EAST, BND_OUTPUT);
     
     mesh.fixNeighbors();
     
-    dscat = 5.;   // Scattering thickness, L/lscat, where L is the slab thickness and lscat the scattering mean free path.
+    dscat = 10.;  // Scattering thickness, L/lscat, where L is the slab thickness and lscat the scattering mean free path.
     dabso = 0.;   // Absorption thickness, L/labso, where L is the slab thickness and labso the ballistic absorption length.
-    tval = 0.3;  // Transmission probability. Tmax=0.3 for size_input=160, size_output=20, dscat=5, dabso=0.
+    tval = 0.4;   // Transmission probability. Tmax=0.3 for size_input=160, size_output=20, dscat=5, dabso=0.
     
     return UsadelSystem(name, mesh, dscat/thick, dabso/thick, tval);
 }
@@ -903,6 +903,36 @@ UsadelSystem createFiniteSlabTransmission3() {
     dscat = 5.;   // Scattering thickness, L/lscat, where L is the slab thickness and lscat the scattering mean free path.
     dabso = 0.;   // Absorption thickness, L/labso, where L is the slab thickness and labso the ballistic absorption length.
     tval = 0.3;  // Transmission probability. Tmax=0.3 for size_input=160, size_output=20, dscat=5, dabso=0.
+    
+    return UsadelSystem(name, mesh, dscat/thick, dabso/thick, tval);
+}
+
+/**
+ * Create a finite slab with a focusing point.
+ */
+UsadelSystem createSlabTransmission() {
+    
+    int width, thick, size_input, size_output, y_output;
+    double dscat, dabso, tval;
+    const std::string name("slab-transmission");
+    
+    width = 300;       // Transverse width of the slab. Typically = 300.
+    thick = 100;       // Thickness of the slab. Typically = 100.
+    size_input  = 150;  // Diameter of the input beam. Typically: 150.
+    size_output = 150;  // Diameter of the target (output beam). Typically: 20.
+    y_output = 0;      // Position of the output beam. Typically: 0.
+    
+    SquareMesh mesh;
+    mesh.addRectangle(0, thick, -width/2, width/2, BND_OPEN);
+    
+    mesh.setBoundaryDisk(0, 0, size_input/2, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryDisk(thick, y_output, size_output/2, DIR_EAST, BND_OUTPUT);
+    
+    mesh.fixNeighbors();
+    
+    dscat = 10.;  // Scattering thickness, L/lscat, where L is the slab thickness and lscat the scattering mean free path.
+    dabso = 0.;   // Absorption thickness, L/labso, where L is the slab thickness and labso the ballistic absorption length.
+    tval = 0.8;   // Transmission probability. Tmax=0.3 for size_input=160, size_output=20, dscat=5, dabso=0.
     
     return UsadelSystem(name, mesh, dscat/thick, dabso/thick, tval);
 }
@@ -974,28 +1004,27 @@ UsadelSystem createFiniteSlabRemission2() {
  */
 UsadelSystem createFiniteSlabRemission3() {
     
-    int width, thick, size_input, size_output, separation, y_input;
+    int width, thick, winput, woutput, ysep;
     double dscat, dabso, tval;
     const std::string name("finite-slab-remission-3");
     
-    width = 300;       // Transverse width of the slab.
-    thick = 100;       // Thickness of the slab.
-    size_input = 30;   // Diameter of the input beam.
-    size_output = 30;  // Diameter of the target (output beam).
-    separation = 60;   // Distance between the input and otput beams.
-    y_input = (size_output + separation)/2;  // Position of the input beam ensuring that the distance with respect to the upper and lower edges are equal.
+    width = 300;        // Transverse width of the slab.
+    thick = 100;        // Thickness of the slab.
+    winput = width/8;   // Diameter of the input beam.
+    woutput = width/8;  // Diameter of the target (output beam).
+    ysep = width/3;     // Distance between the input and otput beams.
     
     SquareMesh mesh;
-    mesh.addRectangle(-thick/2, thick/2, -width/2, width/2, BND_OPEN);
+    mesh.addRectangle(0, thick, -width/2, width/2, BND_OPEN);
     
-    mesh.setBoundaryDisk(-thick/2, y_input, size_input/2, DIR_WEST, BND_INPUT);
-    mesh.setBoundaryDisk(-thick/2, y_input - size_input/2 - separation - size_output/2, size_output/2, DIR_WEST, BND_OUTPUT);
+    mesh.setBoundaryDisk(0, -ysep/2,  winput/2, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryDisk(0, +ysep/2, woutput/2, DIR_WEST, BND_OUTPUT);
     
     mesh.fixNeighbors();
     
-    dscat = 5.;   // Scattering thickness, L/lscat, where L is the slab thickness and lscat the scattering mean free path.
+    dscat = 10.;   // Scattering thickness, L/lscat, where L is the slab thickness and lscat the scattering mean free path.
     dabso = 0.;   // Absorption thickness, L/labso, where L is the slab thickness and labso the ballistic absorption length.
-    tval = 0.15;  // Transmission probability.
+    tval = 0.10;  // Transmission probability.
     
     return UsadelSystem(name, mesh, dscat/thick, dabso/thick, tval);
 }
@@ -1081,10 +1110,8 @@ void computeFields(UsadelSystem& usys) {
     
     usys.initConstant();                                 // Initialize the UsadelSystem using the currently best ansatz (constants).
     usys.solveNewton(maxit, nsub, toldf, tolr, verbose);  // Solve the Usadel equation using the Newton-Raphson method.
-    usys.setTransmission(0.31);
-    usys.solveNewton(maxit, nsub, toldf, tolr, verbose);
-    usys.setTransmission(0.32);
-    usys.solveNewton(maxit, nsub, toldf, tolr, verbose);
+    //usys.setTransmission(0.99);
+    //usys.solveNewton(maxit, nsub, toldf, tolr, verbose);
     
     // Save the data and plot:
     std::stringstream path;
@@ -1140,9 +1167,9 @@ void computeDistributionSerial(UsadelSystem& usys) {
     int ntval, maxit, nsub, verbose, niter;
     double tmin, tmax, tval, rho, toldf, tolr;
     
-    ntval = 64;    // Number of samples for the transmission eigenvalue. Typically: 32 for quick plots (see alos the OPenMP version), 256 for final renders.
-    tmin = 0.001;  // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    tmax = 0.1;    // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    ntval = 64;   // Number of samples for the transmission eigenvalue. Typically: 32 for quick plots (see alos the OPenMP version), 256 for final renders.
+    tmin = 0.01;  // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    tmax = 1.;    // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
     
     maxit = 30;   // Maximum number of iterations. Typically: 50-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
@@ -1287,7 +1314,7 @@ int main(int argc, char** argv) {
     
     std::cout << "****** This is " << PROGRAM_COPYRIGHT << " ******\n";
     
-    //UsadelSystem usys = createWaveguide();
+    UsadelSystem usys = createWaveguide();
     //UsadelSystem usys = createAsymmetricWaveguide1();
     //UsadelSystem usys = createAsymmetricWaveguide2();
     //UsadelSystem usys = createWaveguideOpenSides1();
@@ -1317,16 +1344,17 @@ int main(int argc, char** argv) {
     //UsadelSystem usys = createFiniteSlabTransmission1();
     //UsadelSystem usys = createFiniteSlabTransmission2();
     //UsadelSystem usys = createFiniteSlabTransmission3();
+    //UsadelSystem usys = createSlabTransmission();
     //UsadelSystem usys = createFiniteSlabRemission1();
     //UsadelSystem usys = createFiniteSlabRemission2();
-    UsadelSystem usys = createFiniteSlabRemission3();
+    //UsadelSystem usys = createFiniteSlabRemission3();
     //UsadelSystem usys = createFiniteSlabDoubleRemission();
     
     //plotMesh(usys);  // Plot the mesh only to check it is as expected.
     
-    //computeFields(usys); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
+    computeFields(usys); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
     
-    computeDistributionSerial(usys); // Compute the transmission eigenvalue distribution rho(T) by scanning in T.
+    //computeDistributionSerial(usys); // Compute the transmission eigenvalue distribution rho(T) by scanning in T.
     //computeDistributionOMP(usys); // Compute the transmission eigenvalue distribution rho(T). Parallelized version.
     
     return 0;

@@ -49,9 +49,9 @@ UsadelSystem::UsadelSystem(const std::string& name, SquareMesh& mesh, const doub
 UsadelSystem::UsadelSystem(const std::string& name, const int length, const int width, const double dscat, const double dabso, const double tval) {
     //std::cout << TAG_INFO << "Creating UsadelSystem (waveguide template).\n";
     mesh = new SquareMesh();
-    mesh->addRectangle(-length/2, length/2, -width/2, width/2, BND_MIRROR);
-    mesh->setBoundaryRectangle(-length/2, -length/2, -width/2, width/2, DIR_WEST, BND_INPUT);
-    mesh->setBoundaryRectangle( length/2,  length/2, -width/2, width/2, DIR_EAST, BND_OUTPUT);
+    mesh->addRectangle(0, length, 0, width, BND_MIRROR);
+    mesh->setBoundaryRectangle(0, 0, 0, width, DIR_WEST, BND_INPUT);
+    mesh->setBoundaryRectangle(length, length, 0, width, DIR_EAST, BND_OUTPUT);
     mesh->fixNeighbors();
     
     npoint = mesh->getNPoint();
@@ -760,7 +760,7 @@ void UsadelSystem::saveField(const std::string& filename, const char* sep, const
  * This method also checks if the given path already exists. If directories are missing, then create them.
  * If target files already exist, then increase the counter until unique filenames are found.
  */
-void UsadelSystem::savePlot(const std::string& path) {
+void UsadelSystem::savePlot(const std::string& path) const {
     
     std::string filename_field; // Target filename.
     
@@ -769,7 +769,7 @@ void UsadelSystem::savePlot(const std::string& path) {
     std::cout << TAG_INFO << "Saving fields to file: '" << filename_field << "'...\n";
     saveField(filename_field, ", ", 16);
     
-    std::string cmd("plot/plot_map.py I_a " + filename_field);
+    std::string cmd("plot/plot_map.py lin I_a " + filename_field);
     std::cout << TAG_EXEC << cmd << "\n";
     if (std::system(cmd.c_str())) {
         std::cout << TAG_WARN << "The plot script returned an error.\n";
