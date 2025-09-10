@@ -201,6 +201,42 @@ UsadelSystem createWaveguideAbsorbers2() {
 /**
  * Create a double waveguide with a minute asymmetry.
  */
+UsadelSystem createDoubleWaveguide0() {
+    
+    const std::string name("double-waveguide-0");
+    
+    const int tlength = 200;          // Number of lattice points in the longitudinal direction, L/h. Default: length=150
+    const int twidth  = 200;          // Number of lattice points in the transverse direction, W/h. Default: width=150
+    const int xwidth  = tlength/5;    // Width of the corridors near input/output.
+    const int ywidth  = twidth/5;     // Width of the corridors of the two waveguides (before the yshift).
+    const int yshift  = twidth/50;    // Transverse shift.
+    
+    const double dscat = 10.;  // Scattering depth, L/lscat.
+    const double dabso = 0.;   // Absorption depth, L/labso.
+    
+    // Construct the mesh:
+    SquareMesh mesh;
+    mesh.addRectangle(0, tlength, 0, twidth, BND_MIRROR);
+    mesh.removeRectangle(xwidth, tlength-xwidth, ywidth+yshift, twidth-ywidth+yshift);
+    
+    // Setup boundary conditions:
+    mesh.setBoundaryRectangle(0, 0, 0, twidth, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRectangle(tlength, tlength, 0, twidth, DIR_EAST, BND_OUTPUT);
+    //mesh.setBoundaryRectangle(xwidth-1, xwidth-1, ywidth+yshift, twidth-ywidth+yshift, DIR_EAST, BND_OPEN);
+    
+    mesh.fixNeighbors();
+    
+    // Defines the physical parameters:
+    const double holscat = dscat/tlength;
+    const double holabso = dabso/tlength;
+    const double tval = 0.98;
+    
+    return UsadelSystem(name, mesh, holscat, holabso, tval);
+}
+
+/**
+ * Create a double waveguide with a minute asymmetry.
+ */
 UsadelSystem createDoubleWaveguide1() {
     
     double holscat, holabso, tval;
@@ -1108,9 +1144,10 @@ void computeFields(UsadelSystem& usys) {
     
     std::cout << TAG_INFO << "Computing fields from UsadelSystem with name=" << usys.getName() << ", Npoint=" << usys.getNPoint() << ", h/lscat=" << usys.getHolscat() << ", h/labso=" << usys.getHolabso() << ", Tval=" << usys.getTransmission() << ", maxit=" << maxit << ".\n";
     
+    //usys.setTransmission(0.7);
     usys.initConstant();                                 // Initialize the UsadelSystem using the currently best ansatz (constants).
     usys.solveNewton(maxit, nsub, toldf, tolr, verbose);  // Solve the Usadel equation using the Newton-Raphson method.
-    //usys.setTransmission(0.99);
+    //usys.setTransmission(0.75);
     //usys.solveNewton(maxit, nsub, toldf, tolr, verbose);
     
     // Save the data and plot:
@@ -1168,8 +1205,8 @@ void computeDistributionSerial(UsadelSystem& usys) {
     double tmin, tmax, tval, rho, toldf, tolr;
     
     ntval = 64;   // Number of samples for the transmission eigenvalue. Typically: 32 for quick plots (see alos the OPenMP version), 256 for final renders.
-    tmin = 0.01;  // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    tmax = 1.;    // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    tmin = 0.2;   // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    tmax = 0.9;   // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
     
     maxit = 30;   // Maximum number of iterations. Typically: 50-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
@@ -1241,9 +1278,9 @@ void computeDistributionOMP(UsadelSystem& usys) {
     int i, ntval, maxit, nsub, verbose, niter, nthread;
     double tmin, tmax, tval, rho, toldf, tolr;
     
-    ntval = 20;    // Number of samples for the transmission eigenvalue. Typically: 32 for quick plots, 256 for final renders (see the serial version).
+    ntval = 40;    // Number of samples for the transmission eigenvalue. Typically: 32 for quick plots, 256 for final renders (see the serial version).
     tmin = 0.001;  // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    tmax = 0.1;   // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    tmax = 1.;     // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
     nthread = 10;  // Number of execution threads for OpenMP (typically the number of CPU cores).
     
     maxit = 30;   // Maximum number of iterations. Typically: 50-500.
@@ -1314,13 +1351,14 @@ int main(int argc, char** argv) {
     
     std::cout << "****** This is " << PROGRAM_COPYRIGHT << " ******\n";
     
-    UsadelSystem usys = createWaveguide();
+    //UsadelSystem usys = createWaveguide();
     //UsadelSystem usys = createAsymmetricWaveguide1();
     //UsadelSystem usys = createAsymmetricWaveguide2();
     //UsadelSystem usys = createWaveguideOpenSides1();
     //UsadelSystem usys = createWaveguideOpenSides2();
     //UsadelSystem usys = createWaveguideAbsorbers1();
     //UsadelSystem usys = createWaveguideAbsorbers2();
+    UsadelSystem usys = createDoubleWaveguide0();
     //UsadelSystem usys = createDoubleWaveguide1();
     //UsadelSystem usys = createDoubleWaveguide2();
     //UsadelSystem usys = createDoubleWaveguide3();
