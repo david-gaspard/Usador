@@ -9,7 +9,6 @@ plot/__pycache__/
 usador
 *.test
 *.pdf
-*.png
 *.jpg
 *.tiff
 *.gif
