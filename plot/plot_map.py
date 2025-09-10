@@ -134,7 +134,7 @@ def plot_map(args):
     #mplt.show()
     
     ## Find the bounds (vmin, vmax) of the charted function:
-    if (column_name in ["I_a", "I_b", "C_ab"] and mode != "log"):
+    if (column_name in ["Ia", "Ib", "Cab"] and mode != "log"):
         vmin_actual = matrix.min()
         if (vmin_actual > 0):
             vmin = 0  ## For positive definite quantities, the minimum value should be zero.
@@ -146,8 +146,8 @@ def plot_map(args):
     
     vmax = matrix.max()
     
-    vmin = 0.001678981499315146 ## Override the pair vmin/vmax with the values from the wave simulations (see Waffle).
-    vmax = 6.101014078518311
+    #vmin = 0.001678981499315146 ## Override the pair vmin/vmax with the values from the wave simulations (see Waffle).
+    #vmax = 6.101014078518311
     
     norm = mcol.Normalize(vmin=vmin, vmax=vmax)
     image = cmap(norm(matrix)) ## Create the bitmap image.

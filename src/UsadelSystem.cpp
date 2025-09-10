@@ -677,12 +677,12 @@ void UsadelSystem::saveMesh(const std::string& filename, const char* sep) const 
 /**
  * Save the present field to a file of given "filename" using the string "sep" as a separator and printing "prec" decimals.
  * 
- * Columns of the output file are: x, y, north, south, east, west, theta_re, theta_im, eta_re, eta_im, q11_re, q11_im, q12_re, q12_im, q21_re, q21_im, I_a, I_b, C_ab
+ * Columns of the output file are: x, y, north, south, east, west, thetare, thetaim, etare, etaim, q11re, q11im, q12re, q12im, q21re, q21im, Ia, Ib, Cab
  * - Columns (x, y) are the coordinates of the points in the mesh.
  * - Columns (north, south, east, west) contains the indices of the neighbors if any. Otherwise, it contains the type of boundary condition for plotting.
- * - Columns (theta_re, theta_im, eta_re, eta_im) are the real and imaginary parts of the standard angular parameters (theta, eta).
- * - Columns (q11_re, q11_im, q12_re, q12_im, q21_re, q21_im) are the real and imaginary parts of the components of the Q field.
- * - Columns (I_a, I_b, C_ab) are the normalized intensity profiles deduced from Re(Q_12), Re(Q_21), and Im(Q_11), respectively.
+ * - Columns (thetare, thetaim, etare, etaim) are the real and imaginary parts of the standard angular parameters (theta, eta).
+ * - Columns (q11re, q11im, q12re, q12im, q21re, q21im) are the real and imaginary parts of the components of the Q field.
+ * - Columns (Ia, Ib, Cab) are the normalized intensity profiles deduced from Re(Q_12), Re(Q_21), and Im(Q_11), respectively.
  *   Theses intensity profiles are normalized such that the incident intensities in the input and output channels are equal to 1.
  *   This fixes the absolute normalization of the intensity profiles and allow for comparison with simulations based on the wave equation.
  * 
@@ -724,9 +724,9 @@ void UsadelSystem::saveField(const std::string& filename, const char* sep, const
     ofs << "%% Parameters: name=" << name << ", Npoint=" << npoint << ", h/lscat=" << holscat << ", h/labso=" << holabso 
         << ", Na=" << Na << ", Nb=" << Nb << ", Tval=" << tval << ", rho=" << rho << "\n"
         << "x" << sep << "y" << sep << "north" << sep << "south" << sep << "east" << sep << "west" << sep 
-        << "theta_re" << sep << "theta_im" << sep << "eta_re" << sep << "eta_im" << sep 
-        << "q11_re" << sep << "q11_im" << sep << "q12_re" << sep << "q12_im" << sep << "q21_re" << sep << "q21_im" << sep 
-        << "I_a" << sep << "I_b" << sep << "C_ab\n";
+        << "thetare" << sep << "thetaim" << sep << "etare" << sep << "etaim" << sep 
+        << "q11re" << sep << "q11im" << sep << "q12re" << sep << "q12im" << sep << "q21re" << sep << "q21im" << sep 
+        << "Ia" << sep << "Ib" << sep << "Cab\n";
     
     for (int ipoint = 0; ipoint < npoint; ipoint++) {// Loop over the points of the mesh.
         
@@ -769,7 +769,7 @@ void UsadelSystem::savePlot(const std::string& path) const {
     std::cout << TAG_INFO << "Saving fields to file: '" << filename_field << "'...\n";
     saveField(filename_field, ", ", 16);
     
-    std::string cmd("plot/plot_map.py lin I_a " + filename_field);
+    std::string cmd("plot/plot_map.py lin Ia " + filename_field);
     std::cout << TAG_EXEC << cmd << "\n";
     if (std::system(cmd.c_str())) {
         std::cout << TAG_WARN << "The plot script returned an error.\n";

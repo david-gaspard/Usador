@@ -164,7 +164,7 @@ int testSolve() {
     mesh.setBoundaryRectangle(-30, -30, -15, 15, DIR_WEST, BND_INPUT);
     mesh.setBoundaryRectangle( 30,  30, -15, 15, DIR_EAST, BND_OUTPUT);
     
-    mesh.fixNeighbors();
+    mesh.finalize();
     
     // Parameters:
     tval = 0.5; // Transmission probability.

@@ -25,7 +25,7 @@ int testMeshBasic() {
     mesh.setBoundaryRectangle( 10,  10, -5, 5, DIR_EAST, BND_OUTPUT);
     
     // Fix the nearest neighbors to finalize. This operation is mandatory:
-    mesh.fixNeighbors();
+    mesh.finalize();
     
     // Save the mesh to a file for checking:
     const std::string filename_short = "out/test/test_mesh_short.csv";
@@ -51,7 +51,7 @@ int testMeshPolygon1() {
     mesh.addPolygon(polygon, BND_MIRROR);
     
     // Fix the nearest neighbors to finalize. This operation is mandatory:
-    mesh.fixNeighbors();
+    mesh.finalize();
     
     // Save the mesh to a file for checking:
     const std::string filename = "out/test/test_mesh_polygon_1.csv";
@@ -79,7 +79,7 @@ int testMeshPolygon2() {
     mesh.addPolygon(polygon, BND_MIRROR);
     
     // Fix the nearest neighbors to finalize. This operation is mandatory:
-    mesh.fixNeighbors();
+    mesh.finalize();
     
     // Save the mesh to a file for checking:
     const std::string filename = "out/test/test_mesh_polygon_2.csv";
@@ -102,7 +102,7 @@ int testMeshPolygon3() {
     mesh.addPolygon("shape/eiffel-tower.csv", scale, BND_MIRROR);
     
     // Fix the nearest neighbors to finalize. This operation is mandatory:
-    mesh.fixNeighbors();
+    mesh.finalize();
     
     // Save the mesh to a file for checking:
     const std::string filename = "out/test/test_mesh_polygon_3.csv";

@@ -1199,15 +1199,18 @@ void plotDistribution(const UsadelSystem& usys, const double* rhodata, const int
  * Compute the transmission eigenvalue distribution by solving the Usadel equation for different values of the transmission eigenvalue "tval".
  * The results are saved into a CSV file and plotted automatically by calling external scripts.
  * This serial version can be useful when many simulations fail because each iteration uses the previous solution as a first ansatz.
+ * 
+ * Arguments:
+ * 
+ * usys    = Usadel system on which the simulations will be performed.
+ * tmin    = Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+ * tmax    = Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+ * ntval   = Number of samples for the transmission eigenvalue. Typically: 32 for quick plots, 256 for final renders (see the serial version).
  */
-void computeDistributionSerial(UsadelSystem& usys) {
+void computeDistributionSerial(UsadelSystem& usys, const double tmin, const double tmax, int ntval) {
     
-    int ntval, maxit, nsub, verbose, niter;
-    double tmin, tmax, tval, rho, toldf, tolr;
-    
-    ntval = 64;    // Number of samples for the transmission eigenvalue. Typically: 32 for quick plots (see alos the OPenMP version), 256 for final renders.
-    tmin = 0.01;   // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    tmax = 0.68;   // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    int maxit, nsub, verbose, niter;
+    double tval, rho, toldf, tolr;
     
     maxit = 30;   // Maximum number of iterations. Typically: 50-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
@@ -1277,21 +1280,16 @@ void computeDistributionSerial(UsadelSystem& usys) {
  * Arguments:
  * 
  * usys    = Usadel system on which the simulations will be performed.
- * tmin    = 
- * tmax    = 
- * ntval   = 
- * nthread = 
+ * tmin    = Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+ * tmax    = Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+ * ntval   = Number of samples for the transmission eigenvalue. Typically: 32 for quick plots, 256 for final renders (see the serial version).
+ * nthread = Number of execution threads for OpenMP (typically the number of CPU cores).
  * 
  */
 void computeDistributionOMP(UsadelSystem& usys, const double tmin, const double tmax, const int ntval, const int nthread) {
     
-    int i, ntval, maxit, nsub, verbose, niter, nthread;
-    double tmin, tmax, tval, rho, toldf, tolr;
-    
-    ntval = 40;    // Number of samples for the transmission eigenvalue. Typically: 32 for quick plots, 256 for final renders (see the serial version).
-    tmin = 0.001;  // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    tmax = 1.;     // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    nthread = 10;  // Number of execution threads for OpenMP (typically the number of CPU cores).
+    int i, maxit, nsub, verbose, niter;
+    double tval, rho, toldf, tolr;
     
     maxit = 30;   // Maximum number of iterations. Typically: 50-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
@@ -1398,25 +1396,38 @@ int main(int argc, char** argv) {
     //UsadelSystem usys = createFiniteSlabRemission3();
     //UsadelSystem usys = createFiniteSlabDoubleRemission();
     
+    double tmin, tmax, dscat, dabso, holscat, holabso;
+    int ntval, nthread;
+    
+    // Constructs the mesh from a PNG file:
     //SquareMesh mesh("model/waveguide_102x100.png");
     SquareMesh mesh("model/slab-transmission-1_101x299.png");
     
-    const double dscat = 10.;  // Scattering depth, L/lscat. Default: dscat=8.6 (in order to get approximately dscat_eff=10).
-    const double dabso = 0.;   // Absorption depth, L/labso.
+    dscat = 10.;  // Scattering depth, L/lscat. Default: dscat=8.6 (in order to get approximately dscat_eff=10).
+    dabso = 0.;   // Absorption depth, L/labso.
     
     const std::string sysname = "slab-transmission-1_101x299/dscat_" + to_string_prec(dscat, 6);
     
-    const double holscat = dscat/100.;
-    const double holabso = dabso/100.;
+    holscat = dscat/100.;
+    holabso = dabso/100.;
     
     UsadelSystem usys(sysname, mesh, holscat, holabso, 0.5);
     
     //plotMesh(usys);  // Plot the mesh only to check it is as expected.
-    
     //computeFields(usys); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
     
-    computeDistributionSerial(usys); // Compute the transmission eigenvalue distribution rho(T) by scanning in T.
-    //computeDistributionOMP(usys); // Compute the transmission eigenvalue distribution rho(T). Parallelized version.
+    tmin = 0.01;   // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    tmax = 0.66;   // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    ntval = 64;    // Number of samples for the transmission eigenvalue. Typically: 64.
+    
+    computeDistributionSerial(usys, tmin, tmax, ntval); // Compute the transmission eigenvalue distribution rho(T) by scanning in T.
+    
+    //tmin = 0.;    // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    //tmax = 1.;    // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    //ntval = 40;   // Number of samples for the transmission eigenvalue. Typically: 4*nthread for quick plots.
+    //nthread = 10; // Number of execution threads for OpenMP (typically the number of CPU cores).
+    
+    //computeDistributionOMP(usys, tmin, tmax, ntval, nthread); // Compute the transmission eigenvalue distribution rho(T). Parallelized version.
     
     return 0;
 }
