@@ -5,16 +5,56 @@
  * @file C++ code providing a two-dimensional square mesh object.
  ***/
 #include "SquareMesh.hpp"
+#include "Image.hpp"
 #include "BaseTools.hpp"
-#include <iostream>
 #include <cmath>
+#include <algorithm>
+#include <iostream>
 
 /**
  * Constructor of the Square Mesh object.
  */
 SquareMesh::SquareMesh() {
-    //std::cout << TAG_INFO << "Creating SquareMesh.\n";
+    std::cout << TAG_INFO << "Creating SquareMesh... ";
     ready = false;
+    start_build = std::chrono::steady_clock::now(); // Measure time from SquareMesh creation (for information only).
+}
+
+/**
+ * Constructor of the SquareMesh object from a PNG file.
+ * The lower left corner of the image determines the position (0,0) of the mesh.
+ * Pixel colors are interpreted as follows:
+ * - White: Vacuum, no point is added to the mesh.
+ * - Black: Add a mesh point.
+ * - Green: Indicate an open boundary condition (neither input, nor output).
+ * - Red: Indicate an input boundary condition.
+ * - Blue: Indicate an output boundary condition.
+ * Mirror boundary conditions (Dirichlet, psi=0) are used by default.
+ */
+SquareMesh::SquareMesh(const std::string& pngfile) {
+    std::cout << TAG_INFO << "Creating SquareMesh from file '" << pngfile << "'... ";
+    ready = false;
+    start_build = std::chrono::steady_clock::now(); // Measure time from SquareMesh creation (for information only).
+    const Image img(pngfile); // Load the PNG image.
+    const int h = img.getHeight(), w = img.getWidth();
+    MeshPoint p;
+    
+    // Add the mesh points in column-major order:
+    for (int j = 0; j < w; j++) {// Loop over the columns of the image from left to right.
+        for (int i = 0; i < h; i++) {// Loop over the pixels of the j^th column from up to down.
+            if (img(i, j) == COLOR_BLACK) {// If the pixel is black, then add a mesh point.
+                p.x = j;
+                p.y = h - 1 - i;
+                if (i > 0)   p.north = boundaryTypeFromColor(img(i-1, j  ));
+                if (i < h-1) p.south = boundaryTypeFromColor(img(i+1, j  ));
+                if (j < w-1) p.east  = boundaryTypeFromColor(img(i  , j+1));
+                if (j > 0)   p.west  = boundaryTypeFromColor(img(i  , j-1));
+                point.push_back(p);  // Not necessary to use addPoint() here because it is a constructor (there was no point before in the mesh).
+            }
+        }
+    }
+    
+    finalize(); // Finalize the SquareMesh (fix neighbors + compute openings).
 }
 
 /**
@@ -25,22 +65,28 @@ SquareMesh::~SquareMesh() {
 }
 
 /**
+ * Check the ready status of the present SquareMesh object and stops the program if not ready.
+ * This is a safety measure to avoid accessing data from a partially initialized SquareMesh object.
+ */
+void SquareMesh::checkReady(const std::string& name) const {
+    if (not ready) {
+        throw std::logic_error("In " + name + ": SquareMesh is not completely initialized. Please use finalize().");
+    }
+}
+
+/**
  * Return the point at position "i" in the mesh.
  */
-MeshPoint SquareMesh::getPoint(const int i) const {
-    if (not ready) {
-        throw std::logic_error("In getPoint(): SquareMesh is not completely initialized. Please use fixNeighbors().");
-    }
+MeshPoint SquareMesh::getPoint(const uint i) const {
+    checkReady("getPoint()");
     return point.at(i);  // vector objects already make bound checking.
 }
 
 /**
  * Returns the number of points in the mesh.
  */
-int SquareMesh::getNPoint() const {
-    if (not ready) {
-        throw std::logic_error("In getNPoint(): SquareMesh is not completely initialized. Please use fixNeighbors().");
-    }
+uint SquareMesh::getNPoint() const {
+    checkReady("getNPoint()");
     return point.size();
 }
 
@@ -49,14 +95,13 @@ int SquareMesh::getNPoint() const {
  * This method can be used for instance to determine the number of input/output channels in order to compute
  * the intensity profile of transmission eigenchannels (see: saveIntensities()).
  */
-int SquareMesh::getNBoundary(const int bndtype) const {
-    if (not ready) {
-        throw std::logic_error("In getNBoundary(): SquareMesh is not completely initialized. Please use fixNeighbors().");
-    }
+uint SquareMesh::getNBoundary(const int bndtype) const {
     
-    int nbnd = 0;
+    checkReady("getNBoundary()");
     
-    for (MeshPoint p : point) {// Loop on the points, looking for boundary conditions.
+    uint nbnd = 0;
+    
+    for (const MeshPoint& p : point) {// Loop on the points, looking for boundary conditions.
         nbnd += (p.north == bndtype) + (p.south == bndtype) + (p.east == bndtype) + (p.west == bndtype);
     }
     
@@ -68,14 +113,11 @@ int SquareMesh::getNBoundary(const int bndtype) const {
  * If the point does not exist, then return BND_DEFAULT (a negative value).
  */
 int SquareMesh::indexOf(const int x, const int y) const {
-    MeshPoint p;
-    for (unsigned int i = 0; i < point.size(); i++) {
-        p = point.at(i);
-        if (p.x == x && p.y == y){
-            return i;
-        }
+    auto ptr = std::lower_bound(point.begin(), point.end(), MeshPoint(x, y, BND_MIRROR), comparePoints);
+    if (ptr == point.end() || ptr->x != x || ptr->y != y) {// If the point does not exist, then returns -1.
+        return -1;
     }
-    return -1;
+    return std::distance(point.begin(), ptr);
 }
 
 /**
@@ -89,9 +131,11 @@ bool SquareMesh::containsPoint(const int x, const int y) const {
  * Add a single point to the mesh only if it is not already contained in the mesh.
  */
 void SquareMesh::addPoint(const int x, const int y, const int bndtype) {
-    if (not containsPoint(x, y)) {
-        ready = false;  // If the mesh is changed, then the neighbors must be recomputed.
-        point.push_back(MeshPoint(x, y, bndtype)); // Add point with default neighboring value.
+    MeshPoint p(x, y, bndtype);
+    auto ptr = std::lower_bound(point.begin(), point.end(), p, comparePoints);
+    if (ptr == point.end() || ptr->x != x || ptr->y != y) {// If the point does not exist, then inserts it.
+        point.insert(ptr, p);  // This is unfortunately O(N) but can be mitigated if we insert already in the correct order.
+        ready = false;
     }
 }
 
@@ -103,8 +147,8 @@ void SquareMesh::addRectangle(int xmin, int xmax, int ymin, int ymax, const int 
     if (xmin > xmax) std::swap(xmin, xmax);
     if (ymin > ymax) std::swap(ymin, ymax);
     
-    for (int y = ymax; y >= ymin; y--) {// Loop on the square lattice in reading order.
-        for (int x = xmin; x <= xmax; x++) {
+    for (int x = xmin; x <= xmax; x++) {// Loop on the square lattice in reading order.
+        for (int y = ymax; y >= ymin; y--) {
             addPoint(x, y, bndtype);
         }
     }
@@ -120,8 +164,8 @@ void SquareMesh::addDisk(int x0, int y0, double radius, const int bndtype) {
     int ymax = (int)  std::ceil(y0 + radius);
     int r2 = (int) std::ceil(radius*radius);
     int dx, dy;
-    for (int y = ymax; y >= ymin; y--) {// Loop on the square lattice in reading order.
-        for (int x = xmin; x <= xmax; x++) {
+    for (int x = xmin; x <= xmax; x++) {// Loop on the square lattice in reading order.
+        for (int y = ymax; y >= ymin; y--) {
             dx = x - x0;
             dy = y - y0;
             if (dx*dx + dy*dy <= r2) {
@@ -142,8 +186,8 @@ void SquareMesh::addPolygon(const std::vector<Vector2D>& polygon, const int bndt
     
     // 2. Loop on points in the rectangular region:
     Vector2D p;
-    for (int y = ymax; y >= ymin; y--) {// Loop on the square lattice in reading order.
-        for (int x = xmin; x <= xmax; x++) {
+    for (int x = xmin; x <= xmax; x++) {// Loop on the square lattice in reading order.
+        for (int y = ymax; y >= ymin; y--) {
             p = Vector2D(x, y);   // Current point that we attempt to add to the mesh.
             if (p.windingNumber(polygon) % 2 != 0) {// Uses the even-odd rule to fill the polygon (fill if the winding number is odd).
                 addPoint(x, y, bndtype);
@@ -164,7 +208,7 @@ void SquareMesh::addPolygon(const char* filename, const double scale, const int 
     size_t sz;
     
     if (ifs.fail()) {// Check if the file is opened.
-        std::string info = "In addPolygonFromFile(): Cannot open file '" + std::string(filename) + "'.";
+        std::string info = "In addPolygon(): Cannot open file '" + std::string(filename) + "'.";
         throw std::runtime_error(info);
     }
     
@@ -175,7 +219,7 @@ void SquareMesh::addPolygon(const char* filename, const double scale, const int 
             polygon.push_back(Vector2D(x, y));
         }
         catch (const std::invalid_argument& exc) {
-            std::cerr << TAG_WARN << "In addPolygonFromFile(): Argument is not a number, skipping line (what = '" 
+            std::cerr << TAG_WARN << "In addPolygon(): Argument is not a number, skipping line (what = '" 
                       << exc.what() << "').\n";
         }
     }
@@ -206,8 +250,8 @@ void SquareMesh::removeRectangle(int xmin, int xmax, int ymin, int ymax) {
     if (xmin > xmax) std::swap(xmin, xmax);
     if (ymin > ymax) std::swap(ymin, ymax);
     
-    for (int y = ymax; y >= ymin; y--) {// Loop on the square lattice in reading order.
-        for (int x = xmin; x <= xmax; x++) {
+    for (int x = xmin; x <= xmax; x++) {// Loop on the square lattice in reading order.
+        for (int y = ymax; y >= ymin; y--) {
             removePoint(x, y);
         }
     }
@@ -223,8 +267,8 @@ void SquareMesh::removeDisk(const int x0, const int y0, const double radius) {
     int ymax = (int)  std::ceil(y0 + radius);
     int r2 = (int) std::ceil(radius*radius);
     int dx, dy;
-    for (int y = ymax; y >= ymin; y--) {// Loop on the square lattice in reading order.
-        for (int x = xmin; x <= xmax; x++) {
+    for (int x = xmin; x <= xmax; x++) {// Loop on the square lattice in reading order.
+        for (int y = ymax; y >= ymin; y--) {
             dx = x - x0;
             dy = y - y0;
             if (dx*dx + dy*dy <= r2) {
@@ -244,8 +288,8 @@ void SquareMesh::removeHalfDisk(const int x0, const int y0, const double radius)
     int ymax = (int)  std::ceil(y0 + radius);
     int r2 = (int) std::ceil(radius*radius);
     int dx, dy;
-    for (int y = ymax; y >= ymin; y--) {// Loop on the square lattice in reading order.
-        for (int x = xmin; x <= xmax; x++) {
+    for (int x = xmin; x <= xmax; x++) {// Loop on the square lattice in reading order.
+        for (int y = ymax; y >= ymin; y--) {
             dx = x - x0;
             dy = y - y0;
             if (dx*dx + dy*dy <= r2) {
@@ -266,8 +310,8 @@ void SquareMesh::removePolygon(const std::vector<Vector2D>& polygon) {
     
     // 2. Loop on points in the rectangular region:
     Vector2D p;
-    for (int y = ymax; y >= ymin; y--) {// Loop on the square lattice in reading order.
-        for (int x = xmin; x <= xmax; x++) {
+    for (int x = xmin; x <= xmax; x++) {// Loop on the square lattice in reading order.
+        for (int y = ymax; y >= ymin; y--) {
             p = Vector2D(x, y);   // Current point that we attempt to add to the mesh.
             if (p.windingNumber(polygon) % 2 != 0) {// Uses the even-odd rule to remove the polygon.
                 removePoint(x, y);
@@ -298,8 +342,8 @@ void SquareMesh::setBoundaryRectangle(int xmin, int xmax, int ymin, int ymax, co
     if (xmin > xmax) std::swap(xmin, xmax);
     if (ymin > ymax) std::swap(ymin, ymax);
     
-    for (int y = ymax; y >= ymin; y--) {// Loop on the square lattice in reading order.
-        for (int x = xmin; x <= xmax; x++) {
+    for (int x = xmin; x <= xmax; x++) {// Loop on the square lattice in reading order.
+        for (int y = ymax; y >= ymin; y--) {
             setBoundaryPoint(x, y, dir, bndtype);
         }
     }
@@ -315,8 +359,8 @@ void SquareMesh::setBoundaryDisk(const int x0, const int y0, const double radius
     int ymax = (int)  std::ceil(y0 + radius);
     int r2 = (int) std::ceil(radius*radius);
     int dx, dy;
-    for (int y = ymax; y >= ymin; y--) {// Loop on the square lattice in reading order.
-        for (int x = xmin; x <= xmax; x++) {
+    for (int x = xmin; x <= xmax; x++) {// Loop on the square lattice in reading order.
+        for (int y = ymax; y >= ymin; y--) {
             dx = x - x0;
             dy = y - y0;
             if (dx*dx + dy*dy <= r2) {
@@ -324,6 +368,16 @@ void SquareMesh::setBoundaryDisk(const int x0, const int y0, const double radius
             }
         }
     }
+}
+
+/**
+ * Sort the points of the mesh in reading order, i.e., from up to down, from left to right.
+ * The purpose of this method is to make the identification of ports easier [see also: computePorts()].
+ * This function is also possibly helpful to place the Hamiltonian matrix elements as close to the diagonal as possible, and
+ * is therefore advantageous when inverting the Hamiltonian matrix.
+ */
+void SquareMesh::sortPoints() {
+    std::sort(point.begin(), point.end(), comparePoints);
 }
 
 /**
@@ -342,7 +396,21 @@ void SquareMesh::fixNeighbors() {
         if (ieast  >= 0) p.east  = ieast;
         if (iwest  >= 0) p.west  = iwest;
     }
-    ready = true; // The SquareMesh gets ready for computations.
+}
+
+/**
+ * Finalize the mesh by sorting the points, fixing the neighbors, and computing the ports.
+ * This method must be called after the mesh construction methods add*(), remove*(), and setBoundary*().
+ */
+void SquareMesh::finalize() {
+    if (not ready) {// Only finalize one time.
+        
+        fixNeighbors(); // Fix the neighbors, O(N*log(N)).
+        ready = true; // The SquareMesh gets ready for computations.
+        
+        double ctime_build = std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now() - start_build).count();
+        std::cout << "Done in " << ctime_build << " s.\n";
+    }
 }
 
 /**
@@ -357,9 +425,7 @@ void SquareMesh::printSummary() const {
  */
 void SquareMesh::saveMesh(const std::string& filename, const char* sep) const {
     
-    if (not ready) {
-        throw std::logic_error("In saveMesh(): SquareMesh is not completely initialized. Please use fixNeighbors().");
-    }
+    checkReady("saveMesh()");
     
     std::ofstream ofs;
     ofs.open(filename.c_str());
@@ -369,7 +435,7 @@ void SquareMesh::saveMesh(const std::string& filename, const char* sep) const {
     ofs << "%% SquareMesh with Npoint=" << point.size() << ".\n"
         << "x" << sep << "y" << sep << "north" << sep << "south" << sep << "east" << sep << "west\n";
     
-    for (MeshPoint p : point) {
+    for (const MeshPoint& p : point) {
         ofs << p.x << sep << p.y << sep << boundaryTypeString(p.north) << sep 
                                         << boundaryTypeString(p.south) << sep 
                                         << boundaryTypeString(p.east) << sep 
@@ -385,9 +451,7 @@ void SquareMesh::saveMesh(const std::string& filename, const char* sep) const {
  */
 void SquareMesh::saveMeshShort(const std::string& filename, const char* sep) const {
     
-    if (not ready) {
-        throw std::logic_error("In saveMeshShort(): SquareMesh is not completely initialized. Please use fixNeighbors().");
-    }
+    checkReady("saveMeshShort()");
     
     std::ofstream ofs;
     ofs.open(filename.c_str());
@@ -397,7 +461,7 @@ void SquareMesh::saveMeshShort(const std::string& filename, const char* sep) con
     ofs << "%% SquareMesh with Npoint=" << point.size() << ".\n" 
         << "x" << sep << "y" << sep << "bnd\n";
     
-    for (MeshPoint p : point) {
+    for (const MeshPoint& p : point) {
         ofs << p.x << sep << p.y << sep;
         if (p.north == BND_INPUT || p.south == BND_INPUT || p.east == BND_INPUT || p.west == BND_INPUT) {
             ofs << "input";
@@ -418,4 +482,17 @@ void SquareMesh::saveMeshShort(const std::string& filename, const char* sep) con
     }
     
     ofs.close();
+}
+
+/**
+ * Plot the mesh using external plotting script.
+ * The name of the CSV file written by saveMesh() is "filename".
+ */
+void SquareMesh::plotMesh(const std::string& filename) const {
+    saveMesh(filename, ", ");
+    std::string cmd("plot/plot_mesh.py " + filename);
+    std::cout << TAG_EXEC << cmd << "\n";
+    if (std::system(cmd.c_str())) {
+        std::cout << TAG_WARN << "The plot script returned an error.\n";
+    }
 }

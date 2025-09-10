@@ -42,3 +42,27 @@ const std::string boundaryTypeString(const int bndtype) {
             return std::to_string(bndtype);
     }
 }
+
+/**
+ * Returns the boundary type from the given color.
+ */
+int boundaryTypeFromColor(const Color& color) {
+    if (color == COLOR_GREEN) {
+        return BND_OPEN;
+    }
+    else if (color == COLOR_RED) {
+         return BND_INPUT;
+    }
+    else if (color == COLOR_BLUE) {
+        return BND_OUTPUT;
+    }
+    return BND_MIRROR; // Default return.
+}
+
+/**
+ * Comparator function used to sort the points in column-major ordering, i.e., from up to down, then left to right.
+ * This function returns "true" when "p1" is located before "p2" according to the column-major order.
+ */
+bool comparePoints(const MeshPoint& p1, const MeshPoint& p2) {
+    return p1.x < p2.x || (p1.x == p2.x && p1.y > p2.y);
+}

@@ -46,7 +46,7 @@ UsadelSystem createAsymmetricWaveguide1() {
     mesh.setBoundaryRectangle( 30,  30, -15, 15, DIR_EAST, BND_OUTPUT);
     mesh.setBoundaryRectangle(-10, 10, 15, 15, DIR_NORTH, BND_OPEN);
     
-    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    mesh.finalize();  // Do not forget to fix the neighbors to finalize the mesh.
     
     holscat = 5./60; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.0;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -73,7 +73,7 @@ UsadelSystem createAsymmetricWaveguide2() {
     mesh.setBoundaryRectangle(-22, 22, 30, 40, DIR_EAST,  BND_OPEN);
     mesh.setBoundaryRectangle(-22, 22, 30, 40, DIR_WEST,  BND_OPEN);
     
-    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    mesh.finalize();  // Do not forget to fix the neighbors to finalize the mesh.
     
     holscat = 5./60; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.0;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -98,7 +98,7 @@ UsadelSystem createWaveguideOpenSides1() {
     mesh.setBoundaryRectangle(-10, 10, +15, +15, DIR_NORTH, BND_OPEN);
     mesh.setBoundaryRectangle(-10, 10, -15, -15, DIR_SOUTH, BND_OPEN);
     
-    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    mesh.finalize();  // Do not forget to fix the neighbors to finalize the mesh.
     
     holscat = 5./60; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.0;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -124,7 +124,7 @@ UsadelSystem createWaveguideOpenSides2() {
     mesh.setBoundaryRectangle(-5,  5, -50, -50, DIR_SOUTH, BND_OPEN);
     mesh.setBoundaryRectangle( 55,  65,  50,  50, DIR_NORTH, BND_OPEN);
     
-    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    mesh.finalize();  // Do not forget to fix the neighbors to finalize the mesh.
     
     holscat = 5./60; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.0;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -155,7 +155,7 @@ UsadelSystem createWaveguideAbsorbers1() {
     mesh.setBoundaryRectangle(-10, 10, +15, +15, DIR_NORTH, BND_OPEN);
     mesh.setBoundaryRectangle(-10, 10, -15, -15, DIR_SOUTH, BND_OPEN);
     
-    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    mesh.finalize();  // Do not forget to fix the neighbors to finalize the mesh.
     
     holscat = 5./200; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.0;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -189,7 +189,7 @@ UsadelSystem createWaveguideAbsorbers2() {
     mesh.setBoundaryRectangle(-10, 10, +15, +15, DIR_NORTH, BND_OPEN);
     mesh.setBoundaryRectangle(-10, 10, -15, -15, DIR_SOUTH, BND_OPEN);
     
-    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    mesh.finalize();  // Do not forget to fix the neighbors to finalize the mesh.
     
     holscat = 5./60; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.0;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -224,7 +224,7 @@ UsadelSystem createDoubleWaveguide0() {
     mesh.setBoundaryRectangle(tlength, tlength, 0, twidth, DIR_EAST, BND_OUTPUT);
     //mesh.setBoundaryRectangle(xwidth-1, xwidth-1, ywidth+yshift, twidth-ywidth+yshift, DIR_EAST, BND_OPEN);
     
-    mesh.fixNeighbors();
+    mesh.finalize();
     
     // Defines the physical parameters:
     const double holscat = dscat/tlength;
@@ -250,7 +250,7 @@ UsadelSystem createDoubleWaveguide1() {
     mesh.setBoundaryRectangle(-100, -100, -50, 50, DIR_WEST, BND_INPUT);
     mesh.setBoundaryRectangle( 100,  100, -50, 50, DIR_EAST, BND_OUTPUT);
     
-    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    mesh.finalize();  // Do not forget to fix the neighbors to finalize the mesh.
     
     holscat = 5./200;  // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.2/200; // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -276,7 +276,7 @@ UsadelSystem createDoubleWaveguide2() {
     mesh.setBoundaryRectangle(-100, -100, -50, 50, DIR_WEST, BND_INPUT);
     mesh.setBoundaryRectangle( 100,  100, -50, 50, DIR_EAST, BND_OUTPUT);
     
-    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    mesh.finalize();  // Do not forget to fix the neighbors to finalize the mesh.
     
     holscat = 5./60; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.0;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -307,7 +307,7 @@ UsadelSystem createDoubleWaveguide3() {
     mesh.addRectangle(85, 110, -20, 20, BND_MIRROR);
     mesh.setBoundaryRectangle( 110,  110, -50, 50, DIR_EAST, BND_OUTPUT);
     
-    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    mesh.finalize();  // Do not forget to fix the neighbors to finalize the mesh.
     
     holscat = 5./60; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.0;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -335,7 +335,7 @@ UsadelSystem createDoubleWaveguide4() {
     mesh.setBoundaryRectangle(-100, -100, -50, 50, DIR_WEST, BND_INPUT);
     mesh.setBoundaryRectangle( 100,  100, -50, 50, DIR_EAST, BND_OUTPUT);
     
-    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    mesh.finalize();  // Do not forget to fix the neighbors to finalize the mesh.
     
     holscat = 5./200; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.;    // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -364,7 +364,7 @@ UsadelSystem createDoubleWaveguide5() {
     mesh.setBoundaryRectangle(-100, -100, -50, 50, DIR_WEST, BND_INPUT);
     mesh.setBoundaryRectangle( 100,  100, -50, 50, DIR_EAST, BND_OUTPUT);
     
-    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    mesh.finalize();  // Do not forget to fix the neighbors to finalize the mesh.
     
     holscat = 5./200; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.;    // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -390,7 +390,7 @@ UsadelSystem createDoubleWaveguide6() {
     mesh.setBoundaryRectangle(-100, -100, -50, 50, DIR_WEST, BND_INPUT);
     mesh.setBoundaryRectangle( 100,  100, -50, 50, DIR_EAST, BND_OUTPUT);
     
-    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    mesh.finalize();  // Do not forget to fix the neighbors to finalize the mesh.
     
     holscat = 5./200; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.;    // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -419,7 +419,7 @@ UsadelSystem createDoubleWaveguide7() {
     mesh.setBoundaryRectangle(-100, -100, -50, 50, DIR_WEST, BND_INPUT);
     mesh.setBoundaryRectangle( 100,  100, -50, 50, DIR_EAST, BND_OUTPUT);
     
-    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    mesh.finalize();  // Do not forget to fix the neighbors to finalize the mesh.
     
     holscat = 5./200; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.;    // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -453,7 +453,7 @@ UsadelSystem createDoubleWaveguide8() {
     mesh.setBoundaryRectangle(-100, -100, -70, 70, DIR_WEST, BND_INPUT);
     mesh.setBoundaryRectangle( 100,  100, -70, 70, DIR_EAST, BND_OUTPUT);
     
-    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    mesh.finalize();  // Do not forget to fix the neighbors to finalize the mesh.
     
     holscat = 5./200; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.;    // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -495,7 +495,7 @@ UsadelSystem createDoubleWaveguide9() {
     mesh.setBoundaryRectangle(-110, -110, -50, 50, DIR_WEST, BND_INPUT);
     mesh.setBoundaryRectangle( 110,  110, -50, 50, DIR_EAST, BND_OUTPUT);
     
-    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    mesh.finalize();  // Do not forget to fix the neighbors to finalize the mesh.
     
     holscat = 5./200; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.;    // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -532,7 +532,7 @@ UsadelSystem createDoubleWaveguide10() {
     mesh.setBoundaryRectangle(-110, -110, 50, 110, DIR_WEST, BND_INPUT);
     mesh.setBoundaryRectangle( 110,  110, 50, 110, DIR_EAST, BND_OUTPUT);
     
-    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    mesh.finalize();  // Do not forget to fix the neighbors to finalize the mesh.
     
     holscat = 5./200; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.;    // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -569,7 +569,7 @@ UsadelSystem createDoubleWaveguide11() {
     mesh.setBoundaryRectangle(-110, -110, -70, 70, DIR_WEST, BND_INPUT);
     mesh.setBoundaryRectangle( 110,  110, -70, 70, DIR_EAST, BND_OUTPUT);
     
-    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    mesh.finalize();  // Do not forget to fix the neighbors to finalize the mesh.
     
     holscat = 0.025; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.;    // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -607,7 +607,7 @@ UsadelSystem createDoubleWaveguide12() {
     mesh.setBoundaryRectangle(-110, -110, -70, 70, DIR_WEST, BND_INPUT);
     mesh.setBoundaryRectangle( 110,  110, -70, 70, DIR_EAST, BND_OUTPUT);
     
-    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    mesh.finalize();  // Do not forget to fix the neighbors to finalize the mesh.
     
     holscat = 0.1; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.;  // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -639,7 +639,7 @@ UsadelSystem createWaveguideObstacle1() {
     //mesh.setBoundaryRectangle( 100,  100, -50, 50, DIR_EAST, BND_OUTPUT);
     mesh.setBoundaryRectangle( 100,  100, 11, 22, DIR_EAST, BND_OUTPUT);
     
-    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    mesh.finalize();  // Do not forget to fix the neighbors to finalize the mesh.
     
     holscat = 5./200; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.0;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -678,7 +678,7 @@ UsadelSystem createCircularDoubleWaveguide1() {
     mesh.setBoundaryRectangle(-100, -100, -30, 30, DIR_WEST, BND_INPUT);
     mesh.setBoundaryRectangle( 100,  100, -30, 30, DIR_EAST, BND_OUTPUT);
     
-    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    mesh.finalize();  // Do not forget to fix the neighbors to finalize the mesh.
     
     holscat = 5./200; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.0;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -706,7 +706,7 @@ UsadelSystem createCircularOpposite() {
     mesh.setBoundaryRectangle(-110, -110, 5, 65, DIR_WEST, BND_OPEN);
     mesh.setBoundaryRectangle(-110, -110, -65, -5, DIR_WEST, BND_OUTPUT);
     
-    mesh.fixNeighbors();  // Do not forget to fix the neighbors to finalize the mesh.
+    mesh.finalize();  // Do not forget to fix the neighbors to finalize the mesh.
     
     holscat = 5./200; // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.0;   // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -733,7 +733,7 @@ UsadelSystem createCircularCavity() {
     mesh.setBoundaryRectangle(-15, 15, 52, 52, DIR_NORTH, BND_OUTPUT);
     mesh.setBoundaryRectangle(52, 52, -15, 15, DIR_EAST, BND_OPEN);
     
-    mesh.fixNeighbors();
+    mesh.finalize();
     
     holscat = 0.1;  // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.0;  // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -760,7 +760,7 @@ UsadelSystem createCircularCavityBig() {
     mesh.setBoundaryRectangle(-30, 30, 105, 105, DIR_NORTH, BND_OUTPUT);
     mesh.setBoundaryRectangle(105, 105, -30, 30, DIR_EAST, BND_OPEN);
     
-    mesh.fixNeighbors();
+    mesh.finalize();
     
     holscat = 0.1;  // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.0;  // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -790,7 +790,7 @@ UsadelSystem createCircularCavityHole() {
     mesh.setBoundaryRectangle(-30, 30, 105, 105, DIR_NORTH, BND_OUTPUT);
     mesh.setBoundaryRectangle(105, 105, -30, 30, DIR_EAST, BND_OPEN);
     
-    mesh.fixNeighbors();
+    mesh.finalize();
     
     holscat = 0.1;  // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.0;  // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -818,7 +818,7 @@ UsadelSystem createCircularCavityAlt() {
     mesh.setBoundaryRectangle(-80, -50, 50, 80, DIR_NORTH, BND_OPEN);
     mesh.setBoundaryRectangle(-80, -50, 50, 80, DIR_WEST, BND_OPEN);
     
-    mesh.fixNeighbors();
+    mesh.finalize();
     
     holscat = 0.1;  // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.0;  // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -844,7 +844,7 @@ UsadelSystem createEiffelTower() {
     mesh.setBoundaryRectangle(20, 52, 0, 1, DIR_SOUTH, BND_INPUT);
     mesh.setBoundaryRectangle(0, 10, 195, 205, DIR_EAST, BND_OUTPUT);
     
-    mesh.fixNeighbors();
+    mesh.finalize();
     
     holscat = 0.1;  // Value of h/lscat, where "h" is the lattice step and "lscat" the scattering mean free path.
     holabso = 0.0;  // Value of h/labso, where "h" is the lattice step and "labso" the absorption length.
@@ -874,7 +874,7 @@ UsadelSystem createFiniteSlabTransmission1() {
     mesh.setBoundaryDisk(0, 0, size_input/2, DIR_WEST, BND_INPUT);
     mesh.setBoundaryDisk(thick, y_output, size_output/2, DIR_EAST, BND_OUTPUT);
     
-    mesh.fixNeighbors();
+    mesh.finalize();
     
     dscat = 10.;  // Scattering thickness, L/lscat, where L is the slab thickness and lscat the scattering mean free path.
     dabso = 0.;   // Absorption thickness, L/labso, where L is the slab thickness and labso the ballistic absorption length.
@@ -904,7 +904,7 @@ UsadelSystem createFiniteSlabTransmission2() {
     mesh.setBoundaryDisk(-thick/2, 0, size_input/2, DIR_WEST, BND_INPUT);
     mesh.setBoundaryDisk(thick/2, y_output, size_output/2, DIR_EAST, BND_OUTPUT);
     
-    mesh.fixNeighbors();
+    mesh.finalize();
     
     dscat = 5.;   // Scattering thickness, L/lscat, where L is the slab thickness and lscat the scattering mean free path.
     dabso = 0.;   // Absorption thickness, L/labso, where L is the slab thickness and labso the ballistic absorption length.
@@ -934,7 +934,7 @@ UsadelSystem createFiniteSlabTransmission3() {
     mesh.setBoundaryDisk(-thick/2, 0, size_input/2, DIR_WEST, BND_INPUT);
     mesh.setBoundaryDisk(thick/2, y_output, size_output/2, DIR_EAST, BND_OUTPUT);
     
-    mesh.fixNeighbors();
+    mesh.finalize();
     
     dscat = 5.;   // Scattering thickness, L/lscat, where L is the slab thickness and lscat the scattering mean free path.
     dabso = 0.;   // Absorption thickness, L/labso, where L is the slab thickness and labso the ballistic absorption length.
@@ -964,7 +964,7 @@ UsadelSystem createSlabTransmission() {
     mesh.setBoundaryDisk(0, 0, size_input/2, DIR_WEST, BND_INPUT);
     mesh.setBoundaryDisk(thick, y_output, size_output/2, DIR_EAST, BND_OUTPUT);
     
-    mesh.fixNeighbors();
+    mesh.finalize();
     
     dscat = 10.;  // Scattering thickness, L/lscat, where L is the slab thickness and lscat the scattering mean free path.
     dabso = 0.;   // Absorption thickness, L/labso, where L is the slab thickness and labso the ballistic absorption length.
@@ -995,7 +995,7 @@ UsadelSystem createFiniteSlabRemission1() {
     mesh.setBoundaryDisk(-thick/2, y_input, size_input/2, DIR_WEST, BND_INPUT);
     mesh.setBoundaryDisk(-thick/2, y_input - size_input/2 - separation - size_output/2, size_output/2, DIR_WEST, BND_OUTPUT);
     
-    mesh.fixNeighbors();
+    mesh.finalize();
     
     dscat = 5.;   // Scattering thickness, L/lscat, where L is the slab thickness and lscat the scattering mean free path.
     dabso = 0.;   // Absorption thickness, L/labso, where L is the slab thickness and labso the ballistic absorption length.
@@ -1026,7 +1026,7 @@ UsadelSystem createFiniteSlabRemission2() {
     mesh.setBoundaryDisk(-thick/2, y_input, size_input/2, DIR_WEST, BND_INPUT);
     mesh.setBoundaryDisk(-thick/2, y_input - size_input/2 - separation - size_output/2, size_output/2, DIR_WEST, BND_OUTPUT);
     
-    mesh.fixNeighbors();
+    mesh.finalize();
     
     dscat = 5.;   // Scattering thickness, L/lscat, where L is the slab thickness and lscat the scattering mean free path.
     dabso = 0.;   // Absorption thickness, L/labso, where L is the slab thickness and labso the ballistic absorption length.
@@ -1056,7 +1056,7 @@ UsadelSystem createFiniteSlabRemission3() {
     mesh.setBoundaryDisk(0, -ysep/2,  winput/2, DIR_WEST, BND_INPUT);
     mesh.setBoundaryDisk(0, +ysep/2, woutput/2, DIR_WEST, BND_OUTPUT);
     
-    mesh.fixNeighbors();
+    mesh.finalize();
     
     dscat = 10.;   // Scattering thickness, L/lscat, where L is the slab thickness and lscat the scattering mean free path.
     dabso = 0.;   // Absorption thickness, L/labso, where L is the slab thickness and labso the ballistic absorption length.
@@ -1088,7 +1088,7 @@ UsadelSystem createFiniteSlabDoubleRemission() {
     mesh.setBoundaryDisk(-thick/2, -y_input, size_input/2, DIR_WEST, BND_INPUT);
     mesh.setBoundaryDisk(-thick/2, 0, size_output/2, DIR_WEST, BND_OUTPUT);
     
-    mesh.fixNeighbors();
+    mesh.finalize();
     
     dscat = 5.;   // Scattering thickness, L/lscat, where L is the slab thickness and lscat the scattering mean free path.
     dabso = 0.;   // Absorption thickness, L/labso, where L is the slab thickness and labso the ballistic absorption length.
@@ -1152,20 +1152,21 @@ void computeFields(UsadelSystem& usys) {
     
     // Save the data and plot:
     std::stringstream path;
-    path << "out/" << usys.getName() << "/holabso_" << usys.getHolabso() << "/tval_" << usys.getTransmission() << "/result_";
+    path << "out/" << usys.getName() << "/tval_" << usys.getTransmission() << "/field_";
     usys.savePlot(path.str());
 }
 
 /**
  * Save the distribution rho(T) to a file and then call an external script to plot it.
  */
-void plotDistribution(const UsadelSystem& usys, const double* rhodata, const int ntval, const double tmin, const double tmax, const int maxit, const double elapsed_time) {
+void plotDistribution(const UsadelSystem& usys, const double* rhodata, const int ntval, 
+                      const double tmin, const double tmax, const int maxit, const double elapsed_time) {
     
     const char* sep = ", ";  // Separator used in the output file.
     const int prec = 16;     // Precision used in the output file.
     
     std::stringstream path;
-    path << "out/" << usys.getName() << "/holabso_" << usys.getHolabso() << "/distrib/result_";
+    path << "out/" << usys.getName() << "/distrib/distrib_";
     std::string filename_distrib;
     uniqueFilename(path.str(), ".csv", filename_distrib);  // Create a unique filename. The result is of the form "<path><number><suffix>".
     
@@ -1177,7 +1178,7 @@ void plotDistribution(const UsadelSystem& usys, const double* rhodata, const int
     writeTimestamp(ofs, "%% "); // Apply a timestamp at the beginning.
     
     ofs << "%% Parameters: name=" << usys.getName() << ", Npoint=" << usys.getNPoint() << ", h/lscat=" << usys.getHolscat() 
-        << ", h/labso=" << usys.getHolabso() << ", Trange=" << tmin << ":" << tmax << ", NT=" << ntval << ", maxit=" << maxit 
+        << ", h/labso=" << usys.getHolabso() << ", Trange=" << tmin << ":" << tmax << ", Ntval=" << ntval << ", maxit=" << maxit 
         << ", computation_time=" << elapsed_time << "s.\n"
         << "tval" << sep << "rho" << sep << "niter" << sep << "converged\n";
     
@@ -1204,9 +1205,9 @@ void computeDistributionSerial(UsadelSystem& usys) {
     int ntval, maxit, nsub, verbose, niter;
     double tmin, tmax, tval, rho, toldf, tolr;
     
-    ntval = 64;   // Number of samples for the transmission eigenvalue. Typically: 32 for quick plots (see alos the OPenMP version), 256 for final renders.
-    tmin = 0.2;   // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    tmax = 0.9;   // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    ntval = 64;    // Number of samples for the transmission eigenvalue. Typically: 32 for quick plots (see alos the OPenMP version), 256 for final renders.
+    tmin = 0.01;   // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    tmax = 0.68;   // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
     
     maxit = 30;   // Maximum number of iterations. Typically: 50-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
@@ -1214,7 +1215,7 @@ void computeDistributionSerial(UsadelSystem& usys) {
     tolr = 1e-10; // Tolerance over the norm of the residual compared to the norm of the initial residual. Typically: 1e-10.
     verbose = 0;  // Verbosity level of the Newton-Raphson solver. 0=No output, 1=Display each iteration.
     
-    std::cout << TAG_INFO << "Computing rho(T) from UsadelSystem with name=" << usys.getName() << ", Npoint=" << usys.getNPoint() << ", h/lscat=" << usys.getHolscat() << ", h/labso=" << usys.getHolabso() << ", NT=" << ntval << ", Trange=" << tmin << ":" << tmax << ", maxit=" << maxit << ".\n";
+    std::cout << TAG_INFO << "Computing rho(T) from UsadelSystem with name=" << usys.getName() << ", Npoint=" << usys.getNPoint() << ", h/lscat=" << usys.getHolscat() << ", h/labso=" << usys.getHolabso() << ", Ntval=" << ntval << ", Trange=" << tmin << ":" << tmax << ", maxit=" << maxit << ".\n";
     
     const std::string msg = "distrib, serial";
     int cjob = 0;  // Initialize the number of completed jobs.
@@ -1264,7 +1265,7 @@ void computeDistributionSerial(UsadelSystem& usys) {
     
     // Save the last field (with Tmax) and plot it:
     std::stringstream path;
-    path << "out/" << usys_prev.getName() << "/holabso_" << usys_prev.getHolabso() << "/tval_" << usys_prev.getTransmission() << "/result_";
+    path << "out/" << usys_prev.getName() << "/tval_" << usys_prev.getTransmission() << "/field_";
     usys_prev.savePlot(path.str());
 }
 
@@ -1272,8 +1273,17 @@ void computeDistributionSerial(UsadelSystem& usys) {
  * Compute the transmission eigenvalue distribution by solving the Usadel equation for different values of the transmission eigenvalue "tval".
  * The results are saved into a CSV file and plotted automatically by calling external scripts.
  * This is a parallelized version using OpenMP.
+ * 
+ * Arguments:
+ * 
+ * usys    = Usadel system on which the simulations will be performed.
+ * tmin    = 
+ * tmax    = 
+ * ntval   = 
+ * nthread = 
+ * 
  */
-void computeDistributionOMP(UsadelSystem& usys) {
+void computeDistributionOMP(UsadelSystem& usys, const double tmin, const double tmax, const int ntval, const int nthread) {
     
     int i, ntval, maxit, nsub, verbose, niter, nthread;
     double tmin, tmax, tval, rho, toldf, tolr;
@@ -1290,7 +1300,7 @@ void computeDistributionOMP(UsadelSystem& usys) {
     verbose = 0;  // Verbosity level in standard output. 0=No output, 1=Display each iteration.
     
     std::cout << TAG_INFO << "Computing rho(T) from UsadelSystem with name=" << usys.getName() << ", Npoint=" << usys.getNPoint() 
-              << ", h/lscat=" << usys.getHolscat() << ", h/labso=" << usys.getHolabso() << ", NT=" << ntval << ", Trange=" << tmin << ":" << tmax 
+              << ", h/lscat=" << usys.getHolscat() << ", h/labso=" << usys.getHolabso() << ", Ntval=" << ntval << ", Trange=" << tmin << ":" << tmax 
               << ", maxit=" << maxit << ", nthread=" << nthread << ".\n";
     
     const std::string msg = "distrib, " + std::to_string(nthread) + " thr";
@@ -1358,7 +1368,7 @@ int main(int argc, char** argv) {
     //UsadelSystem usys = createWaveguideOpenSides2();
     //UsadelSystem usys = createWaveguideAbsorbers1();
     //UsadelSystem usys = createWaveguideAbsorbers2();
-    UsadelSystem usys = createDoubleWaveguide0();
+    //UsadelSystem usys = createDoubleWaveguide0();
     //UsadelSystem usys = createDoubleWaveguide1();
     //UsadelSystem usys = createDoubleWaveguide2();
     //UsadelSystem usys = createDoubleWaveguide3();
@@ -1388,11 +1398,24 @@ int main(int argc, char** argv) {
     //UsadelSystem usys = createFiniteSlabRemission3();
     //UsadelSystem usys = createFiniteSlabDoubleRemission();
     
+    //SquareMesh mesh("model/waveguide_102x100.png");
+    SquareMesh mesh("model/slab-transmission-1_101x299.png");
+    
+    const double dscat = 10.;  // Scattering depth, L/lscat. Default: dscat=8.6 (in order to get approximately dscat_eff=10).
+    const double dabso = 0.;   // Absorption depth, L/labso.
+    
+    const std::string sysname = "slab-transmission-1_101x299/dscat_" + to_string_prec(dscat, 6);
+    
+    const double holscat = dscat/100.;
+    const double holabso = dabso/100.;
+    
+    UsadelSystem usys(sysname, mesh, holscat, holabso, 0.5);
+    
     //plotMesh(usys);  // Plot the mesh only to check it is as expected.
     
-    computeFields(usys); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
+    //computeFields(usys); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
     
-    //computeDistributionSerial(usys); // Compute the transmission eigenvalue distribution rho(T) by scanning in T.
+    computeDistributionSerial(usys); // Compute the transmission eigenvalue distribution rho(T) by scanning in T.
     //computeDistributionOMP(usys); // Compute the transmission eigenvalue distribution rho(T). Parallelized version.
     
     return 0;

@@ -3,16 +3,17 @@
 ##########################
 ## BUILD MAIN PROGRAM
 ##########################
+PROGNAME = usador
 SRCLIST = $(shell find src/ -name "*.cpp" ! -name "Main.cpp")
 BINLIST = $(SRCLIST:src/%.cpp=bin/%.o)
 
 CC=g++
 CFLAGS=-W -Wall -Wextra -std=c++17 -Isrc -Jbin -fopenmp -O2
-LIBS=-lumfpack
+LIBS=-lumfpack -lpng
 
-all: directories usador
+all: directories $(PROGNAME)
 
-usador: $(BINLIST) src/Main.cpp
+$(PROGNAME): $(BINLIST) src/Main.cpp
 	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
 
 bin/%.o: src/%.cpp 
@@ -36,6 +37,6 @@ test: directories $(TESTEXELIST)
 ## CLEAN ALL BUILDS AND TESTS
 ##################################
 clean:
-	rm -rfv usador bin/*.o $(TESTEXELIST)
+	rm -rfv $(PROGNAME) bin/*.o $(TESTEXELIST)
 
 ###### END OF FILE ######

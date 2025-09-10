@@ -14,7 +14,8 @@ static const int BAR_LENGTH = 50;    // Length of the progress bar in number of 
 
 void writeTimestamp(std::ofstream& ofs, const char* prefix);
 void uniqueFilename(const std::string& path, const std::string& suffix, std::string& unique_filename);
-void printProgressBar(const int cjob, const int njob, const std::string& msg, const std::chrono::steady_clock::time_point& start);
+void printProgressBar(const int64_t cjob, const int64_t njob, const std::string& msg, const std::chrono::steady_clock::time_point& start);
 double endProgressBar(const std::chrono::steady_clock::time_point& start);
+std::string to_string_prec(const double value, const int prec);
 
 #endif

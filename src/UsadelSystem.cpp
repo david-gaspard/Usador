@@ -52,7 +52,7 @@ UsadelSystem::UsadelSystem(const std::string& name, const int length, const int 
     mesh->addRectangle(0, length, 0, width, BND_MIRROR);
     mesh->setBoundaryRectangle(0, 0, 0, width, DIR_WEST, BND_INPUT);
     mesh->setBoundaryRectangle(length, length, 0, width, DIR_EAST, BND_OUTPUT);
-    mesh->fixNeighbors();
+    mesh->finalize();
     
     npoint = mesh->getNPoint();
     field = new ComplexVector(2*npoint);

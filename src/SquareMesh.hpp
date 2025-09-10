@@ -9,6 +9,7 @@
 #include "Constants.hpp"
 #include "MeshPoint.hpp"
 #include "Vector2D.hpp"
+#include <chrono>
 
 /**
  * Enumeration specifying the four possible directions on a square lattice (plus the omni-directional element):
@@ -24,17 +25,19 @@ class SquareMesh {
     
     std::vector<MeshPoint> point; // List of positions of points. The points must be integers (belong to the Cartesian lattice). They also contain neighbor indices.
     bool ready;  // True when the SquareMesh is ready for computations. False, otherwise. This boolean becomes True after fixNeighbors() is called.
+    std::chrono::time_point<std::chrono::steady_clock> start_build; // Time point at which the square mesh is built.
     
     public:
     
     // Constructors/Destructors:
     SquareMesh();
+    SquareMesh(const std::string& pngfile);
     ~SquareMesh();
     
     // Getters:
-    MeshPoint getPoint(const int i) const;
-    int getNPoint() const;
-    int getNBoundary(const int bndtype) const;
+    MeshPoint getPoint(const uint i) const;
+    uint getNPoint() const;
+    uint getNBoundary(const int bndtype) const;
     
     // Determine the index of a given point:
     int indexOf(const int x, const int y) const;
@@ -60,12 +63,20 @@ class SquareMesh {
     void setBoundaryDisk(const int x0, const int y0, const double radius, const Direction dir, const int bndtype);
     
     // Finalize the mesh:
-    void fixNeighbors();
+    void finalize();
     
     // Output methods:
     void printSummary() const;
     void saveMesh(const std::string& filename, const char* sep) const;
     void saveMeshShort(const std::string& filename, const char* sep) const;
+    void plotMesh(const std::string& filename) const;
+    
+    // Private computational methods:
+    private:
+    
+    void checkReady(const std::string& name) const;
+    void sortPoints();
+    void fixNeighbors();
     
 };
 

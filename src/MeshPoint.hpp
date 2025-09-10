@@ -7,6 +7,7 @@
 #ifndef _MESHPOINT_H
 #define _MESHPOINT_H
 #include <string>
+#include "Color.hpp"
 
 // Constants attached to the MeshPoint:
 static const int BND_MIRROR  = -1;  // Index of neighboring points used for mirror boundary conditions (zero current condition).
@@ -33,5 +34,7 @@ struct MeshPoint {
 };
 
 const std::string boundaryTypeString(const int bndtype);
+int boundaryTypeFromColor(const Color& color);
+bool comparePoints(const MeshPoint& p1, const MeshPoint& p2);
 
 #endif
