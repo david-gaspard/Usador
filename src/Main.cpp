@@ -1166,7 +1166,7 @@ void plotDistribution(const UsadelSystem& usys, const double* rhodata, const int
     const int prec = 16;     // Precision used in the output file.
     
     std::stringstream path;
-    path << "out/" << usys.getName() << "/distrib/distrib_";
+    path << "out/" << usys.getName() << "/tspectrum/tspectrum_";
     std::string filename_distrib;
     uniqueFilename(path.str(), ".csv", filename_distrib);  // Create a unique filename. The result is of the form "<path><number><suffix>".
     
@@ -1408,25 +1408,23 @@ int main(int argc, char** argv) {
     
     const std::string sysname = "slab-transmission-1_101x299/dscat_" + to_string_prec(dscat, 6);
     
-    holscat = dscat/100.;
-    holabso = dabso/100.;
+    holscat = dscat/99.;
+    holabso = dabso/99.;
     
-    UsadelSystem usys(sysname, mesh, holscat, holabso, 0.5);
+    UsadelSystem usys(sysname, mesh, holscat, holabso, 0.64);
     
     //plotMesh(usys);  // Plot the mesh only to check it is as expected.
-    //computeFields(usys); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
+    computeFields(usys); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
     
-    tmin = 0.01;   // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    tmax = 0.66;   // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    ntval = 64;    // Number of samples for the transmission eigenvalue. Typically: 64.
-    
-    computeDistributionSerial(usys, tmin, tmax, ntval); // Compute the transmission eigenvalue distribution rho(T) by scanning in T.
+    //tmin = 0.10;   // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    //tmax = 0.001;   // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    //ntval = 32;    // Number of samples for the transmission eigenvalue. Typically: 64.
+    //computeDistributionSerial(usys, tmin, tmax, ntval); // Compute the transmission eigenvalue distribution rho(T) by scanning in T.
     
     //tmin = 0.;    // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
     //tmax = 1.;    // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
     //ntval = 40;   // Number of samples for the transmission eigenvalue. Typically: 4*nthread for quick plots.
     //nthread = 10; // Number of execution threads for OpenMP (typically the number of CPU cores).
-    
     //computeDistributionOMP(usys, tmin, tmax, ntval, nthread); // Compute the transmission eigenvalue distribution rho(T). Parallelized version.
     
     return 0;

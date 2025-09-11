@@ -3,7 +3,7 @@
 ## Created on 2025-07-22 at 10:18:17 CEST by David Gaspard (ORCID 0000-0002-4449-8782) <david.gaspard@espci.fr> under the MIT License.
 ## Python script to plot the transmission eigenvalue distribution.
 import sys, os, datetime
-import compile_tikz
+import compile_tikz as ct
 
 def plot_distrib(args):
     """
@@ -11,22 +11,27 @@ def plot_distrib(args):
     """
     ## Check if the number of arguments is correct:
     if (len(args) != 2):
-        print(compile_tikz.TAG_ERROR + "No input file, doing nothing...")
-        print(compile_tikz.TAG_USAGE + args[0] + " DISTRIB_FILE")
+        print(ct.TAG_ERROR + "No input file, doing nothing...")
+        print(ct.TAG_USAGE + args[0] + " DISTRIB_FILE")
         return 1
     
     distrib_file = args[1]
     file_path = os.path.splitext(distrib_file)[0]  ## The file path is the filename without its extension (used to write new files). 
     
+    ## Import the header with essential information on the simulation:
+    with open(distrib_file, 'r') as fp:
+        data_header = ct.get_header(fp, '%')
+    
     tikz_code = """%% Generated on {timestamp} by {my_program} {my_copyright}
+{data_header}
 \\begin{{tikzpicture}}%
 \\pgfmathsetmacro\\tavg{{0.239}}%% Average transmission, Tavg ~ 1/[1 + (2/pi) * (L/lscat)]
 \\begin{{axis}}[%
-    title={{\\detokenize{{{distrib_file}}}}},
+    title={{{title}}},
     xlabel={{{xlabel}}},
     ylabel={{{ylabel}}},
     xmin={xmin}, xmax={xmax},
-    ymin=0.02, ymax=200,
+    ymin=0.002, ymax=50,
     ymode=log,
     scatter/classes={{%%
         success={{black, mark=*, mark size=0.7}},
@@ -44,8 +49,9 @@ def plot_distrib(args):
 \\end{{tikzpicture}}%""".format(
         timestamp = datetime.datetime.now().astimezone().strftime("%F at %T %z"),
         my_program = args[0],
-        my_copyright = compile_tikz.MY_COPYRIGHT,
-        distrib_file = distrib_file,
+        my_copyright = ct.MY_COPYRIGHT,
+        data_header = data_header,
+        title = "\\textbf{Cmd:} \\detokenize{"+ " ".join(args) + "}",
         xlabel = "Transmission eigenvalue $T$",
         ylabel = "Distribution $\\rho(T)$",
         xmin   = 0,
@@ -53,10 +59,10 @@ def plot_distrib(args):
     )
     
     ## Export the TikZ code to a file and compile it:
-    tikz_file = file_path + '.tikz'
-    print(compile_tikz.TAG_INFO + "Writing TikZ file: '" + tikz_file + "'...")
+    tikz_file = file_path + ".tikz"
+    print(ct.TAG_INFO + "Writing TikZ file: '" + tikz_file + "'...")
     open(tikz_file, 'w').write(tikz_code)
-    compile_tikz.compile_tikz(tikz_file) ## Compile the TikZ file.
+    ct.compile_tikz(tikz_file) ## Compile the TikZ file.
     
     return 0
 

@@ -146,8 +146,8 @@ def plot_map(args):
     
     vmax = matrix.max()
     
-    #vmin = 0.001678981499315146 ## Override the pair vmin/vmax with the values from the wave simulations (see Waffle).
-    #vmax = 6.101014078518311
+    vmin = 0.001742055313524725 ## Override the pair vmin/vmax with the values from the wave simulations (see Waffle).
+    vmax = 5.468474928290458
     
     norm = mcol.Normalize(vmin=vmin, vmax=vmax)
     image = cmap(norm(matrix)) ## Create the bitmap image.
