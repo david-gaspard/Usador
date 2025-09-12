@@ -1400,16 +1400,16 @@ int main(int argc, char** argv) {
     int ntval, nthread;
     
     // Constructs the mesh from a PNG file:
-    //SquareMesh mesh("model/waveguide_102x100.png");
-    SquareMesh mesh("model/slab-transmission-1_101x299.png");
+    SquareMesh mesh("model/waveguide_102x100.png");
+    //SquareMesh mesh("model/slab-transmission-1_101x299.png");
     
     dscat = 10.;  // Scattering depth, L/lscat. Default: dscat=8.6 (in order to get approximately dscat_eff=10).
     dabso = 0.;   // Absorption depth, L/labso.
     
-    const std::string sysname = "slab-transmission-1_101x299/dscat_" + to_string_prec(dscat, 6);
+    const std::string sysname = "waveguide_102x100/dscat_" + to_string_prec(dscat, 6);
     
-    holscat = dscat/99.;
-    holabso = dabso/99.;
+    holscat = dscat/100.;
+    holabso = dabso/100.;
     
     UsadelSystem usys(sysname, mesh, holscat, holabso, 0.64);
     

@@ -769,7 +769,7 @@ void UsadelSystem::savePlot(const std::string& path) const {
     std::cout << TAG_INFO << "Saving fields to file: '" << filename_field << "'...\n";
     saveField(filename_field, ", ", 16);
     
-    std::string cmd("plot/plot_map.py lin Ia " + filename_field);
+    const std::string cmd = "plot/plot_map.py lin Ia " + std::to_string(holscat) + " " + filename_field;
     std::cout << TAG_EXEC << cmd << "\n";
     if (std::system(cmd.c_str())) {
         std::cout << TAG_WARN << "The plot script returned an error.\n";
