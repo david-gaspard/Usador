@@ -1144,10 +1144,10 @@ void computeFields(UsadelSystem& usys) {
     
     std::cout << TAG_INFO << "Computing fields from UsadelSystem with name=" << usys.getName() << ", Npoint=" << usys.getNPoint() << ", h/lscat=" << usys.getHolscat() << ", h/labso=" << usys.getHolabso() << ", Tval=" << usys.getTransmission() << ", maxit=" << maxit << ".\n";
     
-    //usys.setTransmission(0.7);
+    //usys.setTransmission(0.2);
     usys.initConstant();                                 // Initialize the UsadelSystem using the currently best ansatz (constants).
     usys.solveNewton(maxit, nsub, toldf, tolr, verbose);  // Solve the Usadel equation using the Newton-Raphson method.
-    //usys.setTransmission(0.75);
+    //usys.setTransmission(0.1);
     //usys.solveNewton(maxit, nsub, toldf, tolr, verbose);
     
     // Save the data and plot:
@@ -1212,11 +1212,10 @@ void computeDistributionSerial(UsadelSystem& usys, const double tmin, const doub
     int maxit, nsub, verbose, niter;
     double tval, rho, toldf, tolr;
     
-    maxit = 30;   // Maximum number of iterations. Typically: 50-500.
+    maxit = 35;   // Maximum number of iterations. Typically: 50-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
     toldf = 1e-7; // Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7.
     tolr = 1e-10; // Tolerance over the norm of the residual compared to the norm of the initial residual. Typically: 1e-10.
-    verbose = 0;  // Verbosity level of the Newton-Raphson solver. 0=No output, 1=Display each iteration.
     
     std::cout << TAG_INFO << "Computing rho(T) from UsadelSystem with name=" << usys.getName() << ", Npoint=" << usys.getNPoint() << ", h/lscat=" << usys.getHolscat() << ", h/labso=" << usys.getHolabso() << ", Ntval=" << ntval << ", Trange=" << tmin << ":" << tmax << ", maxit=" << maxit << ".\n";
     
@@ -1235,6 +1234,7 @@ void computeDistributionSerial(UsadelSystem& usys, const double tmin, const doub
         
         tval = tmin + (tmax-tmin) * (1. - std::cos((i + 0.5)*PI/ntval))/2.;  // Choose Chebyshev nodes as the transmission eigenvalues (they are denser at the edges).
         usys.setTransmission(tval);   // Assigns the transmission eigenvalue.
+        verbose = i == 0 ? 1 : 0;     // Be verbose only for the first iteration.
         niter = usys.solveNewton(maxit, nsub, toldf, tolr, verbose);  // Solve the Usadel equation using the Newton-Raphson method.
         rho = usys.getRho();  // Compute the transmission eigenvalue distribution at the given 'tval'.
         
@@ -1291,7 +1291,7 @@ void computeDistributionOMP(UsadelSystem& usys, const double tmin, const double 
     int i, maxit, nsub, verbose, niter;
     double tval, rho, toldf, tolr;
     
-    maxit = 30;   // Maximum number of iterations. Typically: 50-500.
+    maxit = 20;   // Maximum number of iterations. Typically: 50-500.
     nsub = 30;    // Maximum number of substep used for backtracking line search (should between 20 and 50 in double precision). 
     toldf = 1e-7; // Tolerance over the relative displacement imposed by the Newton-Raphson step. Typically: 1e-7.
     tolr = 1e-10; // Tolerance over the norm of the residual compared to the norm of the initial residual. Typically: 1e-10.
@@ -1400,32 +1400,60 @@ int main(int argc, char** argv) {
     int ntval, nthread;
     
     // Constructs the mesh from a PNG file:
-    SquareMesh mesh("model/waveguide_102x100.png");
+    //SquareMesh mesh("model/waveguide_102x100.png");
+    SquareMesh mesh("model/waveguide_102x100.png"); // Currently standard waveguide.
     //SquareMesh mesh("model/slab-transmission-1_101x299.png");
+    //SquareMesh mesh("model/slab-transmission-3_101x299.png");
+    //SquareMesh mesh("model/slab-transmission-3-open-obstacle_101x299.png");
+    //SquareMesh mesh("model/waveguide-square-output_152x150.png");
+    //SquareMesh mesh("model/waveguide-3-outputs_300x200.png");
+    //SquareMesh mesh("model/waveguide-3-absorbers_300x200.png");
+    //SquareMesh mesh("model/slab-transmission-2_101x299.png");
+    //SquareMesh mesh("model/slab-transmission-focus_197x587.png");
+    //SquareMesh mesh("model/slab-tm-ar5-in15_32x152.png");
+    //SquareMesh mesh("model/slab-tm-ar1-in15_92x92.png");
+    //SquareMesh mesh("model/slab-tm-ar1-in15-focus_92x92.png");
+    //SquareMesh mesh("model/slab-tm-ar3-in7-out1_102x302.png");
+    //SquareMesh mesh("model/slab-tm-ar9-in1-out1_102x902.png");
+    //SquareMesh mesh("model/slab-tm-ar3-in1-out3_152x452.png");
+    //SquareMesh mesh("model/slab-transmission-4_101x299.png");
+    //SquareMesh mesh("model/slab-tm-ar3-div15-in45-out5_152x452.png"); // Currently stnadard slab.
     
-    dscat = 10.;  // Scattering depth, L/lscat. Default: dscat=8.6 (in order to get approximately dscat_eff=10).
+    dscat = 15;  // Scattering depth, L/lscat.
     dabso = 0.;   // Absorption depth, L/labso.
     
     const std::string sysname = "waveguide_102x100/dscat_" + to_string_prec(dscat, 6);
     
-    holscat = dscat/100.;
-    holabso = dabso/100.;
+    holscat = dscat/100;
+    holabso = dabso/100;
     
-    UsadelSystem usys(sysname, mesh, holscat, holabso, 0.64);
+    //UsadelSystem usys(sysname, mesh, holscat, holabso, 0.5);
     
     //plotMesh(usys);  // Plot the mesh only to check it is as expected.
-    computeFields(usys); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
     
-    //tmin = 0.10;   // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    //tmax = 0.001;   // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    //ntval = 32;    // Number of samples for the transmission eigenvalue. Typically: 64.
+    //computeFields(usys); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
+    
+    //tmin = 0.20;  // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    //tmax = 0.30;  // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    //ntval = 64;  // Number of samples for the transmission eigenvalue. Typically: 64.
     //computeDistributionSerial(usys, tmin, tmax, ntval); // Compute the transmission eigenvalue distribution rho(T) by scanning in T.
     
-    //tmin = 0.;    // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    //tmax = 1.;    // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    //ntval = 40;   // Number of samples for the transmission eigenvalue. Typically: 4*nthread for quick plots.
+    //tmin = 0.20;    // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    //tmax = 0.30;    // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    //ntval = 100;   // Number of samples for the transmission eigenvalue. Typically: 4*nthread for quick plots.
     //nthread = 10; // Number of execution threads for OpenMP (typically the number of CPU cores).
     //computeDistributionOMP(usys, tmin, tmax, ntval, nthread); // Compute the transmission eigenvalue distribution rho(T). Parallelized version.
+    
+    // Special waveguide:
+    UsadelSystem usys1(sysname, mesh, holscat, holabso, 0.998);
+    UsadelSystem usys2(sysname, mesh, holscat, holabso, 0.50);
+    UsadelSystem usys3(sysname, mesh, holscat, holabso, 0.10);
+    UsadelSystem usys4(sysname, mesh, holscat, holabso, 0.001);
+    
+    computeFields(usys1); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
+    computeFields(usys2); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
+    computeFields(usys3); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
+    computeFields(usys4); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
     
     return 0;
 }

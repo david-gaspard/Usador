@@ -28,6 +28,7 @@ class UsadelSystem {
     dcomplex gb;      // Output contact parameter, gamma_b, given by sqrt(1/tval) + I*0^+. They must be related by ga*gb = 1/tval + I*0^+.
     
     std::string name; // String containing the name of the system (typically describing the system geometry) which is used to generate file output.
+    double solvetime;  // Computation time of the last call to solveNewton() in seconds.
     
     public:
     

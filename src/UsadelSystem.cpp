@@ -31,6 +31,7 @@ UsadelSystem::UsadelSystem(const std::string& name, SquareMesh& mesh, const doub
     this->holabso = holabso;
     setTransmission(tval);
     this->name = name;
+    solvetime = 0.;
 }
 
 /**
@@ -60,6 +61,7 @@ UsadelSystem::UsadelSystem(const std::string& name, const int length, const int 
     holabso = dabso/length;
     setTransmission(tval);
     this->name = name;
+    solvetime = 0.;
 }
 
 /**
@@ -106,6 +108,7 @@ void UsadelSystem::copy(const UsadelSystem& usys) {
     this->holscat = usys.holscat;
     this->holabso = usys.holabso;
     field[0] = usys.field[0];  // Deep copy the field.
+    solvetime = usys.solvetime;
 }
 
 /***********************************************************
@@ -605,6 +608,7 @@ void UsadelSystem::initConstant() {
  * niter   = Number of iterations used to meet the convergence criteria. If niter = maxit+1, then the iteration failed to reach convergence.
  */
 int UsadelSystem::solveNewton(const int maxit, const int nsub, const double toldf, const double tolr, const int verbose) {
+    const auto start = std::chrono::steady_clock::now(); // Gets the current time.
     
     int iter, s;    // Iteration indices.
     double fac, resnorm, resnorm0, newresnorm, fieldnorm, dfof, ror0;
@@ -658,9 +662,14 @@ int UsadelSystem::solveNewton(const int maxit, const int nsub, const double told
         }
     }
     
-    if (iter > maxit && verbose >= 1) {
-        std::cout << TAG_WARN << "#" << iter << "\t| \033[91mSolution not found\033[0m: df/f = " 
+    solvetime = std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now() - start).count();;
+    
+    if (verbose >= 1) {
+        if (iter > maxit) {
+            std::cout << TAG_WARN << "#" << iter << "\t| \033[91mSolution not found\033[0m: df/f = " 
                   << dfof << " > toldf = " << toldf << ", and r/r0 = " << ror0 << " > tolr = " << tolr << "\n";
+        }
+        std::cout << TAG_EXEC << "Done in " << solvetime << " s.\n";
     }
     
     return iter;
@@ -722,7 +731,7 @@ void UsadelSystem::saveField(const std::string& filename, const char* sep, const
     writeTimestamp(ofs, "%% "); // Apply a timestamp at the beginning.
     
     ofs << "%% Parameters: name=" << name << ", Npoint=" << npoint << ", h/lscat=" << holscat << ", h/labso=" << holabso 
-        << ", Na=" << Na << ", Nb=" << Nb << ", Tval=" << tval << ", rho=" << rho << "\n"
+        << ", Na=" << Na << ", Nb=" << Nb << ", Tval=" << tval << ", rho=" << rho << ", solvetime=" << solvetime << " s.\n"
         << "x" << sep << "y" << sep << "north" << sep << "south" << sep << "east" << sep << "west" << sep 
         << "thetare" << sep << "thetaim" << sep << "etare" << sep << "etaim" << sep 
         << "q11re" << sep << "q11im" << sep << "q12re" << sep << "q12im" << sep << "q21re" << sep << "q21im" << sep 

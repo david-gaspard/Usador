@@ -127,9 +127,12 @@ def plot_map(args):
     if (mode == "log"):
         matrix = np.log10(matrix)
     
-    cmap = mplt.cm.turbo ## Use 'turbo' colormap (recommended).
-    #cmap = mplt.cm.jet ## Use 'jet' colormap.
-    #cmap = SUNSET_CMAP  ## Use custom 'sunset' colormap.
+    cmap_base = mplt.cm.turbo  ## Use 'turbo' colormap (recommended).
+    #cmap_base = mplt.cm.jet ## Use 'jet' colormap.
+    #cmap_base = SUNSET_CMAP  ## Use custom 'sunset' colormap.
+    cmap_color_list = [c for c in cmap_base.colors] ## Extrac the colors to resample the colormap.
+    cmap_nodes = np.linspace(0., 1., len(cmap_color_list))
+    cmap = mcol.LinearSegmentedColormap.from_list("turbo_resampled", list(zip(cmap_nodes, cmap_color_list)), N=1024)
     #mplt.imshow(matrix, cmap=cmap)  ## Show the plot in live (optional).
     #mplt.colorbar()
     #mplt.show()
@@ -147,15 +150,15 @@ def plot_map(args):
     
     vmax = matrix.max()
     
-    vmin = 0.001742055313524725 ## Override the pair vmin/vmax with the values from the wave simulations (see Waffle).
-    vmax = 5.468474928290458
+    #vmin = 0 ## Override the pair vmin/vmax with the values from the wave simulations (see Waffle).
+    #vmax = (25./9) * (11./5)
     
     norm = mcol.Normalize(vmin=vmin, vmax=vmax)
     image = cmap(norm(matrix)) ## Create the bitmap image.
     ##print(ct.TAG_INFO + "vmin = ", vmin, ", vmax = ", vmax)
     
     ##pre, ext = os.path.splitext(field_file)
-    bitmap_file = file_path + "_map.png"
+    bitmap_file = file_path + ".png"
     mplt.imsave(bitmap_file, image)  ## Save the raw pixel-constrained bitmap to a PNG file.
     
     tikz_code = """%% Generated on {timestamp} by {my_program} {my_copyright}
@@ -176,8 +179,11 @@ def plot_map(args):
     colorbar, %% Enable colorbar.
     point meta min={vmin}, %% Set colorbar range.
     point meta max={vmax},
-    enlargelimits=true, %% Allow for larger view.
     axis equal image, %% Unit aspect ratio.
+    axis line style={{draw=none}}, %% Hide axes.
+    tick align=outside,
+    enlargelimits={{abs=0.5pt}},
+    clip=false, %% Disable axis clipping.
 ]%
 \\addplot graphics[xmin={xmin}, xmax={xmax}, ymin={ymin}, ymax={ymax}]{{{bitmap_file}}};
 {boundary_code}
@@ -200,7 +206,7 @@ def plot_map(args):
         xmax   = xmax+0.5,
         ymin   = ymin-0.5,
         ymax   = ymax+0.5,
-        bitmap_file = "\\jobname_map.png"
+        bitmap_file = "\\jobname.png"
     )
     
     ## Export the TikZ code to a file and compile it:

@@ -27,8 +27,13 @@ static const dcomplex I  = dcomplex(0.0, 1.0);  // Define the imaginary unit.
 
 // Physical constants:
 static const int    DIMENSION  = 2;      // Number of spatial dimensions of the mesh, which is always equal to 2 in the present program.
+
 static const double EXTRAPOLEN = PI/4.;  // Diffusive extrapolation length in 2D. Exact: 0.818309886184. Std approx: V_d/(2*V_(d-1)) = pi/4 = 0.785398163397.
 static const double DEXTPOL = PI/2.;     // Dimension times the diffusive extrapolation length. Value of S_d/(2*V_(d-1)) used in the generating function of rho(T).
+
+//static const double EXTRAPOLEN = 0.818309886184;  // Diffusive extrapolation length in 2D. Exact: 0.818309886184. Std approx: V_d/(2*V_(d-1)) = pi/4 = 0.785398163397.
+//static const double DEXTPOL = DIMENSION*EXTRAPOLEN; // Dimension times the diffusive extrapolation length. Value of S_d/(2*V_(d-1)) used in the generating function of rho(T).
+
 static const double RHOMIN = 1.0e-3;     // Roughly the minimum value of the transmission eigenvalue density rho(T) that the program is able to resolve. 
                                          // Smaller values of rho(T) are likely due to the gap and should be considered as zeros.
 
