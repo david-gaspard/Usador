@@ -128,11 +128,14 @@ def plot_map(args):
         matrix = np.log10(matrix)
     
     cmap_base = mplt.cm.turbo  ## Use 'turbo' colormap (recommended).
+    #cmap = mplt.cm.get_cmap('turbo', 1024)  ## Use discretized 'turbo'.
     #cmap_base = mplt.cm.jet ## Use 'jet' colormap.
+    #cmap = mplt.cm.get_cmap('Greys', 30) ## Use grayscale colormap.
     #cmap_base = SUNSET_CMAP  ## Use custom 'sunset' colormap.
     cmap_color_list = [c for c in cmap_base.colors] ## Extrac the colors to resample the colormap.
     cmap_nodes = np.linspace(0., 1., len(cmap_color_list))
     cmap = mcol.LinearSegmentedColormap.from_list("turbo_resampled", list(zip(cmap_nodes, cmap_color_list)), N=1024)
+    #cmap = cmap_base
     #mplt.imshow(matrix, cmap=cmap)  ## Show the plot in live (optional).
     #mplt.colorbar()
     #mplt.show()
@@ -151,7 +154,7 @@ def plot_map(args):
     vmax = matrix.max()
     
     #vmin = 0 ## Override the pair vmin/vmax with the values from the wave simulations (see Waffle).
-    #vmax = (25./9) * (11./5)
+    #vmax = +1.4
     
     norm = mcol.Normalize(vmin=vmin, vmax=vmax)
     image = cmap(norm(matrix)) ## Create the bitmap image.
