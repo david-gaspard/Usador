@@ -1422,15 +1422,16 @@ int main(int argc, char** argv) {
     //SquareMesh mesh("model/slab-remission_152x452.png");
     //SquareMesh mesh("model/maze_lossless_112x80.png");
     //SquareMesh mesh("model/maze_abso_112x81.png");
-    SquareMesh mesh("model/random-cavity-4-leads-1_600x385.png");
+    //SquareMesh mesh("model/random-cavity-4-leads-1_600x385.png");
+    SquareMesh mesh("model/atomium-simple-2_150x155.png");
     
-    dscat = 20.;  // Scattering depth, L/lscat.
+    dscat = 10.;  // Scattering depth, L/lscat.
     dabso = 0.;   // Absorption depth, L/labso.
     
-    const std::string sysname = "random-cavity-4-leads-1_600x385/dscat_" + to_string_prec(dscat, 6);
+    const std::string sysname = "atomium-simple-2_150x155/dscat_" + to_string_prec(dscat, 6);
     
-    holscat = dscat/600;
-    holabso = dabso/600;
+    holscat = dscat/150;
+    holabso = dabso/150;
     
     UsadelSystem usys(sysname, mesh, holscat, holabso, 0.99);
     
