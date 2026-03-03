@@ -1423,15 +1423,19 @@ int main(int argc, char** argv) {
     //SquareMesh mesh("model/maze_lossless_112x80.png");
     //SquareMesh mesh("model/maze_abso_112x81.png");
     //SquareMesh mesh("model/random-cavity-4-leads-1_600x385.png");
-    SquareMesh mesh("model/atomium-simple-2_150x155.png");
+    //SquareMesh mesh("model/atomium-simple-2_150x155.png");
+    //SquareMesh mesh("model/square-3_152x152.png");
+    //SquareMesh mesh("model/key-2_108x142.png");
+    //SquareMesh mesh("model/cavity-trap-10_52x150.png");
+    SquareMesh mesh("model/guide-annular-reservoir-1_107x210.png");
     
     dscat = 10.;  // Scattering depth, L/lscat.
     dabso = 0.;   // Absorption depth, L/labso.
     
-    const std::string sysname = "atomium-simple-2_150x155/dscat_" + to_string_prec(dscat, 6);
+    const std::string sysname = "guide-annular-reservoir-1_107x210/dscat_" + to_string_prec(dscat, 6);
     
-    holscat = dscat/150;
-    holabso = dabso/150;
+    holscat = dscat/100;
+    holabso = dabso/100;
     
     UsadelSystem usys(sysname, mesh, holscat, holabso, 0.99);
     
@@ -1439,13 +1443,13 @@ int main(int argc, char** argv) {
     
     computeFields(usys); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
     
-    //tmin = 0.;  // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    //tmin = 0.05;  // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
     //tmax = 1.;  // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
     //ntval = 256;  // Number of samples for the transmission eigenvalue. Typically: 64.
     //computeDistributionSerial(usys, tmin, tmax, ntval); // Compute the transmission eigenvalue distribution rho(T) by scanning in T.
     
     //tmin = 0.;    // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    //tmax = 0.1;    // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    //tmax = 1.;    // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
     //ntval = 80;   // Number of samples for the transmission eigenvalue. Typically: 4*nthread for quick plots.
     //nthread = 10; // Number of execution threads for OpenMP (typically the number of CPU cores).
     //computeDistributionOMP(usys, tmin, tmax, ntval, nthread); // Compute the transmission eigenvalue distribution rho(T). Parallelized version.
