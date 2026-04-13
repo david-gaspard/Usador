@@ -1144,10 +1144,14 @@ void computeFields(UsadelSystem& usys) {
     
     std::cout << TAG_INFO << "Computing fields from UsadelSystem with name=" << usys.getName() << ", Npoint=" << usys.getNPoint() << ", h/lscat=" << usys.getHolscat() << ", h/labso=" << usys.getHolabso() << ", Tval=" << usys.getTransmission() << ", maxit=" << maxit << ".\n";
     
-    //usys.setTransmission(0.2);
+    //usys.setTransmission(0.055);
     usys.initConstant();                                 // Initialize the UsadelSystem using the currently best ansatz (constants).
     usys.solveNewton(maxit, nsub, toldf, tolr, verbose);  // Solve the Usadel equation using the Newton-Raphson method.
     //usys.setTransmission(0.1);
+    //usys.solveNewton(maxit, nsub, toldf, tolr, verbose);
+    //usys.setTransmission(0.13);
+    //usys.solveNewton(maxit, nsub, toldf, tolr, verbose);
+    //usys.setTransmission(0.135);
     //usys.solveNewton(maxit, nsub, toldf, tolr, verbose);
     
     // Save the data and plot:
@@ -1420,6 +1424,7 @@ int main(int argc, char** argv) {
     //SquareMesh mesh("model/slab-tm-ar3-div15-in45-out5_152x452.png"); // Currently standard slab.
     //SquareMesh mesh("model/shrinking-guide_302x500.png");
     //SquareMesh mesh("model/slab-remission_152x452.png");
+    //SquareMesh mesh("model/slab-tm-ar3-div15-in21-out21_152x452.png");
     //SquareMesh mesh("model/maze_lossless_112x80.png");
     //SquareMesh mesh("model/maze_abso_112x81.png");
     //SquareMesh mesh("model/random-cavity-4-leads-1_600x385.png");
@@ -1427,29 +1432,47 @@ int main(int argc, char** argv) {
     //SquareMesh mesh("model/square-3_152x152.png");
     //SquareMesh mesh("model/key-2_108x142.png");
     //SquareMesh mesh("model/cavity-trap-10_52x150.png");
-    SquareMesh mesh("model/guide-annular-reservoir-1_107x210.png");
+    //SquareMesh mesh("model/guide-annular-reservoir-1_107x210.png");
+    //SquareMesh mesh("model/guide-2-bars_122x90.png");
+    //SquareMesh mesh("model/guide-3-bars-1_152x90.png");
+    //SquareMesh mesh("model/guide-3-bars-2_182x105.png");
+    //SquareMesh mesh("model/guide-3-bars-3_151x120.png");
+    //SquareMesh mesh("model/guide-4-bars-a_182x60.png");
+    //SquareMesh mesh("model/guide-2-branch-a1_182x90.png");
+    //SquareMesh mesh("model/guide-2-branch-a2_182x90.png");
+    //SquareMesh mesh("model/guide-2-branch-a3_182x90.png");
+    //SquareMesh mesh("model/guide-2-branch-b3_182x90.png");
+    //SquareMesh mesh("model/guide-2-branch-c3_182x90.png");
+    //SquareMesh mesh("model/guide-2-branch-d3_182x81.png");
+    //SquareMesh mesh("model/guide-2-branch-d2_182x81.png");
+    //SquareMesh mesh("model/guide-2-branch-d1_182x80.png");
+    //SquareMesh mesh("model/guide-2-branch-e4_142x70.png");
+    //SquareMesh mesh("model/guide-2-branch-e1_162x80.png");
+    //SquareMesh mesh("model/guide-2-branch-e2_162x81.png");
+    //SquareMesh mesh("model/guide-2-branch-e3_162x81.png");
+    SquareMesh mesh("model/guide-2-branch-e3_322x161.png");
     
-    dscat = 10.;  // Scattering depth, L/lscat.
-    dabso = 0.;   // Absorption depth, L/labso.
+    dscat = 10.;   // Scattering depth, L/lscat.
+    dabso = 0.;  // Absorption depth, L/labso.
     
-    const std::string sysname = "guide-annular-reservoir-1_107x210/dscat_" + to_string_prec(dscat, 6);
+    const std::string sysname = "guide-2-branch-e3_322x161/dscat_" + to_string_prec(dscat, 6) + "/dabso_" + to_string_prec(dabso, 6);
     
-    holscat = dscat/100;
-    holabso = dabso/100;
+    holscat = dscat/320;
+    holabso = dabso/320;
     
-    UsadelSystem usys(sysname, mesh, holscat, holabso, 0.99);
+    UsadelSystem usys(sysname, mesh, holscat, holabso, 0.70);
     
     //plotMesh(usys);  // Plot the mesh only to check it is as expected.
     
     computeFields(usys); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
     
-    //tmin = 0.05;  // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    //tmin = 0.50;  // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
     //tmax = 1.;  // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    //ntval = 256;  // Number of samples for the transmission eigenvalue. Typically: 64.
+    //ntval = 100;  // Number of samples for the transmission eigenvalue. Typically: 64.
     //computeDistributionSerial(usys, tmin, tmax, ntval); // Compute the transmission eigenvalue distribution rho(T) by scanning in T.
     
     //tmin = 0.;    // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    //tmax = 1.;    // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    //tmax = 0.10;    // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
     //ntval = 80;   // Number of samples for the transmission eigenvalue. Typically: 4*nthread for quick plots.
     //nthread = 10; // Number of execution threads for OpenMP (typically the number of CPU cores).
     //computeDistributionOMP(usys, tmin, tmax, ntval, nthread); // Compute the transmission eigenvalue distribution rho(T). Parallelized version.
