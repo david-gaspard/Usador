@@ -193,7 +193,7 @@ def boundary_to_tikz_code(data):
             break
     
     ## 3. Simplify the path:
-    epsilon = 1.7  ## Tolerance of the Ramer-Douglas-Peucker algorithm (value eps=1.3 is ok). Larger is more simplification.
+    epsilon = 0.8  ## Tolerance of the Ramer-Douglas-Peucker algorithm (value eps in about [0.7, 1.7] is OK). Larger is more simplification.
     for seg in segments:
         seg_simple = simplify_path_rdp(seg[1], epsilon)
         ##print("[INFO] Simplification ", seg[1].shape[0], " -> ", seg_simple.shape[0])

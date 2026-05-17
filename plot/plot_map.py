@@ -248,6 +248,8 @@ def plot_map(args):
     if (vrange == "auto"):
         vmin = array.min() ## If "auto" mode, then extract the depth range of the field [vmin, vmax].
         vmax = array.max()
+        if (mode == "lin" and column_name in ["Ia", "Ib"]):
+            vmin = 0. ## If the scale is linear and the quantity is positive, then starts from zero.
     elif (":" in vrange):
         vmin, vmax = sorted(list(map(eval, vrange.split(":"))))
     else:

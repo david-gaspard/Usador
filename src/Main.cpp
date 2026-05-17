@@ -1450,29 +1450,89 @@ int main(int argc, char** argv) {
     //SquareMesh mesh("model/guide-2-branch-e1_162x80.png");
     //SquareMesh mesh("model/guide-2-branch-e2_162x81.png");
     //SquareMesh mesh("model/guide-2-branch-e3_162x81.png");
-    SquareMesh mesh("model/guide-2-branch-e3_322x161.png");
+    //SquareMesh mesh("model/guide-2-branch-e3_322x161.png");
+    //SquareMesh mesh("model/slab-tm-ar3-div15-in15-out5_152x452.png");
+    //SquareMesh mesh("model/double-abso-1_106x64.png");
+    //SquareMesh mesh("model/maze-1_106x56.png");
+    //SquareMesh mesh("model/maze-2-abso_106x65.png");
+    //SquareMesh mesh("model/maze-3-abso_106x72.png");
+    //SquareMesh mesh("model/maze-5-abso_106x65.png");
+    //SquareMesh mesh("model/maze-7-abso_106x65.png");
+    //SquareMesh mesh("model/maze-9-abso_106x65.png"); // <- Separation in lobes ??
+    //SquareMesh mesh("model/maze-11-abso_106x65.png");
+    //SquareMesh mesh("model/maze-12-abso_106x65.png"); // <- Separation is improved by enlarging the input/output.
+    //SquareMesh mesh("model/maze-15-abso_106x65.png");
+    //SquareMesh mesh("model/maze-16-abso_122x81.png"); // <- Simpler geometry (smaller input/output).
+    //SquareMesh mesh("model/maze-17-abso_122x81.png"); // <- With smaller absorber, the gap is less visible.
+    //SquareMesh mesh("model/maze-18-abso_122x81.png");
+    //SquareMesh mesh("model/maze-19-abso_116x115.png"); // <- Deeper gap by lengthening the long arm.
+    //SquareMesh mesh("model/maze-22-abso_116x121.png");
+    //SquareMesh mesh("model/maze-24-abso_116x127.png");
+    //SquareMesh mesh("model/maze-26-abso_116x126.png");
+    //SquareMesh mesh("model/maze-28-abso_152x168.png");
+    //SquareMesh mesh("model/maze-29-abso_152x78.png"); // <- More separate arms to get rho(T) peaks of the same height.
+    //SquareMesh mesh("model/maze-30-abso_152x78.png"); // <- Larger absorber increase the size and depth of the gap.
+    //SquareMesh mesh("model/maze-31-abso_154x80.png");
+    //SquareMesh mesh("model/maze-32-abso_154x120.png");
+    //SquareMesh mesh("model/maze-33-abso_154x88.png");
+    //SquareMesh mesh("model/maze-34-abso_138x88.png");
+    //SquareMesh mesh("model/maze-35-abso_138x88.png");
+    //SquareMesh mesh("model/maze-36-abso_138x88.png");
+    //SquareMesh mesh("model/maze-37-abso_138x88.png");
+    //SquareMesh mesh("model/maze-38-abso_138x88.png");
+    //SquareMesh mesh("model/maze-39-abso_138x88.png");
+    //SquareMesh mesh("model/maze-40-abso_138x88.png"); // <- Best (T1=0.86, T2=0.98, neat decoupling of T eigstates, deep gap).
+    //SquareMesh mesh("model/maze-40_138x72.png"); // <- Corresponding non-absorbing case.
+    //SquareMesh mesh("model/maze-41-abso_138x88.png");
+    //SquareMesh mesh("model/maze-42-abso_138x104.png");
+    //SquareMesh mesh("model/maze-43-abso_138x80.png");
+    //SquareMesh mesh("model/maze-44-abso_138x73.png"); 
+    //SquareMesh mesh("model/maze-45-abso_138x73.png");  // <- Best with 3 zigzags (prepare figure).
+    //SquareMesh mesh("model/maze-45_138x64.png");  // <- Corresponding non-absorbing case (prepare figure).
+    //SquareMesh mesh("model/maze-46-abso_138x73.png"); 
+    //SquareMesh mesh("model/maze-47-abso_104x175.png"); // Very long diffusive arm (very deep gap).
+    //SquareMesh mesh("model/maze-49-abso_80x175.png");
+    //SquareMesh mesh("model/maze-50-abso_140x67.png");
+    //SquareMesh mesh("model/maze-52-abso_137x66.png");
+    //SquareMesh mesh("model/cavity-1_87x45.png"); // Test for Matthieu's RF cavity.
+    //SquareMesh mesh("model/cavity-1-guide_87x45.png");
+    //SquareMesh mesh("model/maze-52-abso_218x105.png"); // <- Best circuit with 5 zigzags (prepare figure).
+    //SquareMesh mesh("model/maze-56-abso_112x81.png"); 
+    //SquareMesh mesh("model/maze-abso-0_112x70.png"); 
+    //SquareMesh mesh("model/maze-abso-3_112x81.png");
+    //SquareMesh mesh("model/maze-abso-thick-input-4_142x81.png"); 
+    //SquareMesh mesh("model/maze-abso-thick-output-4_142x81.png"); 
+    //SquareMesh mesh("model/maze-abso-size-output-2_112x81.png"); 
+    //SquareMesh mesh("model/waveguide-size-input-20_102x100.png");
+    //SquareMesh mesh("model/waveguide-size-inout-20_102x100.png");
+    //SquareMesh mesh("model/maze-closed_112x81.png"); 
+    //SquareMesh mesh("model/maze-simple-abso-2_112x81.png"); 
+    SquareMesh mesh("model/maze-tiny-1_82x121.png"); 
     
-    dscat = 10.;   // Scattering depth, L/lscat.
+    dscat = 8.;  // Scattering depth, L/lscat.
     dabso = 0.;  // Absorption depth, L/labso.
     
-    const std::string sysname = "guide-2-branch-e3_322x161/dscat_" + to_string_prec(dscat, 6) + "/dabso_" + to_string_prec(dabso, 6);
+    const std::string sysname = "maze-tiny-1_82x121/dscat_" + to_string_prec(dscat, 6) + "/dabso_" + to_string_prec(dabso, 6);
     
-    holscat = dscat/320;
-    holabso = dabso/320;
+    holscat = dscat/80;
+    holabso = dabso/80;
     
-    UsadelSystem usys(sysname, mesh, holscat, holabso, 0.70);
+    UsadelSystem usys(sysname, mesh, holscat, holabso, 0.5);
     
     //plotMesh(usys);  // Plot the mesh only to check it is as expected.
     
+    //usys.setTransmission(0.76);
+    //computeFields(usys); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
+    usys.setTransmission(0.98);
     computeFields(usys); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
     
-    //tmin = 0.50;  // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    //tmax = 1.;  // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    //ntval = 100;  // Number of samples for the transmission eigenvalue. Typically: 64.
+    //tmin = 0.50;   // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    //tmax = 1.;     // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    //ntval = 300;   // Number of samples for the transmission eigenvalue. Typically in [100, 1000].
     //computeDistributionSerial(usys, tmin, tmax, ntval); // Compute the transmission eigenvalue distribution rho(T) by scanning in T.
     
     //tmin = 0.;    // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    //tmax = 0.10;    // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    //tmax = 1.0;    // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
     //ntval = 80;   // Number of samples for the transmission eigenvalue. Typically: 4*nthread for quick plots.
     //nthread = 10; // Number of execution threads for OpenMP (typically the number of CPU cores).
     //computeDistributionOMP(usys, tmin, tmax, ntval, nthread); // Compute the transmission eigenvalue distribution rho(T). Parallelized version.
