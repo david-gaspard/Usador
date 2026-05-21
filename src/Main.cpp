@@ -1507,27 +1507,29 @@ int main(int argc, char** argv) {
     //SquareMesh mesh("model/waveguide-size-inout-20_102x100.png");
     //SquareMesh mesh("model/maze-closed_112x81.png"); 
     //SquareMesh mesh("model/maze-simple-abso-2_112x81.png"); 
-    SquareMesh mesh("model/maze-tiny-1_82x121.png"); 
+    //SquareMesh mesh("model/maze-tiny-1_82x121.png"); 
+    //SquareMesh mesh("model/maze-abso-3-closed_112x81.png"); 
+    SquareMesh mesh("model/maze-abso-10-closed_112x81.png"); 
     
-    dscat = 8.;  // Scattering depth, L/lscat.
+    dscat = 5.;  // Scattering depth, L/lscat.
     dabso = 0.;  // Absorption depth, L/labso.
     
-    const std::string sysname = "maze-tiny-1_82x121/dscat_" + to_string_prec(dscat, 6) + "/dabso_" + to_string_prec(dabso, 6);
+    const std::string sysname = "maze-abso-10-closed_112x81/dscat_" + to_string_prec(dscat, 6) + "/dabso_" + to_string_prec(dabso, 6);
     
-    holscat = dscat/80;
-    holabso = dabso/80;
+    holscat = dscat/110;
+    holabso = dabso/110;
     
     UsadelSystem usys(sysname, mesh, holscat, holabso, 0.5);
     
     //plotMesh(usys);  // Plot the mesh only to check it is as expected.
     
-    //usys.setTransmission(0.76);
+    //usys.setTransmission(0.80);
     //computeFields(usys); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
-    usys.setTransmission(0.98);
+    usys.setTransmission(0.999);
     computeFields(usys); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
     
     //tmin = 0.50;   // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    //tmax = 1.;     // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    //tmax = 0.;     // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
     //ntval = 300;   // Number of samples for the transmission eigenvalue. Typically in [100, 1000].
     //computeDistributionSerial(usys, tmin, tmax, ntval); // Compute the transmission eigenvalue distribution rho(T) by scanning in T.
     

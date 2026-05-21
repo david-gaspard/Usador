@@ -133,8 +133,38 @@ def array_from_file(field_file, column_name):
     
     return (array, xmin, xmax, ymin, ymax, data, data_header)
 
+def contours_code(array, xmin, xmax, ymin, ymax, vmin, vmax, ncontour):
+    """
+    Return the TikZ code to plot a given number of contours of the function represented by the two-dimensional array "array".
+    To disable this functionality, simply put ncontour=0.
+    """
+    if (ncontour <= 0):  ## Skip the calculation when zero contours are requested.
+        return ""
+    
+    ## Calculate the contours:
+    (ny, nx) = array.shape
+    xmesh = np.linspace(xmin, xmax, num=nx)
+    ymesh = np.linspace(ymax, ymin, num=ny)  ## Note the vertical flip.
+    dv = (vmax - vmin)/ncontour
+    vmesh = np.linspace(vmin + dv/2., vmax - dv/2., num=ncontour)  ## Exclude end points.
+    cs = mplt.contour(xmesh, ymesh, array, vmesh)
+    
+    ## Convert to TikZ code:
+    tikzcode = "%% Contour lines (ncontour=" + str(ncontour) + "):"
+    for ic in range(len(cs.collections)):  ## Loop on the contours.
+        paths = cs.collections[ic].get_paths()
+        for ipath in range(len(paths)): ## Loop on paths inside the present contour line.
+            p = paths[ipath].vertices
+            tikzcode += "\n\\addplot[contour line] coordinates {%% Contour #" + str(ic) + ", path #" + str(ipath)
+            for ip in range(p.shape[0]):  ## Loop on the points of the contour.
+                if (ip%5 == 0):
+                    tikzcode += "\n\t"
+                tikzcode += "({x}, {y}) ".format(x=p[ip, 0], y=p[ip, 1])
+            tikzcode += "\n};"
+    
+    return tikzcode
 
-def array_to_tikz(array, xmin, xmax, ymin, ymax, vmin, vmax, unit_length, data, data_header, mode, args, file_path):
+def array_to_tikz(array, xmin, xmax, ymin, ymax, vmin, vmax, ncontour, unit_length, data, data_header, mode, args, file_path):
     """
     Create a bitmap and a TikZ file importing this bitmap to plot the data.
     This function calls an external script to compile the TikZ file.
@@ -163,6 +193,7 @@ def array_to_tikz(array, xmin, xmax, ymin, ymax, vmin, vmax, unit_length, data, 
         width=0.9\\textwidth,
         {colorbar_string}
     }},
+    contour line/.style={{black, thin, opacity=0.3, smooth}},
     {boundary_style},
 ]%
 \\begin{{axis}}[%
@@ -181,6 +212,7 @@ def array_to_tikz(array, xmin, xmax, ymin, ymax, vmin, vmax, unit_length, data, 
     clip=false, %% Disable axis clipping.
 ]%
 \\addplot graphics[xmin={xmin}, xmax={xmax}, ymin={ymin}, ymax={ymax}]{{{bitmap_file}}};
+{contours_code}
 {boundary_code}
 \\end{{axis}}%
 \end{{tikzpicture}}%""".format(#
@@ -193,6 +225,7 @@ def array_to_tikz(array, xmin, xmax, ymin, ymax, vmin, vmax, unit_length, data, 
         ylabel = "$y/\\ell$",
         unit_length = unit_length,
         colorbar_string = colormap_to_tikz_code(cmap, 41, mode),
+        contours_code = contours_code(array, xmin, xmax, ymin, ymax, vmin, vmax, ncontour),
         boundary_style = plot_mesh.BOUNDARY_STYLE,
         boundary_code = plot_mesh.boundary_to_tikz_code(data),
         vmin   = vmin,
@@ -230,6 +263,8 @@ def plot_map(args):
     field_file  = args[5]  ## File containing the field.
     file_path = os.path.splitext(field_file)[0] + "_" + column_name  ## The file path will be used to write new files.
     
+    ncontour = 15  ## Default number of contours.
+    
     ## Check for possible invalid arguments:
     if (mode != "lin" and mode != "log"):
         print(ct.TAG_ERROR + "Invalid scale mode '" + mode + "', expected 'lin' or 'log', aborting...")
@@ -257,7 +292,7 @@ def plot_map(args):
         return 1
     
     ## Plot the array using a bitmap imported in TikZ:
-    array_to_tikz(array, xmin, xmax, ymin, ymax, vmin, vmax, unit_length, data, data_header, mode, args, file_path)
+    array_to_tikz(array, xmin, xmax, ymin, ymax, vmin, vmax, ncontour, unit_length, data, data_header, mode, args, file_path)
     return 0
 
 if (__name__ == '__main__'):
