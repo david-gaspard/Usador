@@ -784,3 +784,23 @@ void UsadelSystem::savePlot(const std::string& path) const {
         std::cout << TAG_WARN << "The plot script returned an error.\n";
     }
 }
+
+/**
+ * Plot the mesh.
+ */
+void UsadelSystem::plotMesh() const {
+    
+    std::stringstream path;
+    path << "out/" << name << "/mesh/mesh_";
+    std::string filename_mesh;
+    
+    uniqueFilename(path.str(), ".csv", filename_mesh);  // Create a unique filename. The result is of the form "<path><number><suffix>".
+    std::cout << TAG_INFO << "Saving mesh to file: '" << filename_mesh << "'...\n";
+    mesh->saveMesh(filename_mesh, ", ");
+    
+    std::string cmd("plot/plot_mesh.py " + filename_mesh);
+    std::cout << TAG_EXEC << cmd << "\n";
+    if (std::system(cmd.c_str())) {
+        std::cout << TAG_WARN << "The plot script returned an error.\n";
+    }
+}

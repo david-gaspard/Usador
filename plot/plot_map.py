@@ -263,7 +263,7 @@ def plot_map(args):
     field_file  = args[5]  ## File containing the field.
     file_path = os.path.splitext(field_file)[0] + "_" + column_name  ## The file path will be used to write new files.
     
-    ncontour = 15  ## Default number of contours.
+    ncontour = 15  ## Default number of contours (ncontour=0 to disable).
     
     ## Check for possible invalid arguments:
     if (mode != "lin" and mode != "log"):

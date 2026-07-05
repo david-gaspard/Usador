@@ -1102,27 +1102,6 @@ UsadelSystem createFiniteSlabDoubleRemission() {
  *****************************************************************************/
 
 /**
- * Save the mesh in a file and call an external script to plot it.
- * This function is useful to test a mesh before running a simulation.
- */
-void plotMesh(UsadelSystem& usys) {
-    
-    std::stringstream path;
-    path << "out/" << usys.getName() << "/mesh/mesh_";
-    std::string filename_mesh;
-    
-    uniqueFilename(path.str(), ".csv", filename_mesh);  // Create a unique filename. The result is of the form "<path><number><suffix>".
-    std::cout << TAG_INFO << "Saving mesh to file: '" << filename_mesh << "'...\n";
-    usys.saveMesh(filename_mesh, ", ");
-    
-    std::string cmd("plot/plot_mesh.py " + filename_mesh);
-    std::cout << TAG_EXEC << cmd << "\n";
-    if (std::system(cmd.c_str())) {
-        std::cout << TAG_WARN << "The plot script returned an error.\n";
-    }
-}
-
-/**
  * Compute the fields for a specific value of the transmission eigenvalue "tval".
  * Note that here the "fields" include:
  *    (1) the points (x, y) and the boundary conditions (north, south, east, west),
@@ -1356,6 +1335,65 @@ void computeDistributionOMP(UsadelSystem& usys, const double tmin, const double 
     delete[] rhodata;
 }
 
+/******************************************************************************
+ * SIMULATE SPECIFIC GEOMETRIES
+ *****************************************************************************/
+
+/**
+ * Compute the transmission eigenvalue distribution for cavity of given aperture.
+ * length = Longitudinal length of the cavity (in meter).
+ * width  = Transverse width of the cavity (in meter).
+ * h      = Spatial step of the mesh (in meter).
+ * dscat  = Scattering thickness of the cavity, L/l_scat.
+ * dabso  = Absorption thickness of the cavity, L/l_abso.
+ * aper   = Fraction of spatial aperture at the input and output.
+ */
+void simuCavity(const double length, const double width, const double h, const double dscat, const double dabso, const double aper) {
+    
+    // 1. Check for possible errors:
+    const int nx = static_cast<int>(std::round(length/h));
+    const int ny = static_cast<int>(std::round(width/h));
+    if (nx <= 1 || ny <= 1) {
+        std::string msg = "In simuCavity(): Too small cavity size, received nx=" + std::to_string(nx) 
+                        + ", ny=" + std::to_string(ny) + ", due to length=" + std::to_string(length) + ", width=" + std::to_string(width)
+                        + ", and h=" + std::to_string(h) + ". Please increase width and length.";
+        throw std::invalid_argument(msg);
+    }
+    else if (aper < 0. || aper > 1.) {
+        std::string msg = "In simuCavity(): Invalid aperture " + std::to_string(aper) + ", expected in [0, 1].";
+        throw std::invalid_argument(msg);
+    }
+    
+    // 2. Simulate the cavity:
+    const double holscat = dscat/nx;
+    const double holabso = dabso/nx;
+    
+    // Prepare the mesh:
+    SquareMesh mesh;
+    
+    const int ymin_aper = static_cast<int>(std::round((1. - aper) * width/(2.*h)));
+    const int ymax_aper = static_cast<int>(std::round((1. + aper) * width/(2.*h)));
+    
+    mesh.addRectangle(1, nx, 1, ny, BND_MIRROR);
+    mesh.setBoundaryRectangle(1, 1, ymin_aper, ymax_aper, DIR_WEST, BND_INPUT);
+    mesh.setBoundaryRectangle(nx, nx, ymin_aper, ymax_aper, DIR_EAST, BND_OUTPUT);
+    mesh.finalize();
+    
+    // Initialize the Usadel system:
+    std::string sysname = "cavity_" + std::to_string(nx) + "x" + std::to_string(ny) + "/dscat_" + to_string_prec(dscat, 6) 
+                        + "/dabso_" + to_string_prec(dabso, 6) + "/aper_" + to_string_prec(aper, 6);
+    
+    UsadelSystem usys(sysname, mesh, holscat, holabso, 0.5);
+    
+    //usys.plotMesh();
+    
+    // Compute the distribution:
+    const double tmin = 0.001;   // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    const double tmax = 1.;     // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    const int ntval = 250;   // Number of samples for the transmission eigenvalue. Typically in [100, 1000].
+    computeDistributionSerial(usys, tmin, tmax, ntval); // Compute the transmission eigenvalue distribution rho(T) by scanning in T.
+}
+
 /**
  * Main function of the Usador program.
  */
@@ -1363,43 +1401,20 @@ int main(int argc, char** argv) {
     
     std::cout << "****** This is " << PROGRAM_COPYRIGHT << " ******\n";
     
-    //UsadelSystem usys = createWaveguide();
-    //UsadelSystem usys = createAsymmetricWaveguide1();
-    //UsadelSystem usys = createAsymmetricWaveguide2();
-    //UsadelSystem usys = createWaveguideOpenSides1();
-    //UsadelSystem usys = createWaveguideOpenSides2();
-    //UsadelSystem usys = createWaveguideAbsorbers1();
-    //UsadelSystem usys = createWaveguideAbsorbers2();
-    //UsadelSystem usys = createDoubleWaveguide0();
-    //UsadelSystem usys = createDoubleWaveguide1();
-    //UsadelSystem usys = createDoubleWaveguide2();
-    //UsadelSystem usys = createDoubleWaveguide3();
-    //UsadelSystem usys = createDoubleWaveguide4();
-    //UsadelSystem usys = createDoubleWaveguide5();
-    //UsadelSystem usys = createDoubleWaveguide6();
-    //UsadelSystem usys = createDoubleWaveguide7();
-    //UsadelSystem usys = createDoubleWaveguide8();
-    //UsadelSystem usys = createDoubleWaveguide9();
-    //UsadelSystem usys = createDoubleWaveguide10();
-    //UsadelSystem usys = createDoubleWaveguide11();
-    //UsadelSystem usys = createDoubleWaveguide12();
-    //UsadelSystem usys = createWaveguideObstacle1();
-    //UsadelSystem usys = createCircularDoubleWaveguide1();
-    //UsadelSystem usys = createCircularOpposite();
-    //UsadelSystem usys = createCircularCavity();
-    //UsadelSystem usys = createCircularCavityBig();
-    //UsadelSystem usys = createCircularCavityAlt();
-    //UsadelSystem usys = createCircularCavityHole();
-    //UsadelSystem usys = createEiffelTower();
-    //UsadelSystem usys = createFiniteSlabTransmission1();
-    //UsadelSystem usys = createFiniteSlabTransmission2();
-    //UsadelSystem usys = createFiniteSlabTransmission3();
-    //UsadelSystem usys = createSlabTransmission();
-    //UsadelSystem usys = createFiniteSlabRemission1();
-    //UsadelSystem usys = createFiniteSlabRemission2();
-    //UsadelSystem usys = createFiniteSlabRemission3();
-    //UsadelSystem usys = createFiniteSlabDoubleRemission();
+    // Automated simulations of cavities:
+    const double length = 0.400;  // Length of the cavity (in meter).
+    const double width = 0.252;   // Width of the cavity (in meter).
+    const double h = 0.004;       // Spatial step of the mesh (in meter).
+    const double dabso = 0.067;   // Absorption thickness, L/l_abso.
+    const double aper = 1./6;     // Aperture, i.e., fraction of the width which is coupled to the input/output.
     
+    const std::vector<double> dscat_list = {2., 10.};  // List of desired scattering thicknesses, L/l_scat.
+    
+    for (const double dscat : dscat_list) {
+        simuCavity(length, width, h, dscat, dabso, aper);
+    }
+    
+    /**
     double tmin, tmax, dscat, dabso, holscat, holabso;
     int ntval, nthread;
     
@@ -1521,7 +1536,7 @@ int main(int argc, char** argv) {
     
     UsadelSystem usys(sysname, mesh, holscat, holabso, 0.5);
     
-    //plotMesh(usys);  // Plot the mesh only to check it is as expected.
+    //usys.plotMesh();  // Plot the mesh only to check it is as expected.
     
     //usys.setTransmission(0.80);
     //computeFields(usys); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
@@ -1549,6 +1564,7 @@ int main(int argc, char** argv) {
     //computeFields(usys2); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
     //computeFields(usys3); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
     //computeFields(usys4); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
+    */
     
     return 0;
 }

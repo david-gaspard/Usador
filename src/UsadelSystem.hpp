@@ -68,6 +68,7 @@ class UsadelSystem {
     void saveMesh(const std::string& filename, const char* sep) const;
     void saveField(const std::string& filename, const char* sep, const int prec) const;
     void savePlot(const std::string& path) const;
+    void plotMesh() const;
     
     private:
     
