@@ -1401,25 +1401,26 @@ int main(int argc, char** argv) {
     
     std::cout << "****** This is " << PROGRAM_COPYRIGHT << " ******\n";
     
-    // Automated simulations of cavities:
-    const double length = 0.400;  // Length of the cavity (in meter).
-    const double width = 0.252;   // Width of the cavity (in meter).
-    const double h = 0.004;       // Spatial step of the mesh (in meter).
-    const double dabso = 0.067;   // Absorption thickness, L/l_abso.
-    const double aper = 1./6;     // Aperture, i.e., fraction of the width which is coupled to the input/output.
-    
-    const std::vector<double> dscat_list = {2., 10.};  // List of desired scattering thicknesses, L/l_scat.
-    
-    for (const double dscat : dscat_list) {
-        simuCavity(length, width, h, dscat, dabso, aper);
-    }
-    
     /**
+     * // Automated simulations of cavities:
+     * const double length = 0.400;  // Length of the cavity (in meter).
+     * const double width = 0.252;   // Width of the cavity (in meter).
+     * const double h = 0.004;       // Spatial step of the mesh (in meter).
+     * const double dabso = 0.067;   // Absorption thickness, L/l_abso.
+     * const double aper = 1./6;     // Aperture, i.e., fraction of the width which is coupled to the input/output.
+     * 
+     * const std::vector<double> dscat_list = {2., 10.};  // List of desired scattering thicknesses, L/l_scat.
+     * 
+     * for (const double dscat : dscat_list) {
+     *     simuCavity(length, width, h, dscat, dabso, aper);
+     * }
+     **/
+    
     double tmin, tmax, dscat, dabso, holscat, holabso;
     int ntval, nthread;
     
     // Constructs the mesh from a PNG file:
-    //SquareMesh mesh("model/waveguide_102x100.png");
+    SquareMesh mesh("model/waveguide_102x100.png");
     //SquareMesh mesh("model/waveguide_202x200.png"); // Currently standard waveguide.
     //SquareMesh mesh("model/slab-transmission-1_101x299.png");
     //SquareMesh mesh("model/slab-transmission-3_101x299.png");
@@ -1524,47 +1525,46 @@ int main(int argc, char** argv) {
     //SquareMesh mesh("model/maze-simple-abso-2_112x81.png"); 
     //SquareMesh mesh("model/maze-tiny-1_82x121.png"); 
     //SquareMesh mesh("model/maze-abso-3-closed_112x81.png"); 
-    SquareMesh mesh("model/maze-abso-10-closed_112x81.png"); 
+    //SquareMesh mesh("model/maze-abso-10-closed_112x81.png"); 
     
     dscat = 5.;  // Scattering depth, L/lscat.
     dabso = 0.;  // Absorption depth, L/labso.
     
-    const std::string sysname = "maze-abso-10-closed_112x81/dscat_" + to_string_prec(dscat, 6) + "/dabso_" + to_string_prec(dabso, 6);
+    const std::string sysname = "waveguide_102x100/dscat_" + to_string_prec(dscat, 6) + "/dabso_" + to_string_prec(dabso, 6);
     
-    holscat = dscat/110;
-    holabso = dabso/110;
+    holscat = dscat/100;
+    holabso = dabso/100;
     
     UsadelSystem usys(sysname, mesh, holscat, holabso, 0.5);
     
     //usys.plotMesh();  // Plot the mesh only to check it is as expected.
     
-    //usys.setTransmission(0.80);
+    //usys.setTransmission(0.99);
     //computeFields(usys); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
-    usys.setTransmission(0.999);
-    computeFields(usys); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
     
-    //tmin = 0.50;   // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    //tmax = 0.;     // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    //ntval = 300;   // Number of samples for the transmission eigenvalue. Typically in [100, 1000].
-    //computeDistributionSerial(usys, tmin, tmax, ntval); // Compute the transmission eigenvalue distribution rho(T) by scanning in T.
+    tmin = 0.001;  // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    tmax = 1.;     // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    ntval = 300;   // Number of samples for the transmission eigenvalue. Typically in [100, 1000].
+    computeDistributionSerial(usys, tmin, tmax, ntval); // Compute the transmission eigenvalue distribution rho(T) by scanning in T.
     
     //tmin = 0.;    // Minimum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
-    //tmax = 1.0;    // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
+    //tmax = 1.;    // Maximum transmission eigenvalue. Note that this value is never exactly reached due to the Chebyshev nodes.
     //ntval = 80;   // Number of samples for the transmission eigenvalue. Typically: 4*nthread for quick plots.
     //nthread = 10; // Number of execution threads for OpenMP (typically the number of CPU cores).
     //computeDistributionOMP(usys, tmin, tmax, ntval, nthread); // Compute the transmission eigenvalue distribution rho(T). Parallelized version.
     
-    //// Special waveguide:
-    //UsadelSystem usys1(sysname, mesh, holscat, holabso, 0.998);
-    //UsadelSystem usys2(sysname, mesh, holscat, holabso, 0.50);
-    //UsadelSystem usys3(sysname, mesh, holscat, holabso, 0.10);
-    //UsadelSystem usys4(sysname, mesh, holscat, holabso, 0.001);
-    //
-    //computeFields(usys1); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
-    //computeFields(usys2); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
-    //computeFields(usys3); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
-    //computeFields(usys4); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
-    */
+    /***
+     * // Special waveguide:
+     * UsadelSystem usys1(sysname, mesh, holscat, holabso, 0.998);
+     * UsadelSystem usys2(sysname, mesh, holscat, holabso, 0.50);
+     * UsadelSystem usys3(sysname, mesh, holscat, holabso, 0.10);
+     * UsadelSystem usys4(sysname, mesh, holscat, holabso, 0.001);
+     * 
+     * computeFields(usys1); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
+     * computeFields(usys2); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
+     * computeFields(usys3); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
+     * computeFields(usys4); // Compute the fields (theta, eta, and Q) and the intensity profile for the given transmission eigenvalue.
+     **/
     
     return 0;
 }
