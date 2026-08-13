@@ -17,7 +17,9 @@
 
 ## PRESENTATION
 
-Usador is a C++ 2017 program to solve the matrix diffusion equation known as the *Usadel equation*[^1] describing the coherent propagation of a wave in a two-dimensional disordered medium. The solution of this equation provides the distribution of singular values of the transmission matrix associated with the propagation of a wave between two edges of the medium. It also provides the disorder-averaged intensity profile of transmission eigenstates (also known as transmission eigenchannels).
+Usador is a C++ 2017 program to solve the matrix diffusion equation known as the *Usadel equation*[^1] describing the coherent propagation of a wave in a two-dimensional disordered medium.
+The solution of this equation provides the distribution of singular values of the transmission matrix associated with the propagation of a wave between two edges of the medium[^2].
+It also provides the disorder-averaged intensity profile of transmission eigenstates (also known as transmission eigenchannels[^3][^4]).
 The name is an acronym for *"Usadel equation Solver for Arbitrary DisOrdered Regions"*.
 
 ### Matrix diffusion equation
@@ -33,13 +35,13 @@ where
 - $\ell_{\rm a}$ is the ballistic [absorption length](https://en.wikipedia.org/wiki/Attenuation_length), which is infinite in the absence of absorption,
 - $[\mathsf{A}, \mathsf{B}] = \mathsf{A}\mathsf{B} - \mathsf{B}\mathsf{A}$ denotes the [matrix commutator](https://en.wikipedia.org/wiki/Commutator),
 - $\mathsf{\sigma}_3$ is the third [Pauli matrix](https://en.wikipedia.org/wiki/Pauli_matrices),
-- $\mathsf{Q}(\mathbf{r})$ is a 2-by-2 complex matrix field obeying the constraints $\mathsf{Q}(\mathbf{r})^2=\mathsf{1}$ and $\Tr\mathsf{Q}(\mathbf{r})=0$ at each point of space.
+- $\mathsf{Q}(\mathbf{r})$ is a 2-by-2 complex matrix field obeying the constraints $\mathsf{Q}(\mathbf{r})^2=\mathsf{1}$ and $\mathrm{Tr}\mathsf{Q}(\mathbf{r})=0$ at each point of space.
 - $\mathbf{\mathsf{J}}(\mathbf{r})$ is a $d$-vector of 2-by-2 complex matrices, which will be referred to as the matrix current.
 
 The solution of this equation for $\mathsf{Q}(\mathbf{r})$ provides the distribution of transmission eigenvalues, the intensity profile of transmission eigenstates, and other observables related to transmission eigenstates (see below).
 This equation closely resembles the standard [diffusion equation](https://en.wikipedia.org/wiki/Diffusion_equation) and this is not by chance: It is based on the same fundamental assumption that is the smallness of the mean free path compared to the system size ($\ell_{\rm t}\ll L$).
 Apart from the matrix nature of this equation, this equation is distinguished by its *nonlinearity* in $\mathsf{Q}$ which makes its solution much richer than that of the standard diffusion equation.
-Indeed, it can describe coherent effects---effects dependent on the phase of the wave---despite the large amount of scatterings.
+Indeed, it can describe coherent effects (i.e., effects dependent on the phase of the wave) despite the large amount of scatterings.
 A very similar equation is the *Usadel equation*[^1] which governs the dynamics of the electron Green's function in dirty (strongly scattering) superconductors.
 
 ### Boundary conditions
@@ -52,8 +54,8 @@ If the edge of the disordered medium is perfectly reflecting, then the normal co
 where $\mathbf{n}$ is the outward normal to the medium.
 If the edge is connected to an input or an output duct which are controlled so as to achieve transmission $T$, then the boundary conditions read
 
-<p>$$ \mathsf{Q}(\mathbf{r}_{\rm in}  + z_0\mathbf{n}) = \mathsf{Q}_{\rm in}  = \begin{pmatrix}1 & \tfrac{-2\mathrm{i}}{\sqrt{T}}\\ 0 & -1\end{pmatrix} $$</p>
-<p>$$ \mathsf{Q}(\mathbf{r}_{\rm out} + z_0\mathbf{n}) = \mathsf{Q}_{\rm out} = \begin{pmatrix}1 & 0\\ \tfrac{-2\mathrm{i}}{\sqrt{T}} & -1\end{pmatrix} $$</p>
+<p>$$ \mathsf{Q}(\mathbf{r}_{\rm in}  + z_0\mathbf{n}) = \begin{pmatrix}1 & \tfrac{-2\mathrm{i}}{\sqrt{T}}\\ 0 & -1\end{pmatrix} $$</p>
+<p>$$ \mathsf{Q}(\mathbf{r}_{\rm out} + z_0\mathbf{n}) = \begin{pmatrix}1 & 0\\ \tfrac{-2\mathrm{i}}{\sqrt{T}} & -1\end{pmatrix} $$</p>
 
 where $\mathbf{r}_{\rm in}$ and $\mathbf{r}_{\rm out}$ denote positions on the input or output edges, respectively, and $z_0=\mu\ell_{\rm t}$ is the diffusive extrapolation length, with $\mu=\frac{\pi}{4}$ in two dimensions.
 If, on the contrary, the duct is leaky or uncontrolled, leaving the wave escape freely (hence acting as an absorber), then the boundary condition is given by
@@ -105,12 +107,12 @@ In order to take into account this constraint, it is appropriate to consider the
 
 <p>$$ \mathsf{Q}(\mathbf{r}) = \sin\varphi(\mathbf{r})\cos\vartheta(\mathbf{r}) \mathsf{\sigma}_1 - \sin\vartheta(\mathbf{r}) \mathsf{\sigma}_2 + \cos\varphi(\mathbf{r}) \cos\vartheta(\mathbf{r}) \mathsf{\sigma}_3 $$</p>
 
-where $\vartheta(\mathbf{r})$ and $\varphi(\mathbf{r})$ are two complex functions which can be geometrically interpreted as angles over the spherical manifold $\mathsf{Q}(\mathbf{r})^2 = \mathsf{1}$.
+where $\vartheta(\mathbf{r})$ and $\varphi(\mathbf{r})$ are two complex functions which can be geometrically interpreted as angles over the spherical manifold $\mathsf{Q}(\mathbf{r})^2 = \mathsf{1}$, and $\mathsf{\sigma}_1,\mathsf{\sigma}_2,\mathsf{\sigma}_3$ are the three [Pauli matrices](https://en.wikipedia.org/wiki/Pauli_matrices).
 This equation is accompanied by boundary conditions at input and output edges, which read
 
-<p>$$ \vartheta(\mathbf{r}_{\rm out} + z_0\mathbf{n}) = -\vartheta(\mathbf{r}_{\rm in} + z_0\mathbf{n}) = \frac{\pi}{2} + \mathrm{i}\arccosh(\frac{1}{\sqrt{T}}) $$</p>
+<p>$$ \vartheta(\mathbf{r}_{\rm out} + z_0\mathbf{n}) = -\vartheta(\mathbf{r}_{\rm in} + z_0\mathbf{n}) = \frac{\pi}{2} + \mathrm{i}\mathrm{arccosh}(\frac{1}{\sqrt{T}}) $$</p>
 
-<p>$$ \varphi(\mathbf{r}_{\rm out} + z_0\mathbf{n}) = \varphi(\mathbf{r}_{\rm in} + z_0\mathbf{n}) = \frac{\pi}{2} - \mathrm{i}\arccosh(\frac{1}{\sqrt{1-T}}) , $$</p>
+<p>$$ \varphi(\mathbf{r}_{\rm out} + z_0\mathbf{n}) = \varphi(\mathbf{r}_{\rm in} + z_0\mathbf{n}) = \frac{\pi}{2} - \mathrm{i}\mathrm{arccosh}(\frac{1}{\sqrt{1-T}}) , $$</p>
 
 and by boundary conditions at leaky edges, which read
 
@@ -129,7 +131,7 @@ The Jacobian matrix is computed used first-order [finite difference](https://en.
 An appropriate initial guess for this algorithm is
 
 <p>$$ \vartheta^{(0)}(\mathbf{r}) = 0, \qquad
-\varphi^{(0)}(\mathbf{r}) = \frac{\pi}{2} - \mathrm{i} \arccosh\left( \frac{1}{\sqrt{1-T}} \right) $$</p>
+\varphi^{(0)}(\mathbf{r}) = \frac{\pi}{2} - \mathrm{i} \mathrm{arccosh}\left( \frac{1}{\sqrt{1-T}} \right) $$</p>
 
 which has the particularity of falling midway between the input and output boundary conditions given above.
 
@@ -222,7 +224,7 @@ The resulting data can then be saved to a CSV file and plotted with:
 const std::string filepath = "path/to/file";  // File path without extension (CSV by default).
 usys.savePlot(filepath);
 ```
-On output, the CSV file contains the position of each point of the lattice and the values of $\vartheta(\mathbf{r})$, $\varphi(\mathbf{r})$, each component of $\mathsf{Q}(\mathbf{r})$, and several observables such as the intensity of the transmission eigenstate at the given value of $T$.
+On output, the CSV file contains the position of each point of the lattice and the values of $\vartheta(\mathbf{r})$, $\varphi(\mathbf{r})$, each component of $\mathsf{Q}(\mathbf{r})$, and several observables such as $I_{T}(\mathbf{r})$, the intensity of the transmission eigenstate at the given value of $T$.
 This command also calls the Python script [`plot/plot_map.py`](plot/plot_map.py) in order to plot the field.
 More precisely, this script generates a [PGF/TikZ](https://en.wikipedia.org/wiki/PGF/TikZ) file and a PNG file, and compiles the final PDF file using LaTeX.
 By default, this script plots the intensity of the transmission eigenstate at the given value of $T$.
@@ -231,7 +233,7 @@ After solving the equation with the `solveNewton()` method, the transmission eig
 ```cpp
 double rho = usys.getRho();
 ```
-This command is called recursively in the following function in order to produce the full transmission eigenvalue distribution $\rho(T)$ (see also [`src/Main.cpp`](src/Main.cpp)):
+This command is called recursively in the following function in order to produce the full transmission eigenvalue distribution $\rho(T)$ (see [`src/Main.cpp`](src/Main.cpp)):
 ```cpp
 computeDistributionSerial(usys, tmin, tmax, ntval);
 ```
@@ -251,4 +253,4 @@ It stops automatically as soon as the algorithm fails to converge, saves the res
 [^4]: M. Davy, Z. Shi, J. Park, C. Tian, and A. Z. Genack, *Universal structure of transmission eigenchannels inside opaque media*, [Nat. Commun. **6**, 6893 (2015)](https://doi.org/10.1038/ncomms7893).
 [^5]: D. Gaspard and A. Goetschy, *Radiant Field Theory: A Transport Approach to Shaped Wave Transmission through Disordered Media*, [Phys. Rev. Lett. **135**, 033804 (2025)](https://doi.org/10.1103/g3kd-sg4x).
 [^6]: D. Gaspard and A. Goetschy, *Transmission eigenvalue distribution in disordered media from radiant field theory*, [Phys. Rev. Res. **7**, 033071 (2025)](https://doi.org/10.1103/djhy-16mh).
-[^7]: W. H. Press, S. A. Teukolsky, W. T. Vetterling, and B. P. Flannery, [*Numerical Recipes: The Art of Scientific Computing*](https://www.cambridge.org/9780521880688), (Cambridge, 2007), 3rd ed., sec. 9.7.1.
+[^7]: W. H. Press, S. A. Teukolsky, W. T. Vetterling, and B. P. Flannery, [*Numerical Recipes: The Art of Scientific Computing*](https://www.cambridge.org/9780521880688), (Cambridge University Press, 2007), 3rd ed., sec. 9.7.1.
