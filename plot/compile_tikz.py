@@ -26,6 +26,7 @@ LATEX_PREAMBLE = r"""\usepackage[utf8]{inputenc}
 \usepackage{pgfplots}
 \renewcommand{\Re}{\operatorname{Re}}
 \renewcommand{\Im}{\operatorname{Im}}
+\DeclareMathOperator{\Tr}{Tr}
 \newcommand{\D}{\mathop{}\!\mathrm{d}}
 \newcommand{\E}{\mathop{}\!\mathrm{e}}
 \newcommand{\I}{\mathrm{i}}
@@ -89,6 +90,9 @@ LATEX_PREAMBLE = r"""\usepackage[utf8]{inputenc}
         enlargelimits=false,
         mark size=1.2,
         axis on top=true,
+        unbounded coords=jump,
+        clip marker paths=true,
+        clip mode=individual,
 	},
     every axis plot/.append style={thick},
     table/col sep=comma,
